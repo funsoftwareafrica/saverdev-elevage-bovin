@@ -1,0 +1,543 @@
+// Mock data réaliste — élevage bovin d'engraissement (FCFA, Sahel)
+// Sert de données initiales pour la démo frontend (avant branchement API).
+
+import type {
+  Bovin,
+  Alimentation,
+  Depense,
+  Financement,
+  Alerte,
+  Historique,
+  Dashboard,
+} from "./types";
+
+const iso = (d: string) => new Date(d).toISOString();
+const daysAgo = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString();
+};
+
+// ---------- Bovins ----------
+export const MOCK_BOVINS: Bovin[] = [
+  {
+    id: "b1",
+    identifiant: "BOV-001",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-01-15"),
+    prixAchat: 450000,
+    poidsAchat: 280,
+    statut: "VENDU",
+    dateVente: iso("2025-05-20"),
+    prixVente: 620000,
+    coutsEngraissement: 38000,
+    autresCouts: 6000,
+    clientVente: "Boucherie Niamey",
+  },
+  {
+    id: "b2",
+    identifiant: "BOV-002",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-01-15"),
+    prixAchat: 445000,
+    poidsAchat: 275,
+    statut: "VENDU",
+    dateVente: iso("2025-06-02"),
+    prixVente: 590000,
+    coutsEngraissement: 42000,
+    autresCouts: 6000,
+    clientVente: "Restaurant Le Sahel",
+  },
+  {
+    id: "b3",
+    identifiant: "BOV-003",
+    race: "Zébu",
+    sexe: "Mâle",
+    dateAchat: iso("2025-02-03"),
+    prixAchat: 430000,
+    poidsAchat: 265,
+    statut: "VENDU",
+    dateVente: iso("2025-06-10"),
+    prixVente: 565000,
+    coutsEngraissement: 39000,
+    autresCouts: 5500,
+    clientVente: "Marché à bétail Tahoua",
+  },
+  {
+    id: "b4",
+    identifiant: "BOV-004",
+    race: "Zébu Azaouak",
+    sexe: "Mâle",
+    dateAchat: iso("2025-03-10"),
+    prixAchat: 465000,
+    poidsAchat: 290,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 28000,
+    autresCouts: 4000,
+    clientVente: null,
+  },
+  {
+    id: "b5",
+    identifiant: "BOV-005",
+    race: "Zébu Azaouak",
+    sexe: "Mâle",
+    dateAchat: iso("2025-03-10"),
+    prixAchat: 470000,
+    poidsAchat: 295,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 28000,
+    autresCouts: 4000,
+    clientVente: null,
+  },
+  {
+    id: "b6",
+    identifiant: "BOV-006",
+    race: "Zébu",
+    sexe: "Mâle",
+    dateAchat: iso("2025-03-22"),
+    prixAchat: 420000,
+    poidsAchat: 270,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 24000,
+    autresCouts: 3500,
+    clientVente: null,
+  },
+  {
+    id: "b7",
+    identifiant: "BOV-007",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-04-01"),
+    prixAchat: 440000,
+    poidsAchat: 280,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 21000,
+    autresCouts: 3000,
+    clientVente: null,
+  },
+  {
+    id: "b8",
+    identifiant: "BOV-008",
+    race: "Zébu",
+    sexe: "Mâle",
+    dateAchat: iso("2025-04-18"),
+    prixAchat: 410000,
+    poidsAchat: 260,
+    statut: "VENDU",
+    dateVente: iso("2025-08-12"),
+    prixVente: 540000,
+    coutsEngraissement: 36000,
+    autresCouts: 5000,
+    clientVente: "Boucherie Maradi",
+  },
+  {
+    id: "b9",
+    identifiant: "BOV-009",
+    race: "Zébu Azaouak",
+    sexe: "Mâle",
+    dateAchat: iso("2025-05-05"),
+    prixAchat: 480000,
+    poidsAchat: 300,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 18000,
+    autresCouts: 2500,
+    clientVente: null,
+  },
+  {
+    id: "b10",
+    identifiant: "BOV-010",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-05-05"),
+    prixAchat: 475000,
+    poidsAchat: 298,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 18000,
+    autresCouts: 2500,
+    clientVente: null,
+  },
+  {
+    id: "b11",
+    identifiant: "BOV-011",
+    race: "Zébu",
+    sexe: "Mâle",
+    dateAchat: iso("2025-06-12"),
+    prixAchat: 415000,
+    poidsAchat: 268,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 12000,
+    autresCouts: 2000,
+    clientVente: null,
+  },
+  {
+    id: "b12",
+    identifiant: "BOV-012",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-06-12"),
+    prixAchat: 450000,
+    poidsAchat: 282,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 12000,
+    autresCouts: 2000,
+    clientVente: null,
+  },
+  {
+    id: "b13",
+    identifiant: "BOV-013",
+    race: "Zébu Azaouak",
+    sexe: "Mâle",
+    dateAchat: iso("2025-07-01"),
+    prixAchat: 490000,
+    poidsAchat: 305,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 6000,
+    autresCouts: 1000,
+    clientVente: null,
+  },
+  {
+    id: "b14",
+    identifiant: "BOV-014",
+    race: "Zébu",
+    sexe: "Mâle",
+    dateAchat: iso("2025-07-20"),
+    prixAchat: 425000,
+    poidsAchat: 272,
+    statut: "EN_ENGRAISSEMENT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 3000,
+    autresCouts: 500,
+    clientVente: null,
+  },
+  {
+    id: "b15",
+    identifiant: "BOV-015",
+    race: "Zébu Gobra",
+    sexe: "Mâle",
+    dateAchat: iso("2025-02-15"),
+    prixAchat: 435000,
+    poidsAchat: 278,
+    statut: "MORT",
+    dateVente: null,
+    prixVente: 0,
+    coutsEngraissement: 22000,
+    autresCouts: 8000,
+    clientVente: null,
+  },
+];
+
+// ---------- Alimentation (achats d'aliments + imputation par tête) ----------
+export const MOCK_ALIMENTATIONS: Alimentation[] = [
+  {
+    id: "a1",
+    date: iso("2025-01-20"),
+    produit: "Son de blé",
+    quantite: 50,
+    unite: "sac",
+    coutTotal: 600000, // 12 000 FCFA/sac
+    nbBovinsConcernes: 3,
+    coutParTete: 200000,
+    commentaire: "Lot initial BOV-001/002/003",
+  },
+  {
+    id: "a2",
+    date: iso("2025-02-10"),
+    produit: "Tourteau de coton",
+    quantite: 30,
+    unite: "sac",
+    coutTotal: 540000,
+    nbBovinsConcernes: 4,
+    coutParTete: 135000,
+    commentaire: "Complément protéique",
+  },
+  {
+    id: "a3",
+    date: iso("2025-03-15"),
+    produit: "Son de blé",
+    quantite: 60,
+    unite: "sac",
+    coutTotal: 720000,
+    nbBovinsConcernes: 6,
+    coutParTete: 120000,
+    commentaire: "BOV-001 à 006",
+  },
+  {
+    id: "a4",
+    date: iso("2025-04-05"),
+    produit: "Tourteau de coton",
+    quantite: 40,
+    unite: "sac",
+    coutTotal: 720000,
+    nbBovinsConcernes: 7,
+    coutParTete: 102857,
+    commentaire: "Lots engraissement actif",
+  },
+  {
+    id: "a5",
+    date: iso("2025-05-08"),
+    produit: "Son de blé",
+    quantite: 55,
+    unite: "sac",
+    coutTotal: 660000,
+    nbBovinsConcernes: 8,
+    coutParTete: 82500,
+    commentaire: null,
+  },
+  {
+    id: "a6",
+    date: iso("2025-06-10"),
+    produit: "Foin de luzerne",
+    quantite: 80,
+    unite: "botte",
+    coutTotal: 320000,
+    nbBovinsConcernes: 8,
+    coutParTete: 40000,
+    commentaire: "Fourrage grossier",
+  },
+  {
+    id: "a7",
+    date: iso("2025-07-12"),
+    produit: "Tourteau de coton",
+    quantite: 45,
+    unite: "sac",
+    coutTotal: 810000,
+    nbBovinsConcernes: 7,
+    coutParTete: 115714,
+    commentaire: "Relance engraissement",
+  },
+  {
+    id: "a8",
+    date: iso("2025-08-15"),
+    produit: "Son de blé",
+    quantite: 50,
+    unite: "sac",
+    coutTotal: 600000,
+    nbBovinsConcernes: 7,
+    coutParTete: 85714,
+    commentaire: null,
+  },
+];
+
+// ---------- Dépenses ----------
+export const MOCK_DEPENSES: Depense[] = [
+  { id: "d1", date: iso("2025-01-15"), categorie: "Transport", libelle: "Transport lot initial (3 têtes)", montant: 45000, nbBovinsConcernes: 3 },
+  { id: "d2", date: iso("2025-02-01"), categorie: "Soins vétérinaires", libelle: "Vaccination fièvre aphteuse + vermifuge", montant: 35000, nbBovinsConcernes: 4 },
+  { id: "d3", date: iso("2025-03-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel mars", montant: 60000, nbBovinsConcernes: 6 },
+  { id: "d4", date: iso("2025-03-18"), categorie: "Soins vétérinaires", libelle: "Déparasitage + complément vitamine", montant: 28000, nbBovinsConcernes: 6 },
+  { id: "d5", date: iso("2025-04-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel avril", montant: 60000, nbBovinsConcernes: 7 },
+  { id: "d6", date: iso("2025-04-20"), categorie: "Soins vétérinaires", libelle: "Soin BOV-015 (incident sanitaire)", montant: 32000, nbBovinsConcernes: 1 },
+  { id: "d7", date: iso("2025-05-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel mai", montant: 60000, nbBovinsConcernes: 8 },
+  { id: "d8", date: iso("2025-05-15"), categorie: "Transport", libelle: "Transport foin", montant: 18000, nbBovinsConcernes: 0 },
+  { id: "d9", date: iso("2025-06-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel juin", montant: 65000, nbBovinsConcernes: 8 },
+  { id: "d10", date: iso("2025-07-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel juillet", montant: 65000, nbBovinsConcernes: 7 },
+  { id: "d11", date: iso("2025-07-10"), categorie: "Soins vétérinaires", libelle: "Vaccination préventive lot nouveau", montant: 42000, nbBovinsConcernes: 3 },
+  { id: "d12", date: iso("2025-08-01"), categorie: "Main-d'œuvre", libelle: "Gardien mensuel août", montant: 65000, nbBovinsConcernes: 7 },
+  { id: "d13", date: iso("2025-08-05"), categorie: "Autres", libelle: "Petit matériel + abreuvoirs", montant: 25000, nbBovinsConcernes: 0 },
+];
+
+// ---------- Financement & échéances ----------
+export const MOCK_FINANCEMENT: Financement = {
+  id: "f1",
+  bailleur: "SAVERDEV",
+  montantFinance: 5000000, // 5 M FCFA
+  dateOctroi: iso("2025-01-10"),
+  tauxInteret: 5,
+  dureeMois: 10,
+  echeances: Array.from({ length: 10 }, (_, i) => {
+    const d = new Date(2025, 1 + i, 10); // 10 du mois, de fév à nov 2025
+    const now = new Date();
+    let statut: "PAYEE" | "A_PAYER" | "EN_RETARD" = "A_PAYER";
+    if (d < now) {
+      statut = i < 4 ? "PAYEE" : "EN_RETARD"; // 4 premières payées, 5e en retard
+    }
+    return {
+      id: `e${i + 1}`,
+      numero: i + 1,
+      datePrevue: d.toISOString(),
+      montant: 525000, // 500k capital + 25k intérêt
+      statut,
+      datePayee: i < 4 ? new Date(d.getFullYear(), d.getMonth(), 8).toISOString() : null,
+    };
+  }),
+};
+
+// ---------- Alertes ----------
+export const MOCK_ALERTES: Alerte[] = [
+  {
+    id: "al1",
+    date: daysAgo(3),
+    type: "ECHEANCE",
+    severite: "CRITICAL",
+    message: "Échéance n°5 SAVERDEV (525 000 FCFA) en retard depuis 12 jours",
+    resolved: false,
+  },
+  {
+    id: "al2",
+    date: daysAgo(8),
+    type: "MORTALITE",
+    severite: "WARNING",
+    message: "BOV-015 décédé — incident sanitaire enregistré le 15/02/2025",
+    resolved: false,
+  },
+  {
+    id: "al3",
+    date: daysAgo(15),
+    type: "MARGE",
+    severite: "WARNING",
+    message: "Marge BOV-003 (53 500 FCFA) sous le seuil de 60 000 FCFA",
+    resolved: false,
+  },
+  {
+    id: "al4",
+    date: daysAgo(20),
+    type: "BUDGET",
+    severite: "INFO",
+    message: "Coût alimentation juillet à 115 714 FCFA/tête (stable vs juin)",
+    resolved: false,
+  },
+  {
+    id: "al5",
+    date: daysAgo(28),
+    type: "ECHEANCE",
+    severite: "INFO",
+    message: "Prochaine échéance n°6 prévue le 10/09/2025 (525 000 FCFA)",
+    resolved: false,
+  },
+];
+
+// ---------- Historique ----------
+export const MOCK_HISTORIQUES: Historique[] = [
+  { id: "h1", date: daysAgo(2), action: "VENTE", entiteType: "Bovin", entiteId: "b8", details: "Vente BOV-008 à Boucherie Maradi — 540 000 FCFA", user: { name: "Aïssa" } },
+  { id: "h2", date: daysAgo(5), action: "ALIMENTATION", entiteType: "Alimentation", entiteId: "a8", details: "Achat 50 sacs son de blé — 600 000 FCFA imputés à 7 bovins", user: { name: "Moussa" } },
+  { id: "h3", date: daysAgo(12), action: "DEPENSE", entiteType: "Depense", entiteId: "d12", details: "Salaire gardien août — 65 000 FCFA", user: { name: "Moussa" } },
+  { id: "h4", date: daysAgo(18), action: "CREATE_BOVIN", entiteType: "Bovin", entiteId: "b14", details: "Nouvel achat BOV-014 (425 000 FCFA, 272 kg)", user: { name: "Aïssa" } },
+  { id: "h5", date: daysAgo(25), action: "ALIMENTATION", entiteType: "Alimentation", entiteId: "a7", details: "Achat 45 sacs tourteau coton — 810 000 FCFA imputés à 7 bovins", user: { name: "Moussa" } },
+  { id: "h6", date: daysAgo(35), action: "VENTE", entiteType: "Bovin", entiteId: "b3", details: "Vente BOV-003 — 565 000 FCFA (marge 53 500 FCFA)", user: { name: "Aïssa" } },
+];
+
+// ---------- Tableau de bord agrégé ----------
+export function computeDashboard(): Dashboard {
+  const bovins = MOCK_BOVINS;
+  const actifs = bovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
+  const vendus = bovins.filter((b) => b.statut === "VENDU");
+  const morts = bovins.filter((b) => b.statut === "MORT");
+
+  // Rentabilité
+  const ca = vendus.reduce((s, b) => s + b.prixVente, 0);
+  const coutAchat = vendus.reduce((s, b) => s + b.prixAchat, 0);
+  const coutEngrais = vendus.reduce((s, b) => s + b.coutsEngraissement + b.autresCouts, 0);
+  const margeTotale = vendus.reduce((s, b) => s + (b.prixVente - b.prixAchat - b.coutsEngraissement - b.autresCouts), 0);
+  const margeParTete = vendus.length ? margeTotale / vendus.length : 0;
+
+  // Alimentation
+  const nbSacs = MOCK_ALIMENTATIONS.reduce((s, a) => s + a.quantite, 0);
+  const coutAlimTotal = MOCK_ALIMENTATIONS.reduce((s, a) => s + a.coutTotal, 0);
+  const coutAlimParTete = actifs.length ? coutAlimTotal / (actifs.length + vendus.length) : 0;
+
+  // Valeur du cheptel (estimation : prix d'achat + coûts engraissement pour les actifs)
+  const valeurCheptel = actifs.reduce((s, b) => s + b.prixAchat + b.coutsEngraissement, 0);
+
+  // Engraissement : durée moyenne
+  const durees = vendus.map((b) => {
+    if (!b.dateVente) return 0;
+    return Math.round((new Date(b.dateVente).getTime() - new Date(b.dateAchat).getTime()) / (1000 * 60 * 60 * 24));
+  });
+  const dureeMoyenne = durees.length ? durees.reduce((s, d) => s + d, 0) / durees.length : 0;
+
+  // Financement
+  const echeances = MOCK_FINANCEMENT.echeances;
+  const payees = echeances.filter((e) => e.statut === "PAYEE").length;
+  const aPayer = echeances.filter((e) => e.statut === "A_PAYER").length;
+  const enRetard = echeances.filter((e) => e.statut === "EN_RETARD").length;
+  const montantUtilise = echeances.filter((e) => e.statut === "PAYEE").reduce((s, e) => s + e.montant, 0);
+  const tauxUtilisation = (montantUtilise / MOCK_FINANCEMENT.montantFinance) * 100;
+
+  // Évolution mensuelle (simulée sur 8 mois 2025)
+  const evolutionMensuelle = [
+    { mois: "Fév", ca: 0, couts: 645000, marge: -645000 },
+    { mois: "Mar", ca: 0, couts: 808000, marge: -808000 },
+    { mois: "Avr", ca: 0, couts: 840000, marge: -840000 },
+    { mois: "Mai", ca: 620000, couts: 738000, marge: -118000 },
+    { mois: "Juin", ca: 1155000, couts: 385000, marge: 770000 },
+    { mois: "Juil", ca: 540000, couts: 875000, marge: -335000 },
+    { mois: "Août", ca: 0, couts: 690000, marge: -690000 },
+    { mois: "Sep", ca: 0, couts: 0, marge: 0 },
+  ];
+
+  const ventesParMois = [
+    { mois: "Fév", ventes: 0, nbTetes: 0 },
+    { mois: "Mar", ventes: 0, nbTetes: 0 },
+    { mois: "Avr", ventes: 0, nbTetes: 0 },
+    { mois: "Mai", ventes: 620000, nbTetes: 1 },
+    { mois: "Juin", ventes: 1155000, nbTetes: 2 },
+    { mois: "Juil", ventes: 540000, nbTetes: 1 },
+    { mois: "Août", ventes: 0, nbTetes: 0 },
+  ];
+
+  return {
+    cheptel: {
+      bovinsActifs: actifs.length,
+      bovinsVendus: vendus.length,
+      entreesMois: 1, // simplifié
+      sortiesMois: 1,
+      mortalite: morts.length,
+      valeurCheptel,
+    },
+    engraissement: {
+      dureeMoyenneJours: Math.round(dureeMoyenne),
+      nbEnCycle: actifs.length,
+      poidsMoyen: Math.round(actifs.reduce((s, b) => s + b.poidsAchat, 0) / Math.max(1, actifs.length)),
+    },
+    alimentation: {
+      nbSacs,
+      coutTotal: coutAlimTotal,
+      coutParTete: coutAlimParTete,
+    },
+    rentabilite: {
+      ca,
+      coutAchat,
+      coutEngraissement: coutEngrais,
+      margeParTete,
+      margeTotale,
+    },
+    financement: {
+      montantFinance: MOCK_FINANCEMENT.montantFinance,
+      montantUtilise,
+      solde: MOCK_FINANCEMENT.montantFinance - montantUtilise,
+      echeancesPayees: payees,
+      echeancesAPayer: aPayer,
+      echeancesEnRetard: enRetard,
+      tauxUtilisation,
+    },
+    alertes: MOCK_ALERTES,
+    evolutionMensuelle,
+    ventesParMois,
+  };
+}
+
+export function computeBovinMarge(b: Bovin): { coutRevient: number; marge: number | null } {
+  const coutRevient = b.prixAchat + b.coutsEngraissement + b.autresCouts;
+  const marge = b.statut === "VENDU" ? b.prixVente - coutRevient : null;
+  return { coutRevient, marge };
+}

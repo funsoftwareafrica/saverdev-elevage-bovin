@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma schema — Application Élevage Bovin d'Engraissement (SAVERDEV)
+// Gestion : cheptel, achats, ventes, alimentation (imputation par tête),
+// dépenses, financement, échéances, alertes, historique.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +11,167 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ---------- Auth & rôles ----------
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  name      String?
+  name      String
+  role      Role     @default(GERANT)
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  historiques Historique[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Role {
+  ELEVEUR
+  GERANT
+  BAILLEUR
+  ADMIN
+}
+
+// ---------- Cheptel ----------
+model Bovin {
+  id                String        @id @default(cuid())
+  identifiant       String        @unique          // BOV-001
+  race              String        @default("Zébu")
+  sexe              String        @default("Mâle")
+  dateAchat         DateTime
+  prixachat         Float                              // FCFA
+  poidsAchat        Float         @default(0)            // kg
+  statut            StatutBovin   @default(EN_ENGRAISSEMENT)
+  dateVente         DateTime?
+  prixVente         Float         @default(0)
+  coutsEngraissement Float        @default(0)            // cumul auto (alimentation imputée)
+  autresCouts       Float         @default(0)            // dépenses imputées
+  clientVente       String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  alimentations     AlimentationBovin[]
+  depenses          DepenseBovin[]
+
+  @@index([statut])
+}
+
+enum StatutBovin {
+  EN_ENGRAISSEMENT
+  VENDU
+  MORT
+}
+
+// ---------- Alimentation (achat d'aliments + imputation par tête) ----------
+model Alimentation {
+  id            String              @id @default(cuid())
+  date          DateTime
+  produit       String                               // ex: "Son de blé", "Tourteau coton"
+  quantite      Float                                 // sacs ou kg
+  unite         String              @default("sac")
+  coutTotal     Float                                 // FCFA, payé pour le lot
+  nbBovinsConcernes Int                               // nb têtes qui consomment
+  coutParTete   Float              @default(0)         // calcul auto
+  commentaire   String?
+  createdAt     DateTime           @default(now())
+
+  bovins        AlimentationBovin[]
+
+  @@index([date])
+}
+
+model AlimentationBovin {
+  id             String       @id @default(cuid())
+  alimentationId String
+  bovinId        String
+  partImputee    Float                           // FCFA imputés à ce bovin
+
+  alimentation   Alimentation @relation(fields: [alimentationId], references: [id], onDelete: Cascade)
+  bovin          Bovin        @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+
+  @@unique([alimentationId, bovinId])
+}
+
+// ---------- Dépenses d'exploitation (soins, transport, main-d'œuvre, etc.) ----------
+model Depense {
+  id            String   @id @default(cuid())
+  date          DateTime
+  categorie    String                          // "Soins vétérinaires", "Transport", "Main-d'œuvre", "Autres"
+  libelle       String
+  montant       Float                            // FCFA
+  nbBovinsConcernes Int   @default(0)            // 0 = charge globale non imputée
+  createdAt     DateTime @default(now())
+
+  bovins        DepenseBovin[]
+
+  @@index([date])
+  @@index([categorie])
+}
+
+model DepenseBovin {
+  id          String  @id @default(cuid())
+  depenseId   String
+  bovinId     String
+  partImputee Float
+
+  depense Depense @relation(fields: [depenseId], references: [id], onDelete: Cascade)
+  bovin  Bovin   @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+
+  @@unique([depenseId, bovinId])
+}
+
+// ---------- Financement & échéances (côté bailleur) ----------
+model Financement {
+  id             String   @id @default(cuid())
+  bailleur       String                          // "SAVERDEV", "BOA", etc.
+  montantFinance Float                           // FCFA accordés
+  dateOctroi     DateTime
+  tauxInteret    Float     @default(0)             // % annuel
+  dureeMois      Int
+  echeances      Echeance[]
+  createdAt      DateTime @default(now())
+}
+
+model Echeance {
+  id             String       @id @default(cuid())
+  financementId  String
+  numero         Int                              // 1, 2, 3...
+  datePrevue     DateTime
+  montant        Float                            // FCFA à rembourser
+  statut         StatutEcheance @default(A_PAYER)
+  datePayee      DateTime?
+
+  financement    Financement @relation(fields: [financementId], references: [id], onDelete: Cascade)
+
+  @@index([statut])
+}
+
+enum StatutEcheance {
+  PAYEE
+  A_PAYER
+  EN_RETARD
+}
+
+// ---------- Alertes ----------
+model Alerte {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  type        String                          // "ECHEANCE", "BUDGET", "MORTALITE", "MARGE", "AUTRE"
+  severite    String                          // "INFO", "WARNING", "CRITICAL"
+  message     String
+  resolved    Boolean  @default(false)
+}
+
+// ---------- Historique / journal ----------
+model Historique {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  userId      String?
+  action      String                          // "CREATE_BOVIN", "VENTE", "ALIMENTATION", etc.
+  entiteType  String                          // "Bovin", "Vente", "Alimentation"...
+  entiteId    String?
+  details     String?
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([date])
 }
