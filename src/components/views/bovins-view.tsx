@@ -3,13 +3,15 @@
 // Vue Bovins — liste du cheptel avec filtres par statut + accès à la fiche détaillée.
 
 import { useMemo, useState } from "react";
-import { MOCK_BOVINS, computeBovinMarge } from "@/lib/mock-data";
+import { useBovins } from "@/lib/api";
+import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatDate, statutBovinColor, joursEntre } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -25,19 +27,21 @@ import type { StatutBovin } from "@/lib/types";
 
 export function BovinsView() {
   const openBovin = useAppStore((s) => s.openBovin);
+  const { data: bovins, isLoading } = useBovins();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"TOUS" | StatutBovin>("TOUS");
 
+  const allBovins = bovins ?? [];
   const filtered = useMemo(() => {
-    return MOCK_BOVINS.filter((b) => {
+    return allBovins.filter((b) => {
       if (filter !== "TOUS" && b.statut !== filter) return false;
       if (search && !b.identifiant.toLowerCase().includes(search.toLowerCase()) && !b.race.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [search, filter]);
+  }, [search, filter, allBovins]);
 
-  const actifs = MOCK_BOVINS.filter((b) => b.statut === "EN_ENGRAISSEMENT");
-  const vendus = MOCK_BOVINS.filter((b) => b.statut === "VENDU");
+  const actifs = allBovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
+  const vendus = allBovins.filter((b) => b.statut === "VENDU");
   const valeurCheptel = actifs.reduce((s, b) => s + b.prixAchat + b.coutsEngraissement, 0);
 
   return (
@@ -73,13 +77,18 @@ export function BovinsView() {
             </div>
             <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
               <TabsList className="h-9">
-                <TabsTrigger value="TOUS" className="text-xs">Tous ({MOCK_BOVINS.length})</TabsTrigger>
+                <TabsTrigger value="TOUS" className="text-xs">Tous ({allBovins.length})</TabsTrigger>
                 <TabsTrigger value="EN_ENGRAISSEMENT" className="text-xs">Actifs ({actifs.length})</TabsTrigger>
                 <TabsTrigger value="VENDU" className="text-xs">Vendus ({vendus.length})</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
 
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+            </div>
+          ) : (
           <div className="rounded-md border overflow-hidden">
             <div className="max-h-[60vh] overflow-auto scroll-thin">
               <Table>
@@ -152,6 +161,7 @@ export function BovinsView() {
               </Table>
             </div>
           </div>
+          )}
         </CardContent>
       </Card>
     </div>

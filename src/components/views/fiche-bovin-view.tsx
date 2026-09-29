@@ -2,8 +2,8 @@
 
 // Vue Fiche bovin — détail complet d'un bovin (identification, achat, coûts, marge).
 
-import { useMemo } from "react";
-import { MOCK_BOVINS, computeBovinMarge } from "@/lib/mock-data";
+import { useBovin } from "@/lib/api";
+import { computeBovinMarge } from "@/lib/calculations";
 import { useAppStore } from "@/lib/store";
 import { formatFCFA, formatDate, statutBovinColor, joursEntre } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,16 +11,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Beef, ShoppingCart, Salad, Wallet, TrendingUp, Calendar, Scale, User } from "lucide-react";
 
 export function FicheBovinView() {
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
   const setView = useAppStore((s) => s.setView);
+  const { data: bovin, isLoading } = useBovin(selectedBovinId);
 
-  const bovin = useMemo(
-    () => MOCK_BOVINS.find((b) => b.id === selectedBovinId) ?? MOCK_BOVINS[0],
-    [selectedBovinId]
-  );
+  if (isLoading || !bovin) {
+    return (
+      <div className="space-y-6">
+        <Button variant="ghost" size="sm" onClick={() => setView("bovins")} className="text-muted-foreground">
+          <ArrowLeft className="h-4 w-4" /> Retour à la liste
+        </Button>
+        <Skeleton className="h-32 rounded-lg" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-64 rounded-lg" />
+          <Skeleton className="h-64 rounded-lg" />
+        </div>
+      </div>
+    );
+  }
 
   const { coutRevient, marge } = computeBovinMarge(bovin);
   const margePct = coutRevient > 0 && marge !== null ? (marge / coutRevient) * 100 : 0;

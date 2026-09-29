@@ -3,11 +3,12 @@
 // Vue Rapport Bailleur — synthèse mensuelle imprimable (PDF via navigateur).
 // Lecture seule, orientée supervision : cheptel, rentabilité, financement, alertes.
 
-import { useMemo } from "react";
-import { MOCK_BOVINS, MOCK_FINANCEMENT, computeDashboard, computeBovinMarge } from "@/lib/mock-data";
-import { useAppStore } from "@/lib/store";
+import { useDashboard, useBovins, useFinancement } from "@/lib/api";
+import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutBovinColor, statutEcheanceColor } from "@/lib/format";
+import { useAppStore } from "@/lib/store";
 import { SaverdevLogo } from "@/components/saverdev-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +19,23 @@ import { toast } from "sonner";
 
 export function RapportBailleurView() {
   const selectedMonth = useAppStore((s) => s.selectedMonth);
-  const dash = useMemo(() => computeDashboard(), []);
-  const vendus = MOCK_BOVINS.filter((b) => b.statut === "VENDU");
-  const actifs = MOCK_BOVINS.filter((b) => b.statut === "EN_ENGRAISSEMENT");
+  const { data: dash } = useDashboard();
+  const { data: bovins } = useBovins();
+  const { data: fin } = useFinancement();
+
+  if (!dash || !bovins || !fin) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+          <FileText className="h-5 w-5 text-primary" /> Rapport bailleur
+        </h2>
+        <div className="space-y-3">{Array.from({length:5}).map((_,i)=><Skeleton key={i} className="h-16"/>)}</div>
+      </div>
+    );
+  }
+
+  const vendus = bovins.filter((b) => b.statut === "VENDU");
+  const actifs = bovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
 
   // Parse mois sélectionné
   const [y, m] = selectedMonth.split("-").map(Number);
@@ -255,7 +270,7 @@ export function RapportBailleurView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_FINANCEMENT.echeances.map((e) => (
+                  {fin.echeances.map((e) => (
                     <tr key={e.id} className="border-t border-border">
                       <td className="p-2 font-mono font-semibold">{e.numero}</td>
                       <td className="p-2">{formatDate(e.datePrevue)}</td>

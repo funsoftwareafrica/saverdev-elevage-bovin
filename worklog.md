@@ -64,3 +64,43 @@ Stage Summary:
 Note : Les vues utilisent actuellement des données mockées (lib/mock-data.ts).
 Le schéma Prisma est poussé en DB (db:push OK). L'ajout d'API routes + seed + branchement
 TanStack Query est l'étape suivante pour persister les données réelles.
+
+---
+Task ID: 3
+Agent: main
+Task: Backend React — API routes + Prisma seed + TanStack Query (remplacement des imports mock)
+
+Work Log:
+- prisma/seed.ts : peuplement SQLite depuis mock-data (4 users, 15 bovins, 8 alimentations + imputation, 13 dépenses, 1 financement + 10 échéances, 5 alertes, 6 historiques)
+- package.json : ajout scripts db:seed, db:studio + config prisma.seed
+- Schema : renommé prixachat → prixAchat (cohérence camelCase) + db:push
+- src/lib/calculations.ts : calculs purs (computeBovinMarge, computeDashboardFromData) réutilisables serveur + client
+- src/lib/server-mappers.ts : conversion Prisma (Date) → TS (ISO string)
+- 9 API routes :
+  - GET /api/dashboard (agrégation serveur via computeDashboardFromData)
+  - GET+POST /api/bovins, GET /api/bovins/[id]
+  - GET+POST /api/alimentation (imputation auto + update coutsEngraissement)
+  - GET+POST /api/depenses (imputation auto + update autresCouts)
+  - GET+POST /api/ventes (fige coût + calcule marge)
+  - GET /api/financement, /api/alertes, /api/historique
+- src/components/query-provider.tsx : QueryClientProvider (staleTime 30s)
+- src/app/layout.tsx : wrap app dans QueryProvider
+- src/lib/api.ts : hooks TanStack Query (useBovins, useBovin, useDashboard, useAlimentations, useDepenses, useVentes, useFinancement, useAlertes, useHistorique + mutations useCreateBovin/Alimentation/Depense/Vente avec invalidation)
+- 9 vues branchées sur les hooks (remplacement des imports MOCK_*) + états de chargement (Skeleton)
+- Formulaires Alimentation/Dépenses/Ventes : FormData → mutation → API → DB → invalidate → refetch
+
+Stage Summary:
+- Vérification Agent Browser :
+  - GET /api/bovins → 15 bovins (BOV-001 first)
+  - GET /api/dashboard → cheptel.bovinsActifs=10, rentabilite.margeTotale=402500
+  - POST /api/alimentation → 201 + coutParTete calculé (60000/3=20000)
+  - Imputation vérifiée : BOV-004 coutsEngraissement passé de 28000 à 48000 après POST
+  - Dashboard rend avec données dynamiques (KPI + 3 graphiques + alertes + historique)
+- Lint clean (0 erreur)
+- Cycle React complet : saisie → API → SQLite → invalidation → re-fetch → UI à jour
+- Les mutations créent aussi des entrées dans l'historique (traçabilité)
+
+Note technique : les données mockées (lib/mock-data.ts) restent utilisées par
+le script de seed mais ne sont plus importées par les vues. Toutes les vues
+fetchent maintenant via TanStack Query. Le seed peut être relancé avec
+`bun run db:seed` pour réinitialiser les données démo.

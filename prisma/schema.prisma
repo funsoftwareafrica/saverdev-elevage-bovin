@@ -38,7 +38,7 @@ model Bovin {
   race              String        @default("Zébu")
   sexe              String        @default("Mâle")
   dateAchat         DateTime
-  prixachat         Float                              // FCFA
+  prixAchat         Float                              // FCFA
   poidsAchat        Float         @default(0)            // kg
   statut            StatutBovin   @default(EN_ENGRAISSEMENT)
   dateVente         DateTime?

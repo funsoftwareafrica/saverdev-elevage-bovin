@@ -3,9 +3,10 @@
 // Vue Dépenses — soins vétérinaires, transport, main-d'œuvre, autres charges.
 
 import { useState } from "react";
-import { MOCK_DEPENSES } from "@/lib/mock-data";
+import { useDepenses, useCreateDepense } from "@/lib/api";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,16 +30,34 @@ const CATEGORIES = [
 export function DepensesView() {
   const role = useAppStore((s) => s.role);
   const readOnly = role === "BAILLEUR";
+  const { data: depenses, isLoading } = useDepenses();
+  const createDepense = useCreateDepense();
   const [filter, setFilter] = useState<string>("TOUS");
   const [open, setOpen] = useState(false);
 
-  const filtered = filter === "TOUS" ? MOCK_DEPENSES : MOCK_DEPENSES.filter((d) => d.categorie === filter);
-  const total = MOCK_DEPENSES.reduce((s, d) => s + d.montant, 0);
+  const allDepenses = depenses ?? [];
+  const filtered = filter === "TOUS" ? allDepenses : allDepenses.filter((d) => d.categorie === filter);
+  const total = allDepenses.reduce((s, d) => s + d.montant, 0);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("Dépense enregistrée");
-    setOpen(false);
+    const fd = new FormData(e.currentTarget);
+    createDepense.mutate(
+      {
+        categorie: String(fd.get("cat") || "Autres"),
+        libelle: String(fd.get("lib") || ""),
+        montant: Number(fd.get("montant") || 0),
+        nbBovinsConcernes: Number(fd.get("nb") || 0),
+        date: fd.get("date") ? String(fd.get("date")) : undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Dépense enregistrée");
+          setOpen(false);
+        },
+        onError: () => toast.error("Échec de l'enregistrement"),
+      }
+    );
   };
 
   return (
@@ -61,7 +80,7 @@ export function DepensesView() {
                 <form onSubmit={onSubmit} className="space-y-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="cat" className="text-xs">Catégorie</Label>
-                    <Select defaultValue="Soins vétérinaires">
+                    <Select name="cat" defaultValue="Soins vétérinaires">
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {CATEGORIES.map((c) => <SelectItem key={c.key} value={c.key}>{c.key}</SelectItem>)}
@@ -70,21 +89,21 @@ export function DepensesView() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="lib" className="text-xs">Libellé</Label>
-                    <Input id="lib" placeholder="Vaccination, transport lot..." required />
+                    <Input id="lib" name="lib" placeholder="Vaccination, transport lot..." required />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="montant" className="text-xs">Montant (FCFA)</Label>
-                      <Input id="montant" type="number" placeholder="35000" required />
+                      <Input id="montant" name="montant" type="number" placeholder="35000" required />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="nb" className="text-xs">Nb bovins concernés</Label>
-                      <Input id="nb" type="number" placeholder="0 = charge globale" />
+                      <Input id="nb" name="nb" type="number" placeholder="0 = charge globale" />
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="date" className="text-xs">Date</Label>
-                    <Input id="date" type="date" required />
+                    <Input id="date" name="date" type="date" required />
                   </div>
                   <DialogFooter>
                     <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Annuler</Button>
@@ -99,7 +118,7 @@ export function DepensesView() {
 
       <div className="grid gap-3 sm:grid-cols-4">
         {CATEGORIES.map((c) => {
-          const sum = MOCK_DEPENSES.filter((d) => d.categorie === c.key).reduce((s, d) => s + d.montant, 0);
+          const sum = allDepenses.filter((d) => d.categorie === c.key).reduce((s, d) => s + d.montant, 0);
           const Icon = c.icon;
           return (
             <Card key={c.key} className="border-border">
@@ -125,7 +144,7 @@ export function DepensesView() {
           </div>
           <Tabs value={filter} onValueChange={setFilter}>
             <TabsList className="h-8">
-              <TabsTrigger value="TOUS" className="text-xs">Tous</TabsTrigger>
+              <TabsTrigger value="TOUS" className="text-xs">Tous ({allDepenses.length})</TabsTrigger>
               {CATEGORIES.map((c) => (
                 <TabsTrigger key={c.key} value={c.key} className="text-xs hidden sm:inline-flex">{c.key}</TabsTrigger>
               ))}
@@ -145,7 +164,11 @@ export function DepensesView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((d) => {
+                {isLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
+                  ))
+                ) : filtered.map((d) => {
                   const cat = CATEGORIES.find((c) => c.key === d.categorie);
                   return (
                     <TableRow key={d.id}>

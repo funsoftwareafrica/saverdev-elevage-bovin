@@ -3,9 +3,11 @@
 // Vue Ventes & sorties — enregistrement des ventes + calcul automatique de la marge.
 
 import { useState } from "react";
-import { MOCK_BOVINS, computeBovinMarge } from "@/lib/mock-data";
+import { useVentes, useBovins, useCreateVente } from "@/lib/api";
+import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,19 +24,37 @@ export function VentesView() {
   const role = useAppStore((s) => s.role);
   const readOnly = role === "BAILLEUR";
   const [open, setOpen] = useState(false);
+  const { data: vendus, isLoading } = useVentes();
+  const { data: allBovins } = useBovins();
+  const createVente = useCreateVente();
 
-  const vendus = MOCK_BOVINS.filter((b) => b.statut === "VENDU");
-  const ca = vendus.reduce((s, b) => s + b.prixVente, 0);
-  const margeTotale = vendus.reduce((s, b) => {
+  const vendusList = vendus ?? [];
+  const actifs = (allBovins ?? []).filter((b) => b.statut === "EN_ENGRAISSEMENT");
+  const ca = vendusList.reduce((s, b) => s + b.prixVente, 0);
+  const margeTotale = vendusList.reduce((s, b) => {
     const { marge } = computeBovinMarge(b);
     return s + (marge ?? 0);
   }, 0);
-  const margeMoyenne = vendus.length ? margeTotale / vendus.length : 0;
+  const margeMoyenne = vendusList.length ? margeTotale / vendusList.length : 0;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("Vente enregistrée", { description: "Marge calculée automatiquement." });
-    setOpen(false);
+    const fd = new FormData(e.currentTarget);
+    createVente.mutate(
+      {
+        bovinId: String(fd.get("bovin") || ""),
+        prixVente: Number(fd.get("prix") || 0),
+        dateVente: fd.get("date") ? String(fd.get("date")) : undefined,
+        client: (fd.get("client") as string) || undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Vente enregistrée", { description: "Marge calculée automatiquement." });
+          setOpen(false);
+        },
+        onError: () => toast.error("Échec de l'enregistrement"),
+      }
+    );
   };
 
   return (
@@ -57,10 +77,10 @@ export function VentesView() {
                 <form onSubmit={onSubmit} className="space-y-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="bovin" className="text-xs">Bovin vendu</Label>
-                    <Select>
+                  <Select name="bovin">
                       <SelectTrigger><SelectValue placeholder="Sélectionner un bovin actif" /></SelectTrigger>
                       <SelectContent>
-                        {MOCK_BOVINS.filter((b) => b.statut === "EN_ENGRAISSEMENT").map((b) => (
+                        {actifs.map((b) => (
                           <SelectItem key={b.id} value={b.id}>
                             {b.identifiant} — {b.race} ({formatFCFA(b.prixAchat + b.coutsEngraissement, false)} revient)
                           </SelectItem>
@@ -71,16 +91,16 @@ export function VentesView() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="prix" className="text-xs">Prix de vente (FCFA)</Label>
-                      <Input id="prix" type="number" placeholder="550000" required />
+                      <Input id="prix" name="prix" type="number" placeholder="550000" required />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="date" className="text-xs">Date de vente</Label>
-                      <Input id="date" type="date" required />
+                      <Input id="date" name="date" type="date" required />
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="client" className="text-xs">Client</Label>
-                    <Input id="client" placeholder="Boucherie, restaurant, marché..." />
+                    <Input id="client" name="client" placeholder="Boucherie, restaurant, marché..." />
                   </div>
                   <DialogFooter>
                     <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Annuler</Button>
@@ -94,7 +114,7 @@ export function VentesView() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Bovins vendus" value={vendus.length} icon={ShoppingCart} variant="primary" />
+        <KpiCard label="Bovins vendus" value={vendusList.length} icon={ShoppingCart} variant="primary" />
         <KpiCard label="Chiffre d'affaires" value={formatFCFA(ca)} icon={ShoppingCart} variant="success" />
         <KpiCard
           label="Marge totale"
@@ -124,7 +144,11 @@ export function VentesView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {vendus.map((b) => {
+                {isLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
+                  ))
+                ) : vendusList.map((b) => {
                   const { coutRevient, marge } = computeBovinMarge(b);
                   return (
                     <TableRow key={b.id}>

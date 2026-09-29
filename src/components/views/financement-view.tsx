@@ -2,8 +2,9 @@
 
 // Vue Financement & Bailleur — suivi du financement SAVERDEV, échéances et trésorerie.
 
-import { MOCK_FINANCEMENT } from "@/lib/mock-data";
+import { useFinancement } from "@/lib/api";
 import { formatFCFA, formatFCFAShort, formatDate, statutEcheanceColor } from "@/lib/format";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -14,7 +15,18 @@ import { ViewHeader, KpiCard } from "./_shared";
 // pas de useMemo ici pour éviter le lint react-hooks/preserve-manual-memoization
 
 export function FinancementView() {
-  const fin = MOCK_FINANCEMENT;
+  const { data: fin, isLoading } = useFinancement();
+
+  if (isLoading || !fin) {
+    return (
+      <div className="space-y-6">
+        <ViewHeader title="Financement & Bailleur" description="Chargement..." icon={Landmark} />
+        <div className="grid gap-3 sm:grid-cols-4">{Array.from({length:4}).map((_,i)=><Skeleton key={i} className="h-28"/>)}</div>
+        <Skeleton className="h-48"/>
+      </div>
+    );
+  }
+
   const echeances = fin.echeances;
 
   const payees = echeances.filter((e) => e.statut === "PAYEE");

@@ -2,9 +2,10 @@
 
 // Vue Rentabilité — analyse des marges, ventilation des coûts, tendances.
 
-import { useMemo } from "react";
-import { MOCK_BOVINS, computeBovinMarge, computeDashboard } from "@/lib/mock-data";
+import { useBovins, useDashboard } from "@/lib/api";
+import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatFCFAShort, formatDate, CHART_COLORS } from "@/lib/format";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -26,8 +27,20 @@ import {
 import { ViewHeader, KpiCard } from "./_shared";
 
 export function RentabiliteView() {
-  const dash = useMemo(() => computeDashboard(), []);
-  const vendus = MOCK_BOVINS.filter((b) => b.statut === "VENDU");
+  const { data: dash, isLoading: dashLoading } = useDashboard();
+  const { data: bovins } = useBovins();
+
+  if (dashLoading || !dash) {
+    return (
+      <div className="space-y-6">
+        <ViewHeader title="Rentabilité" description="Analyse des marges, ventilation des coûts et tendances." icon={TrendingUp} />
+        <div className="grid gap-3 sm:grid-cols-4">{Array.from({length:4}).map((_,i)=><Skeleton key={i} className="h-28"/>)}</div>
+        <div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-64"/><Skeleton className="h-64"/></div>
+      </div>
+    );
+  }
+
+  const vendus = (bovins ?? []).filter((b) => b.statut === "VENDU");
 
   const totalCoutRevient = vendus.reduce((s, b) => s + computeBovinMarge(b).coutRevient, 0);
   const margeTotale = dash.rentabilite.margeTotale;

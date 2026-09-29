@@ -1,5 +1,6 @@
 // Mock data réaliste — élevage bovin d'engraissement (FCFA, Sahel)
 // Sert de données initiales pour la démo frontend (avant branchement API).
+// Les calculs purs sont dans ./calculations.ts (réutilisés par l'API serveur).
 
 import type {
   Bovin,
@@ -10,6 +11,8 @@ import type {
   Historique,
   Dashboard,
 } from "./types";
+export { computeBovinMarge } from "./calculations";
+import { computeDashboardFromData } from "./calculations";
 
 const iso = (d: string) => new Date(d).toISOString();
 const daysAgo = (n: number) => {
@@ -436,108 +439,12 @@ export const MOCK_HISTORIQUES: Historique[] = [
   { id: "h6", date: daysAgo(35), action: "VENTE", entiteType: "Bovin", entiteId: "b3", details: "Vente BOV-003 — 565 000 FCFA (marge 53 500 FCFA)", user: { name: "Aïssa" } },
 ];
 
-// ---------- Tableau de bord agrégé ----------
+// ---------- Tableau de bord agrégé (délègue à calculations.ts) ----------
 export function computeDashboard(): Dashboard {
-  const bovins = MOCK_BOVINS;
-  const actifs = bovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
-  const vendus = bovins.filter((b) => b.statut === "VENDU");
-  const morts = bovins.filter((b) => b.statut === "MORT");
-
-  // Rentabilité
-  const ca = vendus.reduce((s, b) => s + b.prixVente, 0);
-  const coutAchat = vendus.reduce((s, b) => s + b.prixAchat, 0);
-  const coutEngrais = vendus.reduce((s, b) => s + b.coutsEngraissement + b.autresCouts, 0);
-  const margeTotale = vendus.reduce((s, b) => s + (b.prixVente - b.prixAchat - b.coutsEngraissement - b.autresCouts), 0);
-  const margeParTete = vendus.length ? margeTotale / vendus.length : 0;
-
-  // Alimentation
-  const nbSacs = MOCK_ALIMENTATIONS.reduce((s, a) => s + a.quantite, 0);
-  const coutAlimTotal = MOCK_ALIMENTATIONS.reduce((s, a) => s + a.coutTotal, 0);
-  const coutAlimParTete = actifs.length ? coutAlimTotal / (actifs.length + vendus.length) : 0;
-
-  // Valeur du cheptel (estimation : prix d'achat + coûts engraissement pour les actifs)
-  const valeurCheptel = actifs.reduce((s, b) => s + b.prixAchat + b.coutsEngraissement, 0);
-
-  // Engraissement : durée moyenne
-  const durees = vendus.map((b) => {
-    if (!b.dateVente) return 0;
-    return Math.round((new Date(b.dateVente).getTime() - new Date(b.dateAchat).getTime()) / (1000 * 60 * 60 * 24));
-  });
-  const dureeMoyenne = durees.length ? durees.reduce((s, d) => s + d, 0) / durees.length : 0;
-
-  // Financement
-  const echeances = MOCK_FINANCEMENT.echeances;
-  const payees = echeances.filter((e) => e.statut === "PAYEE").length;
-  const aPayer = echeances.filter((e) => e.statut === "A_PAYER").length;
-  const enRetard = echeances.filter((e) => e.statut === "EN_RETARD").length;
-  const montantUtilise = echeances.filter((e) => e.statut === "PAYEE").reduce((s, e) => s + e.montant, 0);
-  const tauxUtilisation = (montantUtilise / MOCK_FINANCEMENT.montantFinance) * 100;
-
-  // Évolution mensuelle (simulée sur 8 mois 2025)
-  const evolutionMensuelle = [
-    { mois: "Fév", ca: 0, couts: 645000, marge: -645000 },
-    { mois: "Mar", ca: 0, couts: 808000, marge: -808000 },
-    { mois: "Avr", ca: 0, couts: 840000, marge: -840000 },
-    { mois: "Mai", ca: 620000, couts: 738000, marge: -118000 },
-    { mois: "Juin", ca: 1155000, couts: 385000, marge: 770000 },
-    { mois: "Juil", ca: 540000, couts: 875000, marge: -335000 },
-    { mois: "Août", ca: 0, couts: 690000, marge: -690000 },
-    { mois: "Sep", ca: 0, couts: 0, marge: 0 },
-  ];
-
-  const ventesParMois = [
-    { mois: "Fév", ventes: 0, nbTetes: 0 },
-    { mois: "Mar", ventes: 0, nbTetes: 0 },
-    { mois: "Avr", ventes: 0, nbTetes: 0 },
-    { mois: "Mai", ventes: 620000, nbTetes: 1 },
-    { mois: "Juin", ventes: 1155000, nbTetes: 2 },
-    { mois: "Juil", ventes: 540000, nbTetes: 1 },
-    { mois: "Août", ventes: 0, nbTetes: 0 },
-  ];
-
-  return {
-    cheptel: {
-      bovinsActifs: actifs.length,
-      bovinsVendus: vendus.length,
-      entreesMois: 1, // simplifié
-      sortiesMois: 1,
-      mortalite: morts.length,
-      valeurCheptel,
-    },
-    engraissement: {
-      dureeMoyenneJours: Math.round(dureeMoyenne),
-      nbEnCycle: actifs.length,
-      poidsMoyen: Math.round(actifs.reduce((s, b) => s + b.poidsAchat, 0) / Math.max(1, actifs.length)),
-    },
-    alimentation: {
-      nbSacs,
-      coutTotal: coutAlimTotal,
-      coutParTete: coutAlimParTete,
-    },
-    rentabilite: {
-      ca,
-      coutAchat,
-      coutEngraissement: coutEngrais,
-      margeParTete,
-      margeTotale,
-    },
-    financement: {
-      montantFinance: MOCK_FINANCEMENT.montantFinance,
-      montantUtilise,
-      solde: MOCK_FINANCEMENT.montantFinance - montantUtilise,
-      echeancesPayees: payees,
-      echeancesAPayer: aPayer,
-      echeancesEnRetard: enRetard,
-      tauxUtilisation,
-    },
+  return computeDashboardFromData({
+    bovins: MOCK_BOVINS,
+    alimentations: MOCK_ALIMENTATIONS,
+    financement: MOCK_FINANCEMENT,
     alertes: MOCK_ALERTES,
-    evolutionMensuelle,
-    ventesParMois,
-  };
-}
-
-export function computeBovinMarge(b: Bovin): { coutRevient: number; marge: number | null } {
-  const coutRevient = b.prixAchat + b.coutsEngraissement + b.autresCouts;
-  const marge = b.statut === "VENDU" ? b.prixVente - coutRevient : null;
-  return { coutRevient, marge };
+  });
 }
