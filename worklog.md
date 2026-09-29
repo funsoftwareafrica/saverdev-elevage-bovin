@@ -104,3 +104,31 @@ Note technique : les données mockées (lib/mock-data.ts) restent utilisées par
 le script de seed mais ne sont plus importées par les vues. Toutes les vues
 fetchent maintenant via TanStack Query. Le seed peut être relancé avec
 `bun run db:seed` pour réinitialiser les données démo.
+
+---
+Task ID: 4
+Agent: main
+Task: Alignement des icônes sur le set cattly.io (Lucide outline)
+
+Work Log:
+- Lecture de cattly.io via page_reader (Cloudflare blockait le screenshot direct)
+- Extraction des 21 SVGs uniques du HTML, identification des icônes Lucide utilisées par cattly.io :
+  Database, Users, FileText, Map, Droplet, TrendingUp, Activity, Package, Clock, CreditCard, BarChart3 (+ X, Expand pour UI)
+- Analyse du contexte texte autour de chaque <span class="icon"> pour comprendre le mapping icône → feature cattly
+- Remapping de la navigation (app-sidebar.tsx NAV_ITEMS) sur le set cattly :
+  - Tableau de bord : LayoutDashboard → Activity (cattly = métriques/data)
+  - Bovins : Beef → Database (cattly = records d'élevage)
+  - Alimentation : Salad → Package (cattly = inventaire/supplements)
+  - Dépenses : Receipt → CreditCard (cattly = billing)
+  - Ventes : ShoppingCart → TrendingUp (cattly = croissance)
+  - Rentabilité : TrendingUp → BarChart3 (cattly = charts)
+  - Financement : Landmark → Clock (cattly = reminders/échéances)
+  - Rapport bailleur : FileText (déjà aligné)
+- Alignement des ViewHeader de chaque vue sur la même icône que la nav (cohérence sidebar ↔ en-tête)
+- Les KPI cards gardent des icônes domain-spécifiques (Beef pour bovins, Salad pour alimentation, etc.) car plus expressives
+
+Stage Summary:
+- Vérification VLM Agent Browser : les 8 icônes de nav confirmées (Activity, Database, Package, CreditCard, TrendingUp, BarChart3, Clock, FileText)
+- Vérification VLM ViewHeader Bovins : icône cylindre (Database) confirmée
+- Lint clean
+- Style préservé : Lucide outline stroke-width=2 viewBox 24×24 round caps (identique à cattly.io)

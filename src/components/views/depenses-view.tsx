@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Receipt, Plus, Beef, Wallet, Stethoscope, Truck, Wrench, Users } from "lucide-react";
+import { Receipt, Plus, Beef, Wallet, Stethoscope, Truck, Wrench, Users, CreditCard } from "lucide-react";
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 
@@ -65,7 +65,7 @@ export function DepensesView() {
       <ViewHeader
         title="Dépenses d'exploitation"
         description="Soins vétérinaires, transport, main-d'œuvre et autres charges."
-        icon={Receipt}
+        icon={CreditCard}
         action={
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>

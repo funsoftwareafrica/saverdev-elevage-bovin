@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent } from "lucide-react";
+import { TrendingUp, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -33,7 +33,7 @@ export function RentabiliteView() {
   if (dashLoading || !dash) {
     return (
       <div className="space-y-6">
-        <ViewHeader title="Rentabilité" description="Analyse des marges, ventilation des coûts et tendances." icon={TrendingUp} />
+        <ViewHeader title="Rentabilité" description="Analyse des marges, ventilation des coûts et tendances." icon={BarChart3} />
         <div className="grid gap-3 sm:grid-cols-4">{Array.from({length:4}).map((_,i)=><Skeleton key={i} className="h-28"/>)}</div>
         <div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-64"/><Skeleton className="h-64"/></div>
       </div>
@@ -65,7 +65,7 @@ export function RentabiliteView() {
       <ViewHeader
         title="Rentabilité"
         description="Analyse des marges par tête, ventilation des coûts et tendances."
-        icon={TrendingUp}
+        icon={BarChart3}
       />
 
       {/* KPI principaux */}

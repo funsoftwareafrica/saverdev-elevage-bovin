@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User } from "lucide-react";
+// Note: ShoppingCart reste pour les KPI cards (ventes/CA), TrendingUp pour l'en-tête (aligné sur cattly.io)
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 
@@ -62,7 +63,7 @@ export function VentesView() {
       <ViewHeader
         title="Ventes & sorties"
         description="Enregistrement des ventes — marge calculée automatiquement (prix de vente – coût de revient)."
-        icon={ShoppingCart}
+        icon={TrendingUp}
         action={
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>

@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Beef, Search, Eye, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Beef, Search, Eye, Plus, TrendingUp, TrendingDown, Database } from "lucide-react";
 import { ViewHeader, EmptyState, KpiCard } from "./_shared";
 import type { StatutBovin } from "@/lib/types";
 
@@ -49,7 +49,7 @@ export function BovinsView() {
       <ViewHeader
         title="Cheptel — Bovins"
         description="Liste des bovins, statuts et marges. Cliquez sur un bovin pour ouvrir sa fiche."
-        icon={Beef}
+        icon={Database}
         action={
           <Button size="sm" className="bg-primary">
             <Plus className="h-4 w-4" /> Nouvel achat

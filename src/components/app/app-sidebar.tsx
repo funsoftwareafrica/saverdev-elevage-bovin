@@ -8,13 +8,13 @@ import { ROLE_LABELS, ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Beef,
-  Salad,
-  Receipt,
-  ShoppingCart,
+  Activity,
+  Database,
+  Package,
+  CreditCard,
   TrendingUp,
-  Landmark,
+  BarChart3,
+  Clock,
   FileText,
   ChevronRight,
   Menu,
@@ -29,14 +29,17 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+// Icônes alignées sur le set cattly.io (Lucide outline, stroke-width 2, viewBox 24×24) :
+// Activity (métriques), Database (records), Package (inventaire), CreditCard (billing),
+// TrendingUp (croissance), BarChart3 (charts), Clock (échéances), FileText (documents).
 const NAV_ITEMS: NavItem[] = [
-  { key: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
-  { key: "bovins", label: "Bovins", icon: Beef },
-  { key: "alimentation", label: "Alimentation", icon: Salad },
-  { key: "depenses", label: "Dépenses", icon: Receipt },
-  { key: "ventes", label: "Ventes", icon: ShoppingCart },
-  { key: "rentabilite", label: "Rentabilité", icon: TrendingUp },
-  { key: "financement", label: "Financement", icon: Landmark },
+  { key: "dashboard", label: "Tableau de bord", icon: Activity },
+  { key: "bovins", label: "Bovins", icon: Database },
+  { key: "alimentation", label: "Alimentation", icon: Package },
+  { key: "depenses", label: "Dépenses", icon: CreditCard },
+  { key: "ventes", label: "Ventes", icon: TrendingUp },
+  { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
+  { key: "financement", label: "Financement", icon: Clock },
   { key: "rapport", label: "Rapport bailleur", icon: FileText },
 ];
 

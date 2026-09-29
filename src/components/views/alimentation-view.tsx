@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Salad, Plus, Receipt, PiggyBank, Beef } from "lucide-react";
+import { Salad, Plus, Receipt, PiggyBank, Beef, Package } from "lucide-react";
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 
@@ -80,7 +80,7 @@ export function AlimentationView() {
       <ViewHeader
         title="Alimentation"
         description="Saisie des aliments achetés et imputation automatique du coût par tête."
-        icon={Salad}
+        icon={Package}
         action={
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>

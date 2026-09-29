@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Landmark, Wallet, CalendarClock, CheckCircle2, AlertCircle, Clock, PiggyBank } from "lucide-react";
+// Clock est utilisé pour l'en-tête (aligné cattly.io) + KPI échéances ; Landmark reste pour KPI financement
 import { ViewHeader, KpiCard } from "./_shared";
 // pas de useMemo ici pour éviter le lint react-hooks/preserve-manual-memoization
 
@@ -20,7 +21,7 @@ export function FinancementView() {
   if (isLoading || !fin) {
     return (
       <div className="space-y-6">
-        <ViewHeader title="Financement & Bailleur" description="Chargement..." icon={Landmark} />
+        <ViewHeader title="Financement & Bailleur" description="Chargement..." icon={Clock} />
         <div className="grid gap-3 sm:grid-cols-4">{Array.from({length:4}).map((_,i)=><Skeleton key={i} className="h-28"/>)}</div>
         <Skeleton className="h-48"/>
       </div>
@@ -47,7 +48,7 @@ export function FinancementView() {
       <ViewHeader
         title="Financement & Bailleur"
         description="Suivi du financement SAVERDEV, utilisation des fonds et échéances de remboursement."
-        icon={Landmark}
+        icon={Clock}
       />
 
       {/* KPI financement */}
