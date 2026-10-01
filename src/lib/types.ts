@@ -187,3 +187,6 @@ export interface Soin { id: string; bovinId: string; date: string; type: string;
 export interface RaceStat { race: string; total: number; actifs: number; vendus: number; margeTotale: number; margeMoyenne: number; dureeMoyenne: number; poidsMoyen: number; }
 export interface ComparaisonMois { moisCourant: string; moisPrecedent: string; ventes: { courant: number; prec: number; delta: { abs: number; pct: number } }; ca: { courant: number; prec: number; delta: { abs: number; pct: number } }; marge: { courant: number; prec: number; delta: { abs: number; pct: number } }; depenses: { courant: number; prec: number; delta: { abs: number; pct: number } }; alimentation: { courant: number; prec: number; delta: { abs: number; pct: number } }; }
 export interface Paturage { id: string; nom: string; surface: number; coordonnees: string | null; capacite: number; createdAt: string; }
+
+export interface Tag { id: string; tag: string; color: string; }
+export interface Validation { id: string; entiteType: string; entiteId: string; action: string; statut: string; dateSaisie: string; dateValidation: string | null; commentaire: string | null; }

@@ -10,7 +10,7 @@ import type {
   Alerte,
   Historique,
   Tresorerie, Pese, Parametre, NotificationItem, Backup, Soin, RaceStat, ComparaisonMois, Paturage,
-  Dashboard,
+  Dashboard, Tag, Validation,
 } from "@/lib/types";
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -220,3 +220,36 @@ export function useStatsRaces() { return useQuery<RaceStat[]>({ queryKey: ["stat
 export function useStatsComparaison() { return useQuery<ComparaisonMois>({ queryKey: ["stats-comparaison"], queryFn: () => fetchJson<ComparaisonMois>("/api/stats/comparaison") }); }
 // ---------- Paturages ----------
 export function usePaturages() { return useQuery<Paturage[]>({ queryKey: ["paturages"], queryFn: () => fetchJson<Paturage[]>("/api/paturages") }); }
+
+// ---------- Tags ----------
+export function useTags(bovinId: string | null) {
+  return useQuery<Tag[]>({
+    queryKey: ["tags", bovinId],
+    queryFn: () => fetchJson<Tag[]>(`/api/bovins/${bovinId}/tags`),
+    enabled: !!bovinId,
+  });
+}
+export function useAddTag() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { bovinId: string; tag: string; color?: string }) => {
+      const r = await fetch(`/api/bovins/${data.bovinId}/tags`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!r.ok) throw new Error("Échec"); return r.json();
+    },
+    onSuccess: (_, data) => { qc.invalidateQueries({ queryKey: ["tags", data.bovinId] }); },
+  });
+}
+// ---------- Validations ----------
+export function useValidations() {
+  return useQuery<Validation[]>({ queryKey: ["validations"], queryFn: () => fetchJson<Validation[]>("/api/validations") });
+}
+export function useValidateOperation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; statut: "VALIDE" | "REJETE"; commentaire?: string }) => {
+      const r = await fetch(`/api/validations/${data.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!r.ok) throw new Error("Échec"); return r.json();
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["validations"] }); qc.invalidateQueries({ queryKey: ["dashboard"] }); },
+  });
+}

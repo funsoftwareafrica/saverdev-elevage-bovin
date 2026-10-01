@@ -2,7 +2,7 @@
 
 // Vue Fiche bovin — détail complet d'un bovin (identification, achat, coûts, marge).
 
-import { useBovin } from "@/lib/api";
+import { useBovin, useTags, useAddTag } from "@/lib/api";
 import { computeBovinMarge } from "@/lib/calculations";
 import { useAppStore } from "@/lib/store";
 import { formatFCFA, formatDate, statutBovinColor, joursEntre } from "@/lib/format";
@@ -12,13 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Beef, ShoppingCart, Salad, Wallet, TrendingUp, Calendar, Scale, User, QrCode, Printer } from "lucide-react";
+import { ArrowLeft, Beef, ShoppingCart, Salad, Wallet, TrendingUp, Calendar, Scale, User, QrCode, Printer, Tag as TagIcon, Plus, X } from "lucide-react";
 import { QRCode } from "@/components/charts/qr-code";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function FicheBovinView() {
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
   const setView = useAppStore((s) => s.setView);
   const { data: bovin, isLoading } = useBovin(selectedBovinId);
+  const { data: tags } = useTags(selectedBovinId);
+  const addTag = useAddTag();
+  const [newTag, setNewTag] = useState("");
 
   if (isLoading || !bovin) {
     return (
@@ -138,6 +144,54 @@ export function FicheBovinView() {
                 Bovin en cours d'engraissement — la marge sera calculée à la vente.
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Tags personnalisables */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <TagIcon className="h-4 w-4 text-primary" /> Tags
+            </CardTitle>
+            <CardDescription className="text-xs">Étiquettes personnalisées pour ce bovin</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {(tags ?? []).map((t) => (
+                <span
+                  key={t.id}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                  style={{ backgroundColor: t.color + "20", color: t.color, border: `1px solid ${t.color}40` }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: t.color }} />
+                  {t.tag}
+                </span>
+              ))}
+              {(tags ?? []).length === 0 && (
+                <p className="text-xs text-muted-foreground">Aucun tag pour ce bovin.</p>
+              )}
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newTag.trim() || !selectedBovinId) return;
+                addTag.mutate(
+                  { bovinId: selectedBovinId, tag: newTag.trim() },
+                  { onSuccess: () => { toast.success("Tag ajouté"); setNewTag(""); }, onError: () => toast.error("Échec") }
+                );
+              }}
+              className="flex gap-2"
+            >
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Nouveau tag..."
+                className="h-8 text-sm flex-1"
+              />
+              <Button type="submit" size="sm" variant="outline" disabled={addTag.isPending || !newTag.trim()}>
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </form>
           </CardContent>
         </Card>
 
