@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Menu,
   Shield,
+  Box,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
   { key: "financement", label: "Financement", icon: Clock },
   { key: "rapport", label: "Rapport bailleur", icon: FileText },
+  { key: "carte-3d", label: "Carte 3D", icon: Box },
 ];
 
 interface Props {

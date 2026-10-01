@@ -25,6 +25,7 @@ import { ParametresView } from "@/components/views/parametres-view";
 import { PaturagesView } from "@/components/views/paturages-view";
 import { RapportBailleurView } from "@/components/views/rapport-bailleur-view";
 import { BailleurSyntheseView } from "@/components/views/bailleur-synthese-view";
+import { Carte3DView } from "@/components/views/carte-3d-view";
 import { motion, AnimatePresence } from "framer-motion";
 
 const VIEW_TITLES: Record<ViewKey, string> = {
@@ -42,6 +43,7 @@ const VIEW_TITLES: Record<ViewKey, string> = {
   paturages: "Pâturages",
   rapport: "Rapport bailleur",
   "bailleur-synthese": "Synthèse bailleur",
+  "carte-3d": "Carte 3D — Exploitation",
 };
 
 const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
@@ -59,6 +61,7 @@ const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
   paturages: PaturagesView,
   rapport: RapportBailleurView,
   "bailleur-synthese": BailleurSyntheseView,
+  "carte-3d": Carte3DView,
 };
 
 export default function Home() {

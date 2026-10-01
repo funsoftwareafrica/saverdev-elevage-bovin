@@ -156,9 +156,9 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 // Vues accessibles par rôle
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
   ELEVEUR: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "pesees"],
-  GERANT: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
+  GERANT: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
   BAILLEUR: ["bailleur-synthese", "financement", "rapport"],
-  ADMIN: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
+  ADMIN: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
 };
 
 export type ViewKey =
@@ -175,7 +175,8 @@ export type ViewKey =
   | "pesees"
   | "parametres"
   | "paturages"
-  | "bailleur-synthese";
+  | "bailleur-synthese"
+  | "carte-3d";
 
 export interface Pese { id: string; bovinId: string; identifiant: string; race: string; date: string; poids: number; methode: string; }
 export interface Parametre { id: string; cle: string; valeur: string; description: string | null; }
