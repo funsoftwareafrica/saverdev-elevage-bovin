@@ -165,6 +165,68 @@
   .scroll-thin-dark::-webkit-scrollbar-thumb {
     background: oklch(0.55 0.06 50);
   }
+
+  /* === GLASSMORPHISM === */
+  .glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+
+  /* === GRADIENT MESH BG === */
+  .gradient-mesh {
+    background:
+      radial-gradient(at 20% 10%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, rgba(245, 158, 11, 0.04) 0px, transparent 50%);
+  }
+
+  /* === GLOW === */
+  .glow-primary { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 40px rgba(16, 185, 129, 0.05); }
+  .glow-soft { box-shadow: 0 4px 24px -4px rgba(16, 185, 129, 0.12); }
+  .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.12); }
+  .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.12); }
+
+  /* === TEXT GRADIENT === */
+  .text-gradient {
+    background: linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #34D399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* === HOVER LIFT === */
+  .hover-lift { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease; }
+  .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 40px -8px rgba(15, 23, 42, 0.12), 0 0 20px rgba(16, 185, 129, 0.08); }
+
+  /* === SHIMMER === */
+  .shimmer {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+    background-size: 200% 100%;
+    animation: shimmer-slide 1.5s ease-in-out infinite;
+  }
+  @keyframes shimmer-slide { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* === FLOAT === */
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+  .animate-float { animation: float 4s ease-in-out infinite; }
+
+  /* === PULSE GLOW === */
+  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); } 50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } }
+  .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+  /* === ANIMATED GRADIENT === */
+  @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  .animate-gradient { background-size: 200% 200%; animation: gradient-shift 6s ease infinite; }
 }
 
 /* Impression : pour le rapport bailleur PDF via navigateur */

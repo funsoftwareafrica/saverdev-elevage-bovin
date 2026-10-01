@@ -48,29 +48,28 @@ export function BailleurSyntheseView() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* En-tête bailleur */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <SaverdevLogo size={56} variant="light" />
-              <div>
-                <h2 className="text-xl font-bold text-foreground">Espace Bailleur</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Connecté en tant que {ROLE_LABELS[role]}
-                </p>
-              </div>
+      {/* En-tête bailleur — hero gradient glassmorphism */}
+      <div className="relative overflow-hidden rounded-2xl glass-card hover-lift p-6 mb-2">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-teal/5 to-transparent animate-gradient pointer-events-none" />
+        <div className="relative flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <SaverdevLogo size={56} variant="light" />
+            <div>
+              <h2 className="text-xl font-bold text-gradient">Espace Bailleur</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Connecté en tant que {ROLE_LABELS[role]}
+              </p>
             </div>
-            <Button size="sm" className="bg-primary shrink-0" onClick={() => setView("rapport")}>
-              <FileText className="h-4 w-4" /> Rapport mensuel
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+          <Button size="sm" className="bg-primary glow-soft shrink-0" onClick={() => setView("rapport")}>
+            <FileText className="h-4 w-4" /> Rapport mensuel
+          </Button>
+        </div>
+      </div>
 
       {/* KPIs financiers principaux */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl p-5 bg-emerald-50 border border-emerald-200">
+        <div className="rounded-2xl p-5 bg-emerald-50 border border-emerald-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
             <Landmark className="h-5 w-5 text-emerald-600" />
             <span className="text-[0.65rem] uppercase text-emerald-700 font-medium">Investi</span>
@@ -78,7 +77,7 @@ export function BailleurSyntheseView() {
           <p className="text-2xl font-bold text-emerald-700 tabular-nums">{formatFCFAShort(dash.financement.montantFinance)}</p>
           <p className="text-[0.7rem] text-emerald-600 mt-1">Bailleur : {fin?.bailleur ?? "SAVERDEV"}</p>
         </div>
-        <div className="rounded-2xl p-5 bg-blue-50 border border-blue-200">
+        <div className="rounded-2xl p-5 bg-blue-50 border border-blue-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
             <CheckCircle2 className="h-5 w-5 text-blue-600" />
             <span className="text-[0.65rem] uppercase text-blue-700 font-medium">Remboursé</span>
@@ -86,7 +85,7 @@ export function BailleurSyntheseView() {
           <p className="text-2xl font-bold text-blue-700 tabular-nums">{formatFCFAShort(dash.financement.montantUtilise)}</p>
           <p className="text-[0.7rem] text-blue-600 mt-1">{payees.length} échéance(s) payée(s)</p>
         </div>
-        <div className="rounded-2xl p-5 bg-amber-50 border border-amber-200">
+        <div className="rounded-2xl p-5 bg-amber-50 border border-amber-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
             <PiggyBank className="h-5 w-5 text-amber-600" />
             <span className="text-[0.65rem] uppercase text-amber-700 font-medium">Solde dû</span>
@@ -94,7 +93,7 @@ export function BailleurSyntheseView() {
           <p className="text-2xl font-bold text-amber-700 tabular-nums">{formatFCFAShort(dash.financement.solde)}</p>
           <p className="text-[0.7rem] text-amber-600 mt-1">{aPayer.length + enRetard.length} échéance(s) restante(s)</p>
         </div>
-        <div className="rounded-2xl p-5 bg-slate-50 border border-slate-200">
+        <div className="rounded-2xl p-5 bg-slate-50 border border-slate-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="h-5 w-5 text-slate-600" />
             <span className="text-[0.65rem] uppercase text-slate-700 font-medium">Utilisation</span>
@@ -221,7 +220,7 @@ export function BailleurSyntheseView() {
       </div>
 
       {/* CTA rapport */}
-      <Card className="border-primary/30 bg-primary/5">
+      <Card className="border-primary/30 bg-primary/5 glass-card glow-soft">
         <CardContent className="p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <FileText className="h-8 w-8 text-primary" />

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function ViewHeader({
   title,
@@ -68,9 +69,24 @@ export function KpiCard({
     danger: "bg-red-100 text-red-700",
   };
 
+  const glowClass: Record<string, string> = {
+    default: "",
+    primary: "glow-soft",
+    success: "glow-soft",
+    warning: "glow-amber",
+    danger: "glow-red",
+  };
+
   return (
-    <Card className={cn("relative overflow-hidden", variantClasses[variant])}>
-      <CardContent className="p-4 sm:p-5">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      className={cn("relative overflow-hidden glass-card hover-lift rounded-2xl", glowClass[variant])}
+    >
+      <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <p className="text-[0.7rem] uppercase tracking-wider font-medium text-muted-foreground truncate">
@@ -101,8 +117,8 @@ export function KpiCard({
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }
 

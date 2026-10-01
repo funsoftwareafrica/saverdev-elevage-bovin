@@ -76,7 +76,7 @@ export default function Home() {
   }, [effectiveView, selectedBovinId, role]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background gradient-mesh">
       <AppHeader title={VIEW_TITLES[effectiveView]} subtitle={subtitle} />
       <div className="flex flex-1 w-full">
         <AppSidebar activeView={effectiveView} role={role} />
@@ -85,10 +85,10 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={effectiveView}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
                 <ViewComponent />
               </motion.div>
