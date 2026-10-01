@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Beef, ShoppingCart, Salad, Wallet, TrendingUp, Calendar, Scale, User } from "lucide-react";
+import { ArrowLeft, Beef, ShoppingCart, Salad, Wallet, TrendingUp, Calendar, Scale, User, QrCode, Printer } from "lucide-react";
+import { QRCode } from "@/components/charts/qr-code";
 
 export function FicheBovinView() {
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
@@ -137,6 +138,49 @@ export function FicheBovinView() {
                 Bovin en cours d'engraissement — la marge sera calculée à la vente.
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* QR Code + impression étiquette */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <QrCode className="h-4 w-4 text-primary" /> QR Code & étiquette
+            </CardTitle>
+            <CardDescription className="text-xs">Scannez pour accéder à la fiche mobile</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-4 py-4">
+            <QRCode value={bovin.identifiant} size={140} className="rounded-lg border border-border p-2" />
+            <div className="text-center">
+              <p className="font-mono font-bold text-primary text-lg">{bovin.identifiant}</p>
+              <p className="text-[0.7rem] text-muted-foreground">{bovin.race} · {bovin.poidsAchat} kg</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const printWin = window.open("", "_blank", "width=400,height=300");
+                if (printWin) {
+                  printWin.document.write(`
+                    <html><head><title>Étiquette ${bovin.identifiant}</title></head>
+                    <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;">
+                      <div style="border:2px solid #111827;border-radius:8px;padding:16px;text-align:center;">
+                        <p style="font-size:24px;font-weight:700;color:#10B981;margin:0 0 4px;">${bovin.identifiant}</p>
+                        <p style="font-size:12px;color:#6B7280;margin:0 0 8px;">${bovin.race} · ${bovin.poidsAchat} kg · ${formatDate(bovin.dateAchat)}</p>
+                        <div style="width:120px;height:120px;background:#fff;border:1px solid #E5E7EB;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                          <span style="font-size:10px;color:#9CA3AF;">QR Code</span>
+                        </div>
+                        <p style="font-size:9px;color:#9CA3AF;margin-top:8px;">SAVERDEV · Sahel Vert · Développement</p>
+                      </div>
+                    </body></html>
+                  `);
+                  printWin.document.close();
+                  printWin.print();
+                }
+              }}
+            >
+              <Printer className="h-4 w-4" /> Imprimer l'étiquette
+            </Button>
           </CardContent>
         </Card>
       </div>

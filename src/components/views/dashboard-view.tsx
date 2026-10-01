@@ -5,7 +5,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboard, useHistorique } from "@/lib/api";
+import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces } from "@/lib/api";
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor } from "@/lib/format";
 import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,8 @@ import {
   Beef,
   Salad,
   TrendingUp,
+  TrendingDown,
+  Minus,
   Landmark,
   AlertTriangle,
   Clock,
@@ -147,6 +149,12 @@ export function DashboardView() {
           </CardContent>
         </Card>
       </section>
+
+      {/* === COMPARAISON DE PÉRIODES === */}
+      <ComparaisonSection />
+
+      {/* === PERFORMANCE PAR RACE === */}
+      <RacePerformanceSection />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
@@ -308,5 +316,105 @@ function DashboardSkeleton() {
         <Skeleton className="h-72 rounded-lg" />
       </div>
     </div>
+  );
+}
+
+// === COMPARAISON DE PÉRIODES (mois courant vs précédent) ===
+function ComparaisonSection() {
+  const { data: comp, isLoading } = useStatsComparaison();
+
+  if (isLoading || !comp) return <Skeleton className="h-32 rounded-xl" />;
+
+  const metrics = [
+    { key: "ca", label: "CA", val: comp.ca, isGood: (d: number) => d >= 0 },
+    { key: "marge", label: "Marge", val: comp.marge, isGood: (d: number) => d >= 0 },
+    { key: "ventes", label: "Ventes", val: comp.ventes, isGood: (d: number) => d >= 0, isCount: true },
+    { key: "depenses", label: "Dépenses", val: comp.depenses, isGood: (d: number) => d <= 0 },
+    { key: "alimentation", label: "Alim.", val: comp.alimentation, isGood: (d: number) => d <= 0 },
+  ];
+
+  return (
+    <section>
+      <SectionTitle icon={TrendingUp} title="Comparaison" subtitle={`${comp.moisCourant} vs ${comp.moisPrecedent}`} />
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        {metrics.map((m) => {
+          const d = m.val.delta;
+          const good = m.isGood(d.pct);
+          const curVal = m.isCount ? String(m.val.courant) : formatFCFAShort(m.val.courant);
+          return (
+            <div key={m.key} className="bg-white border border-border rounded-xl p-4 hover-lift">
+              <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">{m.label}</p>
+              <p className="text-xl font-bold text-foreground tabular-nums mt-1">{curVal}</p>
+              <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
+                {d.pct > 0 ? <TrendingUp className="h-3 w-3" /> : d.pct < 0 ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                <span className={good ? "text-emerald-600" : "text-red-600"}>
+                  {d.pct === 0 ? "stable" : `${d.pct > 0 ? "+" : ""}${d.pct}%`}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// === PERFORMANCE PAR RACE ===
+function RacePerformanceSection() {
+  const { data: races, isLoading } = useStatsRaces();
+
+  if (isLoading || !races || races.length === 0) return <Skeleton className="h-64 rounded-xl" />;
+
+  const maxMarge = Math.max(...races.map((r) => r.margeMoyenne), 1);
+  const top3 = races.slice(0, 3);
+
+  return (
+    <section>
+      <SectionTitle icon={Beef} title="Performance par race" subtitle="Classement par marge moyenne" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Top 3 */}
+        <div className="lg:col-span-1 space-y-3">
+          <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">Top performers</p>
+          {top3.map((r, i) => (
+            <div key={r.race} className={`rounded-xl border p-3 ${i === 0 ? "border-amber-200 bg-amber-50/50" : "border-border bg-white"}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
+                  <span className="text-sm font-semibold">{r.race}</span>
+                </div>
+                {i === 0 && <span className="text-lg">🏆</span>}
+              </div>
+              <div className="flex justify-between mt-2 text-[0.7rem] text-muted-foreground">
+                <span>{r.total} bovins ({r.vendus} vendus)</span>
+                <span className="font-semibold text-emerald-600">{formatFCFAShort(r.margeMoyenne)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Barres horizontales */}
+        <div className="lg:col-span-2 bg-white border border-border rounded-xl p-4">
+          <p className="text-[0.65rem] uppercase text-muted-foreground font-medium mb-3">Marge moyenne par race (FCFA)</p>
+          <div className="space-y-3">
+            {races.map((r) => (
+              <div key={r.race} className="flex items-center gap-3">
+                <span className="text-xs font-medium w-28 truncate">{r.race}</span>
+                <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden">
+                  <div className="h-full bg-primary rounded-md transition-all" style={{ width: `${(r.margeMoyenne / maxMarge) * 100}%` }} />
+                </div>
+                <span className="text-xs font-semibold tabular-nums w-16 text-right">{formatFCFAShort(r.margeMoyenne)}</span>
+              </div>
+            ))}
+          </div>
+          <Separator className="my-3" />
+          <div className="grid grid-cols-4 gap-2 text-center text-[0.65rem]">
+            <div><p className="text-muted-foreground">Bovins</p><p className="font-bold">{races.reduce((s,r)=>s+r.total,0)}</p></div>
+            <div><p className="text-muted-foreground">Vendus</p><p className="font-bold">{races.reduce((s,r)=>s+r.vendus,0)}</p></div>
+            <div><p className="text-muted-foreground">Durée moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.dureeMoyenne,0)/races.length)} j</p></div>
+            <div><p className="text-muted-foreground">Poids moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.poidsMoyen,0)/races.length)} kg</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
