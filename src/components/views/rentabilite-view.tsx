@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "lucide-react";
 import {
   Bar,
   BarChart,

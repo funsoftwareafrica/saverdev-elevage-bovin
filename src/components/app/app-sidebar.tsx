@@ -18,6 +18,7 @@ import {
   FileText,
   ChevronRight,
   Menu,
+  Shield,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";

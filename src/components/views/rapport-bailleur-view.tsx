@@ -147,10 +147,10 @@ export function RapportBailleurView() {
           <ReportSection title="4. Alertes & faits marquants" icon={AlertCircle}>
             <div className="space-y-2">
               {dash.alertes.filter((a) => !a.resolved).map((a) => (
-                <div key={a.id} className={`rounded-md border px-3 py-2 text-xs ${severiteColor(a.severity)}`}>
+                <div key={a.id} className={`rounded-md border px-3 py-2 text-xs ${severiteColor(a.severite)}`}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">{a.message}</span>
-                    <span className="text-[0.6rem] uppercase font-semibold">{a.severity}</span>
+                    <span className="text-[0.6rem] uppercase font-semibold">{a.severite}</span>
                   </div>
                 </div>
               ))}

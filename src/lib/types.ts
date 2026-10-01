@@ -155,10 +155,10 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 
 // Vues accessibles par rôle
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
-  ELEVEUR: ["dashboard", "bovins", "alimentation", "depenses", "ventes"],
-  GERANT: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
-  BAILLEUR: ["dashboard", "rentabilite", "financement", "rapport"],
-  ADMIN: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
+  ELEVEUR: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "pesees"],
+  GERANT: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
+  BAILLEUR: ["bailleur-synthese", "financement", "rapport"],
+  ADMIN: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
 };
 
 export type ViewKey =
@@ -170,4 +170,20 @@ export type ViewKey =
   | "ventes"
   | "rentabilite"
   | "financement"
-  | "rapport";
+  | "rapport"
+  | "tresorerie"
+  | "pesees"
+  | "parametres"
+  | "paturages"
+  | "bailleur-synthese";
+
+export interface Pese { id: string; bovinId: string; identifiant: string; race: string; date: string; poids: number; methode: string; }
+export interface Parametre { id: string; cle: string; valeur: string; description: string | null; }
+export interface NotificationItem { id: string; date: string; type: string; titre: string; message: string; lu: boolean; lien: string | null; }
+export interface TresorerieProjection { mois: string; date: string; entrees: number; sorties: number; solde: number; soldeCumule: number; enRisque: boolean; }
+export interface Tresorerie { soldeInitial: number; depenseMensuelleMoy: number; projection: TresorerieProjection[]; moisARisque: number; totalEntrees: number; totalSorties: number; }
+export interface Backup { id: string; date: string; filename: string; size: number; type: string; entities: number; }
+export interface Soin { id: string; bovinId: string; date: string; type: string; libelle: string; cout: number; prochainRappel: string | null; notes: string | null; }
+export interface RaceStat { race: string; total: number; actifs: number; vendus: number; margeTotale: number; margeMoyenne: number; dureeMoyenne: number; poidsMoyen: number; }
+export interface ComparaisonMois { moisCourant: string; moisPrecedent: string; ventes: { courant: number; prec: number; delta: { abs: number; pct: number } }; ca: { courant: number; prec: number; delta: { abs: number; pct: number } }; marge: { courant: number; prec: number; delta: { abs: number; pct: number } }; depenses: { courant: number; prec: number; delta: { abs: number; pct: number } }; alimentation: { courant: number; prec: number; delta: { abs: number; pct: number } }; }
+export interface Paturage { id: string; nom: string; surface: number; coordonnees: string | null; capacite: number; createdAt: string; }

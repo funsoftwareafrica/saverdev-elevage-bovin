@@ -1,7 +1,6 @@
 "use client";
 
 // Shell principal de l'application SAVERDEV Élevage Bovin.
-// Layout : sidebar gauche (marron terre) + header sticky + contenu + footer sticky.
 // Routeur de vues par état local (Zustand) — pas de routing Next.js (single page).
 // Rôles : Éleveur / Gérant / Bailleur (lecture seule) / Admin.
 
@@ -20,7 +19,13 @@ import { DepensesView } from "@/components/views/depenses-view";
 import { VentesView } from "@/components/views/ventes-view";
 import { RentabiliteView } from "@/components/views/rentabilite-view";
 import { FinancementView } from "@/components/views/financement-view";
+import { TresorerieView } from "@/components/views/tresorerie-view";
+import { PeseesView } from "@/components/views/pesees-view";
+import { ParametresView } from "@/components/views/parametres-view";
+import { PaturagesView } from "@/components/views/paturages-view";
 import { RapportBailleurView } from "@/components/views/rapport-bailleur-view";
+import { BailleurSyntheseView } from "@/components/views/bailleur-synthese-view";
+import { motion, AnimatePresence } from "framer-motion";
 
 const VIEW_TITLES: Record<ViewKey, string> = {
   dashboard: "Tableau de bord",
@@ -31,7 +36,12 @@ const VIEW_TITLES: Record<ViewKey, string> = {
   ventes: "Ventes & sorties",
   rentabilite: "Rentabilité",
   financement: "Financement & Bailleur",
+  tresorerie: "Prévisions de trésorerie",
+  pesees: "Pesées connectées",
+  parametres: "Paramètres & seuils",
+  paturages: "Pâturages",
   rapport: "Rapport bailleur",
+  "bailleur-synthese": "Synthèse bailleur",
 };
 
 const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
@@ -43,7 +53,12 @@ const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
   ventes: VentesView,
   rentabilite: RentabiliteView,
   financement: FinancementView,
+  tresorerie: TresorerieView,
+  pesees: PeseesView,
+  parametres: ParametresView,
+  paturages: PaturagesView,
   rapport: RapportBailleurView,
+  "bailleur-synthese": BailleurSyntheseView,
 };
 
 export default function Home() {
@@ -52,7 +67,7 @@ export default function Home() {
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
 
   const allowedViews = ROLE_VIEWS[role];
-  const effectiveView: ViewKey = allowedViews.includes(view) ? view : "dashboard";
+  const effectiveView: ViewKey = allowedViews.includes(view) ? view : allowedViews[0] ?? "dashboard";
   const ViewComponent = VIEW_COMPONENTS[effectiveView];
 
   const subtitle = useMemo(() => {
@@ -67,7 +82,17 @@ export default function Home() {
         <AppSidebar activeView={effectiveView} role={role} />
         <main className="flex-1 min-w-0 overflow-x-hidden">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6">
-            <ViewComponent />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={effectiveView}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ViewComponent />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>
