@@ -3,6 +3,7 @@
 // Sidebar marron terre — navigation principale filtrée par rôle.
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useAppStore } from "@/lib/store";
 import { ROLE_LABELS, ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
 import { SaverdevLogo } from "@/components/saverdev-logo";
@@ -64,27 +65,59 @@ export function AppSidebar({ activeView, role }: Props) {
 
   const navList = (
     <nav className="flex flex-col gap-1 px-3">
-      {items.map((item) => {
-        const Icon = item.icon;
-        const isActive =
-          activeView === item.key || (item.key === "bovins" && activeView === "fiche-bovin");
-        return (
-          <button
-            key={item.key}
-            onClick={() => handleSelect(item.key)}
-            className={cn(
-              "group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-              "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive &&
-                "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
-            )}
-          >
-            <Icon className="h-[1.125rem] w-[1.125rem] shrink-0" />
-            <span className="flex-1 text-left">{item.label}</span>
-            {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
-          </button>
-        );
-      })}
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.05 } },
+        }}
+        className="flex flex-col gap-1"
+      >
+        {items.map((item) => {
+          const Icon = item.icon;
+          const isActive =
+            activeView === item.key || (item.key === "bovins" && activeView === "fiche-bovin");
+          return (
+            <motion.button
+              key={item.key}
+              variants={{
+                hidden: { opacity: 0, x: -20 },
+                visible: { opacity: 1, x: 0 },
+              }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ x: 4, transition: { duration: 0.15 } }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleSelect(item.key)}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors overflow-hidden",
+                isActive
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground glow-soft"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="active-nav-indicator"
+                  className="absolute left-0 top-0 bottom-0 w-1 bg-sidebar-primary rounded-r-full"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Icon className="h-[1.125rem] w-[1.125rem] shrink-0 relative z-10" />
+              <span className="flex-1 text-left relative z-10">{item.label}</span>
+              {isActive && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+                >
+                  <ChevronRight className="h-4 w-4 opacity-70" />
+                </motion.div>
+              )}
+            </motion.button>
+          );
+        })}
+      </motion.div>
     </nav>
   );
 

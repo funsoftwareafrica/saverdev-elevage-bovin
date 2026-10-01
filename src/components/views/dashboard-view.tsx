@@ -162,9 +162,9 @@ export function DashboardView() {
                 <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} domain={["dataMin", "dataMax"]} />
                 <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem", border: "1px solid oklch(0.90 0.015 80)" }} />
                 <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
-                <Line type="monotone" dataKey="ca" name="CA" stroke={CHART_COLORS.vertForet} strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="couts" name="Coûts" stroke={CHART_COLORS.marronTerre} strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="marge" name="Marge" stroke={CHART_COLORS.vertClair} strokeWidth={3} dot={{ r: 4 }} />
+                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="ca" name="CA" stroke={CHART_COLORS.vertForet} strokeWidth={3} dot={{ r: 4 }} />
+                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="couts" name="Coûts" stroke={CHART_COLORS.marronTerre} strokeWidth={3} dot={{ r: 4 }} />
+                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="marge" name="Marge" stroke={CHART_COLORS.vertClair} strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -213,7 +213,7 @@ export function DashboardView() {
                 <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
                 <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
                 <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
-                <Bar dataKey="ventes" name="Ventes" fill={CHART_COLORS.vertForet} radius={[4, 4, 0, 0]} />
+                <Bar isAnimationActive animationDuration={1000} animationBegin={300} dataKey="ventes" name="Ventes" fill={CHART_COLORS.vertForet} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
