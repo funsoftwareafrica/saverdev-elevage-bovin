@@ -108,10 +108,10 @@ export function nextBovinIdentifiant(existing: { identifiant: string }[]): strin
  * Mappe sur --chart-1..5 + --destructive définis dans globals.css.
  */
 export const CHART_COLORS = {
-  vertForet: "#2E8B57",     // chart-1 (primary) — SAVERDEV vert forêt
-  marronTerre: "#4A3728",   // chart-2 (secondary) — SAVERDEV marron terre
-  vertClair: "#7CC576",     // chart-3 (accent) — SAVERDEV vert clair
-  bleuCiel: "#87CEEB",      // chart-4 — SAVERDEV bleu ciel
-  ocreSahel: "#D4A04C",     // chart-5 — sahel
-  rougeTerre: "#C0392B",    // destructive — rouge terre
+  vertForet: "#10B981",     // chart-1 (primary) — SAVERDEV vert forêt
+  marronTerre: "#14B8A6",   // chart-2 (secondary) — SAVERDEV marron terre
+  vertClair: "#34D399",     // chart-3 (accent) — SAVERDEV vert clair
+  bleuCiel: "#34D399",      // chart-4 — SAVERDEV bleu ciel
+  ocreSahel: "#F59E0B",     // chart-5 — sahel
+  rougeTerre: "#EF4444",    // destructive — rouge terre
 } as const;

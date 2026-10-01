@@ -49,88 +49,95 @@
    Vert clair (#7CC576) · Bleu ciel (#87CEEB) · Fond blanc
    ============================================================ */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Surfaces */
-  --background: oklch(0.99 0.005 95);          /* blanc cassé chaud */
-  --foreground: oklch(0.22 0.02 50);           /* marron très foncé pour texte */
-  --card: oklch(1 0 0);                         /* blanc pur pour cartes */
-  --card-foreground: oklch(0.22 0.02 50);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 50);
+  /* Surfaces — fleet management style, blanc pur, AUCUN marron */
+  --background: #FFFFFF;
+  --foreground: #0F172A;                 /* slate-900 */
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
 
-  /* Primary = Vert forêt SAVERDEV #2E8B57 */
-  --primary: oklch(0.575 0.131 152);
-  --primary-foreground: oklch(0.99 0.005 95);
+  /* Primary = Émeraude #10B981 (vert au lieu de bleu) */
+  --primary: #10B981;
+  --primary-foreground: #FFFFFF;
 
-  /* Secondary = Marron terre SAVERDEV #4A3728 */
-  --secondary: oklch(0.31 0.045 50);
-  --secondary-foreground: oklch(0.99 0.005 95);
+  /* Secondary = slate-100 (neutre) */
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
 
-  /* Muted = tons sable/sahel doux */
-  --muted: oklch(0.96 0.012 80);
-  --muted-foreground: oklch(0.45 0.02 50);
+  /* Muted */
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;           /* slate-500 */
 
-  /* Accent = Vert clair SAVERDEV #7CC576 */
-  --accent: oklch(0.85 0.10 140);
-  --accent-foreground: oklch(0.22 0.02 50);
+  /* Accent = vert très clair */
+  --accent: #ECFDF5;
+  --accent-foreground: #047857;
 
-  /* Destructive = rouge terre pour alertes */
-  --destructive: oklch(0.55 0.18 25);
-  --border: oklch(0.90 0.015 80);
-  --input: oklch(0.90 0.015 80);
-  --ring: oklch(0.575 0.131 152);
+  /* Destructive = rouge moderne */
+  --destructive: #EF4444;
+  --border: #E2E8F0;                     /* slate-200 */
+  --input: #E2E8F0;
+  --ring: #10B981;
 
-  /* Charts — palette SAVERDEV déclinée */
-  --chart-1: oklch(0.575 0.131 152);   /* vert forêt */
-  --chart-2: oklch(0.31 0.045 50);      /* marron terre */
-  --chart-3: oklch(0.78 0.13 140);      /* vert clair */
-  --chart-4: oklch(0.81 0.08 225);      /* bleu ciel */
-  --chart-5: oklch(0.70 0.15 75);       /* ocre sahel */
+  /* Charts — émeraude + teal + ambre (vert au lieu de bleu) */
+  --chart-1: #10B981;   /* émeraude (positif) */
+  --chart-2: #14B8A6;   /* teal */
+  --chart-3: #F59E0B;   /* ambre */
+  --chart-4: #34D399;   /* vert clair */
+  --chart-5: #EF4444;   /* rouge (négatif) */
 
-  /* Sidebar = Marron terre SAVERDEV (signature visuelle) */
-  --sidebar: oklch(0.31 0.045 50);
-  --sidebar-foreground: oklch(0.95 0.01 80);
-  --sidebar-primary: oklch(0.78 0.13 140);
-  --sidebar-primary-foreground: oklch(0.22 0.02 50);
-  --sidebar-accent: oklch(0.38 0.05 50);
-  --sidebar-accent-foreground: oklch(0.95 0.01 80);
-  --sidebar-border: oklch(0.42 0.05 50);
-  --sidebar-ring: oklch(0.78 0.13 140);
+  /* Sidebar = SOMBRE slate-900 (style fleet management, vert au lieu de bleu) */
+  --sidebar: #0F172A;
+  --sidebar-foreground: #E2E8F0;         /* slate-200 clair */
+  --sidebar-primary: #10B981;            /* émeraude pour l'actif */
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #1E293B;             /* slate-800 (hover) */
+  --sidebar-accent-foreground: #34D399;  /* vert clair au hover */
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #10B981;
+
+  /* Cellules KPI pastel vert (pas de bleu) */
+  --cell-blue: #ECFDF5;
+  --cell-pink: #FEF2F2;
+  --cell-mint: #D1FAE5;
+  --cell-orange: #FFFBEB;
+  --cell-lavender: #F0FDFA;
 }
 
 .dark {
-  --background: oklch(0.20 0.02 50);
-  --foreground: oklch(0.95 0.01 80);
-  --card: oklch(0.26 0.025 50);
-  --card-foreground: oklch(0.95 0.01 80);
-  --popover: oklch(0.26 0.025 50);
-  --popover-foreground: oklch(0.95 0.01 80);
-  --primary: oklch(0.70 0.14 152);
-  --primary-foreground: oklch(0.20 0.02 50);
-  --secondary: oklch(0.35 0.05 50);
-  --secondary-foreground: oklch(0.95 0.01 80);
-  --muted: oklch(0.30 0.02 50);
-  --muted-foreground: oklch(0.70 0.02 80);
-  --accent: oklch(0.45 0.10 140);
-  --accent-foreground: oklch(0.95 0.01 80);
-  --destructive: oklch(0.65 0.20 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.70 0.14 152);
-  --chart-1: oklch(0.70 0.14 152);
-  --chart-2: oklch(0.55 0.06 50);
-  --chart-3: oklch(0.78 0.13 140);
-  --chart-4: oklch(0.81 0.08 225);
-  --chart-5: oklch(0.75 0.15 75);
-  --sidebar: oklch(0.22 0.03 50);
-  --sidebar-foreground: oklch(0.95 0.01 80);
-  --sidebar-primary: oklch(0.78 0.13 140);
-  --sidebar-primary-foreground: oklch(0.22 0.02 50);
-  --sidebar-accent: oklch(0.30 0.04 50);
-  --sidebar-accent-foreground: oklch(0.95 0.01 80);
-  --sidebar-border: oklch(0.35 0.04 50);
-  --sidebar-ring: oklch(0.78 0.13 140);
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  --primary: #10B981;
+  --primary-foreground: #0F172A;
+  --secondary: #334155;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #134E4A;
+  --accent-foreground: #34D399;
+  --destructive: #EF4444;
+  --border: rgba(255,255,255,0.1);
+  --input: rgba(255,255,255,0.15);
+  --ring: #10B981;
+  --chart-1: #10B981;
+  --chart-2: #14B8A6;
+  --chart-3: #F59E0B;
+  --chart-4: #34D399;
+  --chart-5: #EF4444;
+  --sidebar: #0F172A;
+  --sidebar-foreground: #E2E8F0;
+  --sidebar-primary: #10B981;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #34D399;
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #10B981;
 }
 
 @layer base {
