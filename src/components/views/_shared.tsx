@@ -84,7 +84,7 @@ export function KpiCard({
       viewport={{ once: true, margin: "-20px" }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className={cn("relative overflow-hidden glass-card hover-lift rounded-2xl", glowClass[variant])}
+      className={cn("relative overflow-hidden bg-white border border-border rounded-xl hover-lift shadow-sm", glowClass[variant])}
     >
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2">
@@ -112,8 +112,8 @@ export function KpiCard({
             )}
           </div>
           {Icon && (
-            <div className={cn("h-9 w-9 shrink-0 rounded-lg flex items-center justify-center", iconBg[variant])}>
-              <Icon className="h-4.5 w-4.5" />
+            <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10">
+              <Icon className="h-5 w-5 text-primary" />
             </div>
           )}
         </div>

@@ -90,10 +90,10 @@ export function AppSidebar({ activeView, role }: Props) {
               whileTap={{ scale: 0.97 }}
               onClick={() => handleSelect(item.key)}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors overflow-hidden",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all overflow-hidden",
                 isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground glow-soft"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  ? "bg-primary/15 text-white border-l-[3px] border-primary"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-white border-l-[3px] border-transparent"
               )}
             >
               {isActive && (

@@ -41,7 +41,7 @@ export function AppHeader({ title, subtitle }: Props) {
   });
 
   return (
-    <header className="sticky top-0 z-40 h-14 glass border-b border-white/20 print:hidden">
+    <header className="sticky top-0 z-40 h-16 bg-white border-b border-border/80 print:hidden">
       <div className="flex h-full items-center gap-3 px-4 md:px-6 pl-16 md:pl-6">
         {/* Logo mobile compact */}
         <div className="md:hidden">

@@ -51,13 +51,13 @@
 :root {
   --radius: 0.75rem;
 
-  /* Surfaces — fleet management style, blanc pur, AUCUN marron */
-  --background: #FFFFFF;
-  --foreground: #0F172A;                 /* slate-900 */
+  /* Surfaces — fleet management style, fond gris clair */
+  --background: #F3F4F6;
+  --foreground: #111827;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #111827;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover-foreground: #111827;
 
   /* Primary = Émeraude #10B981 (vert au lieu de bleu) */
   --primary: #10B981;
@@ -68,17 +68,17 @@
   --secondary-foreground: #0F172A;
 
   /* Muted */
-  --muted: #F8FAFC;
-  --muted-foreground: #64748B;           /* slate-500 */
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
 
   /* Accent = vert très clair */
-  --accent: #ECFDF5;
-  --accent-foreground: #047857;
+  --accent: #D1FAE5;
+  --accent-foreground: #065F46;
 
   /* Destructive = rouge moderne */
   --destructive: #EF4444;
-  --border: #E2E8F0;                     /* slate-200 */
-  --input: #E2E8F0;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
   --ring: #10B981;
 
   /* Charts — émeraude + teal + ambre (vert au lieu de bleu) */
