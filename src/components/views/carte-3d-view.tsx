@@ -31,7 +31,12 @@ export function Carte3DView() {
   const [tilt, setTilt] = useState(55);
   const [selectedPaturage, setSelectedPaturage] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
+  const [showGoogleMaps, setShowGoogleMaps] = useState(true);
   const mapRef = useRef<HTMLDivElement>(null);
+
+  // URL Google Maps embed pour Zinder (sans API key, iframe gratuit)
+  const GOOGLE_MAPS_EMBED = `https://maps.google.com/maps?q=${ZINDER_CENTER.lat},${ZINDER_CENTER.lng}&z=13&output=embed`;
+  const GOOGLE_MAPS_LINK = `https://www.google.com/maps/@${ZINDER_CENTER.lat},${ZINDER_CENTER.lng},14z`;
 
   const allPaturages = paturages?.length ? paturages : PATURAGES_DATA.map((p) => ({ ...p, coordonnees: null, createdAt: new Date().toISOString(), id: p.id }));
   const allBovins = bovins ?? [];
@@ -56,6 +61,9 @@ export function Carte3DView() {
             </Button>
             <Button variant="outline" size="sm" onClick={() => setRotation((r) => (r + 15) % 360)}>
               <RotateCw className="h-4 w-4" /> Rotation
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowGoogleMaps((v) => !v)}>
+              <Navigation className="h-4 w-4" /> {showGoogleMaps ? "Vue 3D" : "Google Maps"}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowLabels((v) => !v)}>
               <Layers className="h-4 w-4" /> {showLabels ? "Masquer" : "Afficher"} labels
@@ -85,20 +93,34 @@ export function Carte3DView() {
         <CardContent className="p-0">
           <div
             ref={mapRef}
-            className="relative h-[500px] bg-gradient-to-br from-emerald-50 via-teal-50 to-amber-50 overflow-hidden"
+            className="relative h-[500px] overflow-hidden"
             style={{ perspective: "1200px" }}
           >
-            {/* Grille de fond (réseau routier stylisé) */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `
-                  linear-gradient(rgba(16,185,129,0.08) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(16,185,129,0.08) 1px, transparent 1px)
-                `,
-                backgroundSize: "40px 40px",
-              }}
-            />
+            {/* Google Maps en fond (Zinder, Niger) */}
+            {showGoogleMaps && (
+              <iframe
+                src={GOOGLE_MAPS_EMBED}
+                className="absolute inset-0 w-full h-full"
+                style={{ border: 0, filter: "saturate(1.2) contrast(1.05)" }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Carte Google Maps — Zinder, Niger"
+              />
+            )}
+
+            {/* Grille de fond (réseau routier stylisé) — uniquement si pas Google Maps */}
+            {!showGoogleMaps && (
+              <div
+                className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-amber-50"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(rgba(16,185,129,0.08) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(16,185,129,0.08) 1px, transparent 1px)
+                  `,
+                  backgroundSize: "40px 40px",
+                }}
+              />
+            )}
 
             {/* Cercles de rayonnement (zones d'influence) */}
             {PATURAGES_DATA.map((p, i) => (
@@ -234,7 +256,7 @@ export function Carte3DView() {
             </div>
 
             {/* Overlay infos */}
-            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg">
+            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg z-10">
               <p className="text-xs font-semibold flex items-center gap-1.5">
                 <Navigation className="h-3 w-3 text-primary" />
                 {ZINDER_NAME}
@@ -245,10 +267,13 @@ export function Carte3DView() {
               <p className="text-[0.65rem] text-muted-foreground">
                 {PATURAGES_DATA.length} parcelles · {bovinsActifs.length} bovins actifs
               </p>
+              <a href={GOOGLE_MAPS_LINK} target="_blank" rel="noopener noreferrer" className="text-[0.65rem] text-primary hover:underline mt-1 inline-block">
+                Ouvrir dans Google Maps →
+              </a>
             </div>
 
             {/* Légende */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg">
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg z-10">
               <p className="text-[0.65rem] font-semibold mb-2">Légende</p>
               {PATURAGES_DATA.map((p) => (
                 <div key={p.id} className="flex items-center gap-2 mb-1">
@@ -267,7 +292,7 @@ export function Carte3DView() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg max-w-xs"
+                className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg max-w-xs z-20"
               >
                 {(() => {
                   const p = PATURAGES_DATA.find((x) => x.id === selectedPaturage)!;
