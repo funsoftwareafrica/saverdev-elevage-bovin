@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 export function ViewHeader({
   title,
@@ -77,14 +78,43 @@ export function KpiCard({
     danger: "glow-red",
   };
 
+  // 3D tilt interactif qui suit la souris + tilt permanent léger
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [20, -20]), { stiffness: 200, damping: 15 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), { stiffness: 200, damping: 15 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
   return (
+    <div style={{ perspective: "500px" }}>
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      ref={ref}
+      initial={{ opacity: 0, y: 16, rotateX: 5 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 2 }}
       viewport={{ once: true, margin: "-20px" }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className={cn("relative overflow-hidden bg-white border border-border rounded-xl hover-lift shadow-sm", glowClass[variant])}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className={cn("relative overflow-hidden bg-white border border-border rounded-xl hover-lift shadow-[0_8px_30px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]", glowClass[variant])}
     >
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2">
@@ -112,13 +142,14 @@ export function KpiCard({
             )}
           </div>
           {Icon && (
-            <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10">
-              <Icon className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10" style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}>
+              <Icon className="h-5 w-5 text-primary" style={{ transform: "translateZ(10px)" }} />
             </div>
           )}
         </div>
       </div>
     </motion.div>
+    </div>
   );
 }
 

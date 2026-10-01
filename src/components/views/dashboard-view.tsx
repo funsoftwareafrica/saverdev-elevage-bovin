@@ -156,13 +156,13 @@ export function DashboardView() {
       {/* === PERFORMANCE PAR RACE === */}
       <RacePerformanceSection />
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Card>
+      <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader>
             <CardTitle className="text-sm">Évolution mensuelle — CA, coûts, marge</CardTitle>
             <CardDescription className="text-xs">8 derniers mois (FCFA)</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
+          <CardContent className="h-72" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dash.evolutionMensuelle} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
@@ -178,12 +178,12 @@ export function DashboardView() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader>
             <CardTitle className="text-sm">Répartition du cheptel</CardTitle>
             <CardDescription className="text-xs">Par statut</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
+          <CardContent className="h-72" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -208,13 +208,13 @@ export function DashboardView() {
         </Card>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Card>
+      <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader>
             <CardTitle className="text-sm">Ventes par mois</CardTitle>
             <CardDescription className="text-xs">Montant des ventes (FCFA)</CardDescription>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-64" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dash.ventesParMois} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
@@ -227,8 +227,8 @@ export function DashboardView() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+          <CardHeader className="flex flex-row items-center justify-between gap-2" style={{ transform: "translateZ(5px)" }}>
             <div>
               <CardTitle className="text-sm flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -256,8 +256,8 @@ export function DashboardView() {
         </Card>
       </section>
 
-      <Card>
-        <CardHeader>
+      <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+        <CardHeader style={{ transform: "translateZ(5px)" }}>
           <CardTitle className="text-sm flex items-center gap-2">
             <History className="h-4 w-4 text-muted-foreground" />
             Historique des opérations
