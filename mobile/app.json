@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "SAVERDEV Élevage",
+    "slug": "saverdev-elevage",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "saverdev-elevage",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true, "bundleIdentifier": "org.saverdev.elevage" },
+    "android": { "package": "org.saverdev.elevage" },
+    "web": { "bundler": "metro", "output": "static" },
+    "plugins": ["expo-router"]
+  }
+}
