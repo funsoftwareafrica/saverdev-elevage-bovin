@@ -211,3 +211,41 @@ Stage Summary:
 - Lint clean (0 erreur sur dashboard-view)
 - Page charge en 200, aucune erreur runtime
 - L'en-tête "Tableau de bord" et le bandeau d'alerte critique sont maintenant des éléments 3D animés avec cubes rotatifs, parallaxe souris, profondeur translateZ, anneaux pulsants et badge flottant
+
+---
+Task ID: 7
+Agent: main
+Task: Graphismes section Rentabilité (waterfall + jauges + barre empilée)
+
+Work Log:
+- Création du composant RentabiliteSection (remplace les 4 KpiCards simples) :
+  - Ligne 1 : 4 cartes RentabiliteKpi avec mini jauges circulaires SVG (anneau progressif animé)
+    - CA (vert, 100%, 2.3M) · Coût achat (rouge, 73%, 1.7M) · Coût engrais (orange, 8%, 178k) · Marge (teal, 17%, 403k)
+    - Chaque carte : halo couleur flou, valeur tabular, hint + sub "% du CA", icône centrée dans mini anneau
+  - Ligne 2 gauche (2/3) : Waterfall chart SVG personnalisé "Cascade de marge"
+    - 4 barres : CA (vert, pleine) → Coût achat (rouge, descendante) → Coût engrais (orange, descendante) → Marge (teal, pleine)
+    - Lignes de liaison pointillées animées entre barres (pathLength 0→1)
+    - Animation progressive des barres (height + y, stagger 0.2s)
+    - Valeurs affichées au-dessus de chaque barre
+    - Dégradé overlay blanc sur chaque barre
+    - Légende + total coûts (1.9 M)
+  - Ligne 2 droite (1/3) : Carte "Taux de marge" avec 3 visualisations
+    - Jauge demi-circulaire SVG : arc fond gris + arc dégradé vert (gMargeGauge) animé (strokeDashoffset)
+    - Aiguille noire rotative (-90° → position %) + cercle central
+    - Texte central 17% + montant 403k
+    - Barre horizontale empilée "Composition du CA" :
+      - Rouge (coût achat 73%) + Orange (engrais 8%) + Vert (marge 17%)
+      - Animation width 0→valeur, stagger 0.2s
+      - Labels couleur sous chaque segment
+    - Encart "Marge par tête" en gradient primary avec text-gradient (100 625 FCFA)
+
+Stage Summary:
+- Vérification VLM confirme tous les graphismes :
+  - ✅ 4 cartes KPI avec mini jauges circulaires
+  - ✅ Waterfall avec barres verte/rouge/orange/teal + liaisons
+  - ✅ Jauge demi-circulaire avec aiguille (17%)
+  - ✅ Barre empilée horizontale rouge/jaune/verte
+  - ✅ Encart Marge par tête (100 625 FCFA)
+- Valeurs exactes confirmées : CA 2.3M, coût achat 1.7M (73%), engrais 178k (8%), marge 403k (17%), marge/tête 100 625 FCFA
+- Lint clean, page charge en 200, aucune erreur runtime
+- La section Rentabilité passe de 4 cartes simples à 4 KPI graphiques + waterfall + jauge + barre empilée + encart

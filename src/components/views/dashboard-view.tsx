@@ -186,19 +186,14 @@ export function DashboardView() {
         </Card>
       </section>
 
-      {/* === SECTION RENTABILITÉ — waterfall + radar === */}
-      <section>
-        <SectionTitle icon={TrendingUp} title="Rentabilité" subtitle="Chiffre d'affaires et marges" />
-        <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-          {/* KPIs rentabilité */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiCard label="Chiffre d'affaires" value={formatFCFAShort(dash.rentabilite.ca)} icon={ShoppingCart} variant="success" hint="Ventes réalisées" />
-            <KpiCard label="Coût d'achat" value={formatFCFAShort(dash.rentabilite.coutAchat)} icon={Beef} />
-            <KpiCard label="Coûts d'engraissement" value={formatFCFAShort(dash.rentabilite.coutEngraissement)} icon={Salad} />
-            <KpiCard label="Marge totale" value={formatFCFAShort(dash.rentabilite.margeTotale)} icon={TrendingUp} variant={dash.rentabilite.margeTotale >= 0 ? "success" : "danger"} hint={`Marge / tête : ${formatFCFA(dash.rentabilite.margeParTete)}`} />
-          </div>
-        </div>
-      </section>
+      {/* === SECTION RENTABILITÉ — graphismes avancés === */}
+      <RentabiliteSection
+        ca={dash.rentabilite.ca}
+        coutAchat={dash.rentabilite.coutAchat}
+        coutEngraissement={dash.rentabilite.coutEngraissement}
+        margeTotale={dash.rentabilite.margeTotale}
+        margeParTete={dash.rentabilite.margeParTete}
+      />
 
       {/* === GRAPHIQUES PRINCIPAUX === */}
       <section className="grid gap-4 lg:grid-cols-3" style={{ perspective: "1000px" }}>
@@ -687,6 +682,289 @@ function AlertBanner3D({ count, message }: { count: number; message: string }) {
           </motion.div>
         </div>
       </motion.div>
+    </motion.div>
+  );
+}
+
+// --- SECTION RENTABILITÉ — waterfall + barre empilée + jauges ---
+function RentabiliteSection({
+  ca, coutAchat, coutEngraissement, margeTotale, margeParTete,
+}: {
+  ca: number; coutAchat: number; coutEngraissement: number; margeTotale: number; margeParTete: number;
+}) {
+  const totalCouts = coutAchat + coutEngraissement;
+  const tauxMarge = ca > 0 ? Math.round((margeTotale / ca) * 100) : 0;
+  const tauxCoutAchat = ca > 0 ? Math.round((coutAchat / ca) * 100) : 0;
+  const tauxCoutEngrais = ca > 0 ? Math.round((coutEngraissement / ca) * 100) : 0;
+
+  // Données waterfall : CA (start) → -Coût achat → -Coût engrais → Marge (end)
+  const waterfallData = [
+    { label: "CA", value: ca, type: "total", color: "#10B981" },
+    { label: "Coût achat", value: -coutAchat, type: "negative", color: "#EF4444" },
+    { label: "Coût engrais.", value: -coutEngraissement, type: "negative", color: "#F59E0B" },
+    { label: "Marge", value: margeTotale, type: "total", color: margeTotale >= 0 ? "#14B8A6" : "#EF4444" },
+  ];
+
+  // Calcul des positions cumulées pour le waterfall
+  let cumul = 0;
+  const bars = waterfallData.map((item) => {
+    let base = 0, hauteur = 0;
+    if (item.type === "total") {
+      base = 0;
+      hauteur = item.value;
+      cumul = item.value;
+    } else {
+      base = cumul + item.value; // item.value est négatif
+      hauteur = Math.abs(item.value);
+      cumul = base;
+    }
+    return { ...item, base, hauteur };
+  });
+
+  const maxVal = ca;
+  const chartH = 200;
+
+  return (
+    <section>
+      <SectionTitle icon={TrendingUp} title="Rentabilité" subtitle="Chiffre d'affaires et marges" />
+
+      {/* Ligne 1 : 4 KPI cards avec mini jauges */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+        <RentabiliteKpi
+          icon={ShoppingCart} label="Chiffre d'affaires" value={formatFCFAShort(ca)}
+          color="#10B981" pct={100} hint="Ventes réalisées" sub={`${tauxCoutAchat + tauxCoutEngrais}% absorbé`}
+        />
+        <RentabiliteKpi
+          icon={Beef} label="Coût d'achat" value={formatFCFAShort(coutAchat)}
+          color="#EF4444" pct={tauxCoutAchat} hint="Bétail acheté" sub={`${tauxCoutAchat}% du CA`}
+        />
+        <RentabiliteKpi
+          icon={Salad} label="Coûts d'engraissement" value={formatFCFAShort(coutEngraissement)}
+          color="#F59E0B" pct={tauxCoutEngrais} hint="Alimentation + soins" sub={`${tauxCoutEngrais}% du CA`}
+        />
+        <RentabiliteKpi
+          icon={TrendingUp} label="Marge totale" value={formatFCFAShort(margeTotale)}
+          color={margeTotale >= 0 ? "#14B8A6" : "#EF4444"} pct={Math.min(100, tauxMarge)}
+          hint={`Marge / tête : ${formatFCFA(margeParTete)}`} sub={`${tauxMarge}% du CA`}
+        />
+      </div>
+
+      {/* Ligne 2 : waterfall + barre empilée + jauge marge */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Waterfall chart (cascade de marge) */}
+        <Card className="hover-lift lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" />Cascade de marge</CardTitle>
+            <CardDescription className="text-xs">Du CA à la marge — décomposition (FCFA)</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <div className="relative" style={{ height: chartH + 40 }}>
+              <svg viewBox={`0 0 100 ${chartH + 30}`} preserveAspectRatio="none" className="w-full h-full" style={{ overflow: "visible" }}>
+                {/* Ligne pointillée base 0 */}
+                <line x1="0" y1={chartH} x2="100" y2={chartH} stroke="oklch(0.85 0.02 80)" strokeWidth="0.5" strokeDasharray="1 1" />
+
+                {bars.map((b, i) => {
+                  const x = 4 + i * 23;
+                  const barW = 16;
+                  const yTop = chartH - (Math.max(b.base + b.hauteur, b.base) / maxVal) * chartH;
+                  const yBase = chartH - (Math.max(b.base, 0) / maxVal) * chartH;
+                  const barH = Math.abs(yBase - yTop);
+                  return (
+                    <g key={i}>
+                      {/* Ligne de liaison entre barres */}
+                      {i < bars.length - 1 && (
+                        <motion.line
+                          x1={x + barW} y1={yTop}
+                          x2={x + barW + 7} y2={yTop}
+                          stroke="oklch(0.65 0.02 50)" strokeWidth="0.4" strokeDasharray="0.8 0.8"
+                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 0.8 + i * 0.2 }}
+                        />
+                      )}
+                      {/* Barre */}
+                      <motion.rect
+                        x={x} y={yTop} width={barW} height={Math.max(barH, 1)}
+                        fill={b.color} rx="1"
+                        initial={{ height: 0, y: chartH }} animate={{ height: barH, y: yTop }}
+                        transition={{ duration: 0.8, delay: 0.3 + i * 0.2, ease: "easeOut" }}
+                      />
+                      {/* Dégradé overlay */}
+                      <rect x={x} y={yTop} width={barW} height={Math.max(barH, 1)} fill="url(#wfGrad)" opacity="0.3" rx="1" />
+                      {/* Valeur au-dessus */}
+                      <text x={x + barW / 2} y={yTop - 1.5} textAnchor="middle" className="fill-foreground" style={{ fontSize: "2.2px", fontWeight: "bold" }}>
+                        {b.value >= 0 ? "+" : ""}{formatFCFAShort(b.value).replace(" FCFA", "")}
+                      </text>
+                      {/* Label en dessous */}
+                      <text x={x + barW / 2} y={chartH + 4} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: "2.4px" }}>
+                        {b.label}
+                      </text>
+                    </g>
+                  );
+                })}
+                <defs>
+                  <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="white" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            {/* Légende */}
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.65rem]">
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-emerald-500" /> Revenu</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-red-500" /> Coût achat</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-amber-500" /> Coût engrais.</span>
+              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-teal-600" /> Marge</span>
+              <span className="ml-auto font-semibold text-foreground">Total coûts : {formatFCFAShort(totalCouts)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Jauge taux de marge 3D + répartition */}
+        <Card className="hover-lift relative overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2"><Gauge className="h-4 w-4 text-primary" />Taux de marge</CardTitle>
+            <CardDescription className="text-xs">Marge nette / CA</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Jauge demi-circulaire */}
+            <div className="relative h-32 flex items-end justify-center">
+              <svg viewBox="0 0 100 60" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="gMargeGauge" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#34D399" />
+                    <stop offset="50%" stopColor="#10B981" />
+                    <stop offset="100%" stopColor="#14B8A6" />
+                  </linearGradient>
+                </defs>
+                {/* Arc fond */}
+                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="10" strokeLinecap="round" />
+                {/* Arc valeur */}
+                <motion.path
+                  d="M 10 55 A 40 40 0 0 1 90 55"
+                  fill="none" stroke="url(#gMargeGauge)" strokeWidth="10" strokeLinecap="round"
+                  strokeDasharray="125.6" // demi-cercle = π*40
+                  initial={{ strokeDashoffset: 125.6 }}
+                  animate={{ strokeDashoffset: 125.6 - (125.6 * Math.min(100, tauxMarge)) / 100 }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+                />
+                {/* Aiguille */}
+                <motion.line
+                  x1="50" y1="55"
+                  x2="50" y2="20"
+                  stroke="#0F172A" strokeWidth="1.5" strokeLinecap="round"
+                  initial={{ rotate: -90, transformOrigin: "50px 55px" }}
+                  animate={{ rotate: -90 + (180 * Math.min(100, tauxMarge)) / 100, transformOrigin: "50px 55px" }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+                />
+                <circle cx="50" cy="55" r="2.5" fill="#0F172A" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+                <motion.span
+                  className="text-3xl font-bold text-foreground"
+                  initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8, duration: 0.4 }}
+                >
+                  {tauxMarge}%
+                </motion.span>
+                <span className="text-[0.65rem] text-muted-foreground">{formatFCFAShort(margeTotale)}</span>
+              </div>
+            </div>
+
+            <Separator className="my-3" />
+
+            {/* Barre empilée horizontale CA = coûts + marge */}
+            <div>
+              <p className="text-[0.65rem] uppercase text-muted-foreground font-medium mb-2">Composition du CA</p>
+              <div className="h-6 rounded-full overflow-hidden flex shadow-inner bg-muted">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-red-400 to-red-500 flex items-center justify-center"
+                  initial={{ width: 0 }} animate={{ width: `${tauxCoutAchat}%` }}
+                  transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                  style={{ minWidth: "0" }}
+                >
+                  {tauxCoutAchat > 12 && <span className="text-[0.55rem] text-white font-bold">{tauxCoutAchat}%</span>}
+                </motion.div>
+                <motion.div
+                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center"
+                  initial={{ width: 0 }} animate={{ width: `${tauxCoutEngrais}%` }}
+                  transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
+                  style={{ minWidth: "0" }}
+                >
+                  {tauxCoutEngrais > 8 && <span className="text-[0.55rem] text-white font-bold">{tauxCoutEngrais}%</span>}
+                </motion.div>
+                <motion.div
+                  className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 flex items-center justify-center"
+                  initial={{ width: 0 }} animate={{ width: `${Math.max(0, 100 - tauxCoutAchat - tauxCoutEngrais)}%` }}
+                  transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
+                  style={{ minWidth: "0" }}
+                >
+                  {100 - tauxCoutAchat - tauxCoutEngrais > 8 && <span className="text-[0.55rem] text-white font-bold">{tauxMarge}%</span>}
+                </motion.div>
+              </div>
+              <div className="flex justify-between text-[0.6rem] mt-1.5">
+                <span className="text-red-600">Achat {formatFCFAShort(coutAchat)}</span>
+                <span className="text-amber-600">Engrais {formatFCFAShort(coutEngraissement)}</span>
+                <span className="text-emerald-600">Marge {formatFCFAShort(margeTotale)}</span>
+              </div>
+            </div>
+
+            {/* Marge par tête highlight */}
+            <motion.div
+              className="mt-3 rounded-lg bg-gradient-to-r from-primary/10 to-emerald-50/40 border border-primary/20 p-2.5 text-center"
+              initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 1 }}
+            >
+              <p className="text-[0.6rem] uppercase text-muted-foreground">Marge par tête</p>
+              <p className="text-xl font-bold text-gradient tabular-nums">{formatFCFA(margeParTete)}</p>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+// --- KPI rentabilité avec mini jauge circulaire ---
+function RentabiliteKpi({
+  icon: Icon, label, value, color, pct, hint, sub,
+}: {
+  icon: LucideIcon; label: string; value: string; color: string; pct: number; hint?: string; sub?: string;
+}) {
+  const radius = 14;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ - (Math.min(100, Math.max(0, pct)) / 100) * circ;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="bg-white border border-border rounded-xl p-4 hover-lift relative overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 h-16 w-16 rounded-full blur-2xl opacity-20" style={{ background: color }} />
+      <div className="flex items-start justify-between gap-2 relative">
+        <div className="min-w-0 flex-1">
+          <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
+          <p className="text-lg font-bold text-foreground tabular-nums mt-0.5">{value}</p>
+          {hint && <p className="text-[0.6rem] text-muted-foreground mt-0.5">{hint}</p>}
+          {sub && <p className="text-[0.6rem] font-semibold mt-0.5" style={{ color }}>{sub}</p>}
+        </div>
+        {/* Mini jauge circulaire */}
+        <div className="relative h-12 w-12 shrink-0">
+          <svg className="h-12 w-12 -rotate-90" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r={radius} fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="3" />
+            <motion.circle
+              cx="18" cy="18" r={radius} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"
+              strokeDasharray={circ}
+              initial={{ strokeDashoffset: circ }}
+              whileInView={{ strokeDashoffset: offset }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Icon className="h-4 w-4" style={{ color }} />
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
