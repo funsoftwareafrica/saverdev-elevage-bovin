@@ -243,3 +243,27 @@
   body { background: white !important; }
   .print-page { page-break-after: always; }
 }
+
+/* ============================================================
+   PREFERS-REDUCED-MOTION — accessibilité
+   Désactive toutes les animations/transitions pour les
+   utilisateurs sensibles au mouvement (vestibulaire).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Neutralise les effets 3D rotatifs continus */
+  .animate-float, .pulse-glow, .shimmer, .animate-gradient {
+    animation: none !important;
+  }
+  /* Les graphiques Recharts n'animent plus */
+  .recharts-surface,
+  .recharts-default-tooltip {
+    animation: none !important;
+    transition: none !important;
+  }
+}

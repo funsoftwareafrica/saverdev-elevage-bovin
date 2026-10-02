@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { KpiCard, ViewHeader } from "./_shared";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { LazyMount } from "@/components/lazy-mount";
 import type { LucideIcon } from "lucide-react";
 import {
   Beef, Salad, TrendingUp, TrendingDown, Minus, Landmark, AlertTriangle,
@@ -98,6 +99,7 @@ export function DashboardView() {
               <CardDescription className="text-xs">Par statut ({totalBovins} têtes)</CardDescription>
             </CardHeader>
             <CardContent className="h-56">
+              <LazyMount height={224} fallback={<Skeleton className="h-full w-full rounded-md" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -125,6 +127,7 @@ export function DashboardView() {
                   <Legend wrapperStyle={{ fontSize: "0.65rem" }} iconSize={8} />
                 </PieChart>
               </ResponsiveContainer>
+              </LazyMount>
             </CardContent>
           </Card>
         </div>
@@ -201,9 +204,10 @@ export function DashboardView() {
         <Card className="hover-lift lg:col-span-2" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader style={{ transform: "translateZ(5px)" }}>
             <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4 text-primary" />Évolution mensuelle — CA, coûts, marge</CardTitle>
-            <CardDescription className="text-xs">8 derniers mois (FCFA)</CardDescription>
+            <CardDescription className="text-xs">Évolution sur la période d'activité (FCFA)</CardDescription>
           </CardHeader>
           <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+            <LazyMount height={288} fallback={<Skeleton className="h-full w-full rounded-md" />}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dash.evolutionMensuelle} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <defs>
@@ -227,6 +231,7 @@ export function DashboardView() {
                 <Area isAnimationActive animationDuration={1200} animationBegin={400} type="monotone" dataKey="marge" name="Marge" stroke="#F59E0B" strokeWidth={2.5} fill="url(#gMarge)" />
               </AreaChart>
             </ResponsiveContainer>
+            </LazyMount>
           </CardContent>
         </Card>
 
@@ -237,6 +242,7 @@ export function DashboardView() {
             <CardDescription className="text-xs">Marge / CA</CardDescription>
           </CardHeader>
           <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+            <LazyMount height={288} fallback={<Skeleton className="h-full w-full rounded-md" />}>
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
                 innerRadius="65%" outerRadius="100%" data={[{ name: "Marge", value: Math.max(0, tauxMarge), fill: "#10B981" }]}
@@ -257,6 +263,7 @@ export function DashboardView() {
                 </text>
               </RadialBarChart>
             </ResponsiveContainer>
+            </LazyMount>
           </CardContent>
         </Card>
       </section>
@@ -272,6 +279,7 @@ export function DashboardView() {
               <CardDescription className="text-xs">Capital mobilisé</CardDescription>
             </CardHeader>
             <CardContent className="h-44">
+              <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <RadialBarChart
                   innerRadius="70%" outerRadius="100%"
@@ -293,6 +301,7 @@ export function DashboardView() {
                   </text>
                 </RadialBarChart>
               </ResponsiveContainer>
+              </LazyMount>
             </CardContent>
           </Card>
 
@@ -324,6 +333,7 @@ export function DashboardView() {
               <CardDescription className="text-xs">Décomposition par poste (FCFA)</CardDescription>
             </CardHeader>
             <CardContent className="h-44">
+              <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[
                   { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: "#F59E0B" },
@@ -341,6 +351,7 @@ export function DashboardView() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </LazyMount>
             </CardContent>
           </Card>
         </div>
@@ -361,6 +372,7 @@ export function DashboardView() {
             <CardDescription className="text-xs">Vision multi-critères (0-100)</CardDescription>
           </CardHeader>
           <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
+            <LazyMount height={256} fallback={<Skeleton className="h-full w-full rounded-md" />}>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={[
                 { critere: "Rentabilité", score: Math.min(100, Math.max(0, tauxMarge + 30)) },
@@ -377,6 +389,7 @@ export function DashboardView() {
                 <Tooltip contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
               </RadarChart>
             </ResponsiveContainer>
+            </LazyMount>
           </CardContent>
         </Card>
 
@@ -387,6 +400,7 @@ export function DashboardView() {
             <CardDescription className="text-xs">Montant (FCFA) et nombre de têtes</CardDescription>
           </CardHeader>
           <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
+            <LazyMount height={256} fallback={<Skeleton className="h-full w-full rounded-md" />}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={dash.ventesParMois} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <defs>
@@ -404,6 +418,7 @@ export function DashboardView() {
                 <Line yAxisId="right" isAnimationActive animationDuration={1200} type="monotone" dataKey="nbTetes" name="Têtes" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4 }} />
               </ComposedChart>
             </ResponsiveContainer>
+            </LazyMount>
           </CardContent>
         </Card>
       </section>

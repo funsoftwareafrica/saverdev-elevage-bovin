@@ -1,13 +1,14 @@
 // GET /api/dashboard — tableau de bord agrégé (KPI 6 blocs + graphiques + alertes)
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { toBovin, toAlimentation, toFinancement, toAlerte } from "@/lib/server-mappers";
+import { toBovin, toAlimentation, toDepense, toFinancement, toAlerte } from "@/lib/server-mappers";
 import { computeDashboardFromData } from "@/lib/calculations";
 
 export async function GET() {
-  const [bovins, alimentations, financementRows, alertes] = await Promise.all([
+  const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
     db.bovin.findMany({ orderBy: { identifiant: "asc" } }),
     db.alimentation.findMany({ orderBy: { date: "desc" } }),
+    db.depense.findMany({ orderBy: { date: "desc" } }),
     db.financement.findMany({ include: { echeances: true } }),
     db.alerte.findMany({ orderBy: { date: "desc" } }),
   ]);
@@ -28,6 +29,7 @@ export async function GET() {
   const dashboard = computeDashboardFromData({
     bovins: bovins.map(toBovin),
     alimentations: alimentations.map(toAlimentation),
+    depenses: depenses.map(toDepense),
     financement,
     alertes: alertes.map(toAlerte),
   });

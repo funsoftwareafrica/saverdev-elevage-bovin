@@ -275,3 +275,52 @@ Stage Summary:
   - Bleu "Autres coûts" (~0.2M)
 - Lint clean, page charge en 200
 - Couleurs cohérentes avec la demande utilisateur
+
+---
+Task ID: 9
+Agent: main
+Task: 3 optimisations : vraies données évolution + prefers-reduced-motion + lazy-load
+
+Work Log:
+
+1. BRANCHER L'ÉVOLUTION MENSUELLE SUR LES VRAIES DONNÉES
+   - src/lib/calculations.ts :
+     - Ajout paramètre `depenses?: Depense[]` à computeDashboardFromData
+     - Nouvelle fonction dataMonths() : trouve earliest + latest dates parmi toutes les données (bovins.dateAchat, dateVente, alimentations.date, depenses.date), génère les mois intermédiaires (min 6, max 18). Si la période dépasse 18 mois, garde les 18 plus récents.
+     - Évolution mensuelle RÉELLE : pour chaque mois → ca = sum(prixVente bovins vendus ce mois), couts = sum(prixAchat bovins achetés) + sum(coutTotal alimentations) + sum(montant depenses), marge = ca - couts
+     - Ventes par mois RÉELLES : ventes = sum(prixVente), nbTetes = count bovins vendus
+     - Suppression des données hardcodées (Fév-Sep 2025)
+   - src/app/api/dashboard/route.ts : ajout fetch db.depense.findMany + toDepense + passage à computeDashboardFromData
+   - Vérification API : données réelles confirmées (mai 620k CA, juin 1.15M CA, août 540k CA ; coûts réels par mois)
+
+2. SUPPORT PREFERS-REDUCED-MOTION
+   - src/app/globals.css : ajout media query @media (prefers-reduced-motion: reduce) qui :
+     - Force animation-duration: 0.01ms, iteration-count: 1, transition-duration: 0.01ms
+     - Neutralise .animate-float, .pulse-glow, .shimmer, .animate-gradient
+     - Désactive animations sur .recharts-surface et .recharts-default-tooltip
+   - src/app/layout.tsx : wrap app dans <MotionConfig reducedMotion="user"> — Framer Motion respecte automatiquement la préférence système (désactive transforms animés, garde transitions d'opacité)
+
+3. OPTIMISATION LAZY-LOAD DES GRAPHIQUES
+   - src/components/lazy-mount.tsx (NOUVEAU) : composant IntersectionObserver
+     - Ne rend les enfants qu'à l'entrée dans le viewport (rootMargin 200px pour précharger)
+     - Placeholder Skeleton avec minHeight pour éviter le saut de layout
+     - Fallback SSR : si IntersectionObserver indispo → mount immédiat (via useState initializer, pas de setState synchrone dans effect)
+     - Se déconnecte après 1er déclenchement (optimize)
+   - src/components/views/dashboard-view.tsx : 7 graphiques lourds enveloppés dans <LazyMount> :
+     - Donut "Répartition du cheptel"
+     - AreaChart "Évolution mensuelle"
+     - RadialBar "Taux de marge"
+     - RadialBar "Taux d'utilisation financement"
+     - BarChart "Ventilation des coûts"
+     - RadarChart "Profil de performance"
+     - ComposedChart "Ventes & têtes"
+   - Chaque LazyMount affiche un <Skeleton> avant montage → réduit TTI et charge GPU/CPU au chargement initial
+
+Stage Summary:
+- API /api/dashboard retourne vraies données : mai(620k CA / 1.69M coûts / -1.07M marge), juin(1.15M / 1.25M / -95k), août(540k / 690k / -150k)
+- Ventes par mois réelles : mai(620k, 1 tête), juin(1.15M, 2 têtes), août(540k, 1 tête)
+- VLM confirme AreaChart avec dégradés vert/rouge/jaune + données non nulles
+- prefers-reduced-motion : CSS + MotionConfig reducedMotion="user" (désactive rotations 3D, cube rotatif, flottement)
+- LazyMount : 7 graphiques différés → charge initiale allégée, skeletons préviennent le CLS
+- Lint clean (0 erreur sur mes fichiers ; 1 erreur préexistante dans parametres-view.tsx non touché)
+- Page charge en 200, aucune erreur runtime/console
