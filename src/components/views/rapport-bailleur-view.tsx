@@ -1,29 +1,44 @@
 "use client";
 
-// Vue Rapport Bailleur — synthèse mensuelle imprimable (PDF via navigateur).
-// Lecture seule, orientée supervision : cheptel, rentabilité, financement, alertes.
+// Vue Rapport Bailleur — modèle Excel E2A (Tableau de Bord SAVERDEV)
+// 6 KPI colorés + 6 graphiques + annexes imprimables.
+// Données dynamiques via /api/rapport-bailleur (12 mois de l'exercice).
 
-import { useDashboard, useBovins, useFinancement } from "@/lib/api";
-import { computeBovinMarge } from "@/lib/calculations";
-import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutBovinColor, statutEcheanceColor } from "@/lib/format";
+import { useRapportBailleur, useFinancement } from "@/lib/api";
+import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutEcheanceColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { FileText, Printer, Download, CheckCircle2, AlertCircle, Beef, TrendingUp, Landmark } from "lucide-react";
+import { LazyMount } from "@/components/lazy-mount";
+import { FileText, Printer, Download, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
+  Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from "recharts";
+import { motion } from "framer-motion";
+
+// Couleurs exactes du modèle Excel E2A
+const KPI_COLORS = {
+  bovinsActifs: "#1E7B34",    // vert
+  ca: "#1E6091",              // bleu
+  marge: "#14532A",           // vert foncé
+  margeParTete: "#0F766E",   // teal
+  tauxUtil: "#E0A008",        // ambre/or
+  tresorerie: "#8D6E63",      // marron
+};
+const DOUGHNUT_COLORS = ["#F59E0B", "#10B981", "#3B82F6"]; // achat, alimentation, engraissement
 
 export function RapportBailleurView() {
   const selectedMonth = useAppStore((s) => s.selectedMonth);
-  const { data: dash } = useDashboard();
-  const { data: bovins } = useBovins();
+  const year = selectedMonth ? parseInt(selectedMonth.split("-")[0], 10) : new Date().getFullYear();
+  const { data: rap, isLoading } = useRapportBailleur(year);
   const { data: fin } = useFinancement();
 
-  if (!dash || !bovins || !fin) {
+  if (isLoading || !rap) {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -34,15 +49,8 @@ export function RapportBailleurView() {
     );
   }
 
-  const vendus = bovins.filter((b) => b.statut === "VENDU");
-  const actifs = bovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
-
-  // Parse mois sélectionné
   const [y, m] = selectedMonth.split("-").map(Number);
   const moisLabelFull = moisLabel(m - 1) + " " + y;
-
-  const tauxUtilisation = dash.financement.tauxUtilisation;
-  const tauxMarge = dash.rentabilite.ca > 0 ? (dash.rentabilite.margeTotale / dash.rentabilite.ca) * 100 : 0;
 
   const handlePrint = () => {
     toast.info("Préparation du PDF...", { description: "Utilisez « Imprimer » puis « Enregistrer en PDF »." });
@@ -57,7 +65,7 @@ export function RapportBailleurView() {
           <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" /> Rapport bailleur
           </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Synthèse mensuelle — lecture seule, exportable en PDF.</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Tableau de bord — modèle E2A, exercice {year}.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint}>
@@ -69,185 +77,190 @@ export function RapportBailleurView() {
         </div>
       </div>
 
-      {/* ============ PAGE 1 : Synthèse ============ */}
+      {/* ============ PAGE 1 : Tableau de bord ============ */}
       <Card className="print-page border-border shadow-sm">
-        {/* En-tête du rapport */}
-        <div className="flex items-center justify-between gap-4 p-5 border-b border-border bg-secondary/5">
+        {/* En-tête — bandeau vert foncé comme le modèle Excel */}
+        <div className="flex items-center justify-between gap-4 p-5 border-b border-border" style={{ background: "#14532A" }}>
           <div className="flex items-center gap-3">
             <SaverdevLogo size={48} variant="light" />
             <div>
-              <h3 className="font-bold text-foreground text-lg">SAVERDEV</h3>
-              <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Sahel Vert · Développement</p>
+              <h3 className="font-bold text-white text-lg">SAVERDEV DURABLE — Tableau de bord</h3>
+              <p className="text-[0.65rem] uppercase tracking-wider text-white/70">Sahel Vert · Développement</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Rapport mensuel</p>
-            <p className="text-lg font-bold text-primary">{moisLabelFull}</p>
-            <p className="text-[0.7rem] text-muted-foreground">Élevage bovin d'engraissement</p>
+            <p className="text-[0.65rem] uppercase tracking-wider text-white/70">Reporting mensuel destiné au bailleur</p>
+            <p className="text-sm text-white/90">Exercice {year} · montants en FCFA</p>
           </div>
         </div>
 
         <CardContent className="p-5 space-y-5">
-          {/* KPI synthétiques */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <ReportKpi label="Bovins actifs" value={String(dash.cheptel.bovinsActifs)} hint="En engraissement" />
-            <ReportKpi label="Bovins vendus" value={String(dash.cheptel.bovinsVendus)} hint="Cumul" />
-            <ReportKpi label="Chiffre d'affaires" value={formatFCFAShort(dash.rentabilite.ca)} hint="Ventes réalisées" />
-            <ReportKpi label="Marge totale" value={formatFCFAShort(dash.rentabilite.margeTotale)} hint={`${tauxMarge.toFixed(0)}% du CA`} highlight={dash.rentabilite.margeTotale >= 0 ? "positive" : "negative"} />
+          {/* === 6 KPI colorés (modèle Excel E2A) === */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <RapportKpiCard label="Bovins actifs (fin)" value={String(rap.kpis.bovinsActifs)} color={KPI_COLORS.bovinsActifs} />
+            <RapportKpiCard label="Chiffre d'affaires cumulé" value={formatFCFAShort(rap.kpis.caCumul)} color={KPI_COLORS.ca} />
+            <RapportKpiCard label="Marge totale cumulée" value={formatFCFAShort(rap.kpis.margeTotale)} color={KPI_COLORS.marge} />
+            <RapportKpiCard label="Marge moyenne / tête" value={formatFCFA(rap.kpis.margeParTete)} color={KPI_COLORS.margeParTete} />
+            <RapportKpiCard label="Taux util. fin." value={`${Math.round(rap.kpis.tauxUtilisation)}%`} color={KPI_COLORS.tauxUtil} />
+            <RapportKpiCard label="Trésorerie disponible" value={formatFCFAShort(rap.kpis.tresorerie)} color={KPI_COLORS.tresorerie} />
           </div>
 
-          <Separator />
+          {/* === GRAPHIQUES (modèle Excel E2A — 6 charts) === */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* 1. AreaChart — Évolution du cheptel */}
+            <RapportChartCard title="Évolution du cheptel (bovins actifs)" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="rCheptel" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={KPI_COLORS.bovinsActifs} stopOpacity={0.5} />
+                        <stop offset="100%" stopColor={KPI_COLORS.bovinsActifs} stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <YAxis tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="bovinsActifs" name="Bovins actifs" stroke={KPI_COLORS.bovinsActifs} strokeWidth={2.5} fill="url(#rCheptel)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
 
-          {/* Situation du cheptel */}
-          <ReportSection title="1. Situation du cheptel" icon={Beef}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-              <KV label="Bovins actifs" value={String(dash.cheptel.bovinsActifs)} />
-              <KV label="Bovins vendus (cumul)" value={String(dash.cheptel.bovinsVendus)} />
-              <KV label="Mortalité" value={String(dash.cheptel.mortalite)} />
-              <KV label="Valeur du cheptel" value={formatFCFA(dash.cheptel.valeurCheptel)} />
-              <KV label="Durée moyenne d'engraissement" value={`${dash.engraissement.dureeMoyenneJours} j`} />
-              <KV label="Poids moyen d'achat" value={`${dash.engraissement.poidsMoyen} kg`} />
-              <KV label="Coût alimentation / tête" value={formatFCFA(dash.alimentation.coutParTete)} />
-              <KV label="Quantités cumulées" value={`${dash.alimentation.nbSacs} sacs`} />
-            </div>
-          </ReportSection>
+            {/* 2. BarChart — Achats vs Ventes */}
+            <RapportChartCard title="Achats vs Ventes (têtes / mois)" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <YAxis tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="achats" name="Achats" fill="#1E6091" radius={[3, 3, 0, 0]} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="ventes" name="Ventes" fill="#10B981" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
 
-          {/* Rentabilité */}
-          <ReportSection title="2. Rentabilité" icon={TrendingUp}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
-              <KV label="Chiffre d'affaires" value={formatFCFA(dash.rentabilite.ca)} />
-              <KV label="Coût d'achat" value={formatFCFA(dash.rentabilite.coutAchat)} />
-              <KV label="Coûts d'engraissement" value={formatFCFA(dash.rentabilite.coutEngraissement)} />
-              <KV label="Marge par tête" value={formatFCFA(dash.rentabilite.margeParTete)} />
-              <KV label="Marge totale" value={formatFCFA(dash.rentabilite.margeTotale)} highlight={dash.rentabilite.margeTotale >= 0 ? "positive" : "negative"} />
-              <KV label="Taux de marge" value={`${tauxMarge.toFixed(1)}%`} />
-            </div>
-          </ReportSection>
+            {/* 3. BarChart — CA & marge */}
+            <RapportChartCard title="Chiffre d'affaires & marge (FCFA / mois)" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <YAxis tick={{ fontSize: 9 }} stroke="#6B7280" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                    <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="ca" name="CA" fill="#1E6091" radius={[3, 3, 0, 0]} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="margeTotale" name="Marge" fill="#14532A" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
 
-          {/* Financement */}
-          <ReportSection title="3. Situation du financement" icon={Landmark}>
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-muted-foreground">Taux d'utilisation</span>
-                  <span className="font-bold text-primary tabular-nums">{tauxUtilisation.toFixed(0)}%</span>
-                </div>
-                <Progress value={tauxUtilisation} className="h-2" />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-                <KV label="Montant financé" value={formatFCFA(dash.financement.montantFinance)} />
-                <KV label="Utilisé" value={formatFCFA(dash.financement.montantUtilise)} />
-                <KV label="Solde" value={formatFCFA(dash.financement.solde)} />
-                <KV label="En retard" value={`${dash.financement.echeancesEnRetard} échéance(s)`} highlight={dash.financement.echeancesEnRetard > 0 ? "negative" : undefined} />
-              </div>
-            </div>
-          </ReportSection>
+            {/* 4. LineChart — Marge/tête & coût alimentation/tête */}
+            <RapportChartCard title="Marge/tête & coût alimentation/tête" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <YAxis tick={{ fontSize: 9 }} stroke="#6B7280" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                    <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+                    <Line isAnimationActive animationDuration={1200} type="monotone" dataKey="margeParTete" name="Marge/tête" stroke="#0F766E" strokeWidth={2.5} dot={{ r: 3 }} />
+                    <Line isAnimationActive animationDuration={1200} type="monotone" dataKey="coutAlimParTete" name="Coût alim./tête" stroke="#E0A008" strokeWidth={2.5} dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
 
-          {/* Alertes & faits marquants */}
-          <ReportSection title="4. Alertes & faits marquants" icon={AlertCircle}>
-            <div className="space-y-2">
-              {dash.alertes.filter((a) => !a.resolved).map((a) => (
-                <div key={a.id} className={`rounded-md border px-3 py-2 text-xs ${severiteColor(a.severite)}`}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium">{a.message}</span>
-                    <span className="text-[0.6rem] uppercase font-semibold">{a.severite}</span>
-                  </div>
-                </div>
-              ))}
-              {dash.alertes.filter((a) => !a.resolved).length === 0 && (
-                <div className="flex items-center gap-2 text-xs text-emerald-700">
-                  <CheckCircle2 className="h-4 w-4" /> Aucune alerte active ce mois.
-                </div>
-              )}
-            </div>
-          </ReportSection>
+            {/* 5. Pie/Donut — Structure des coûts (cumul) */}
+            <RapportChartCard title="Structure des coûts (cumul)" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Achat des bovins", value: rap.costStructure.achatBovins },
+                        { name: "Alimentation", value: rap.costStructure.alimentation },
+                        { name: "Engraissement (autres)", value: rap.costStructure.engraissement },
+                      ]}
+                      dataKey="value" nameKey="name" cx="50%" cy="50%"
+                      outerRadius={80} innerRadius={45} paddingAngle={3}
+                      isAnimationActive animationDuration={1000}
+                    >
+                      {DOUGHNUT_COLORS.map((c, i) => <Cell key={i} fill={c} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Legend wrapperStyle={{ fontSize: "0.65rem" }} iconSize={8} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
 
-          {/* Commentaire de gestion */}
-          <ReportSection title="5. Commentaire de gestion" icon={FileText}>
-            <div className="rounded-md bg-muted/40 border border-border p-3 text-xs leading-relaxed text-foreground/90">
-              <p>
-                Au cours du mois de <strong>{moisLabelFull}</strong>, l'exploitation compte {dash.cheptel.bovinsActifs} bovins en engraissement
-                pour une valeur estimée à {formatFCFA(dash.cheptel.valeurCheptel)}. Le chiffre d'affaires cumulé s'établit à
-                {formatFCFA(dash.rentabilite.ca)} pour une marge totale de {formatFCFA(dash.rentabilite.margeTotale)}
-                ({tauxMarge.toFixed(1)}% du CA), soit {formatFCFA(dash.rentabilite.margeParTete)} par tête vendue.
-              </p>
-              <p className="mt-2">
-                L'utilisation du financement SAVERDEV atteint {tauxUtilisation.toFixed(0)}% ({formatFCFA(dash.financement.montantUtilise)} / {formatFCFA(dash.financement.montantFinance)}).
-                {dash.financement.echeancesEnRetard > 0 && (
-                  <> <strong className="text-red-700">Attention : {dash.financement.echeancesEnRetard} échéance(s) en retard à régulariser.</strong></>
-                )} Le solde disponible est de {formatFCFA(dash.financement.solde)}.
-              </p>
-            </div>
-          </ReportSection>
+            {/* 6. BarChart — Financement utilisé vs trésorerie */}
+            <RapportChartCard title="Financement utilisé (cumul) vs trésorerie" height={220}>
+              <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
+                    <YAxis tick={{ fontSize: 9 }} stroke="#6B7280" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                    <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                    <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="financementUtilise" name="Financement utilisé" fill="#E0A008" radius={[3, 3, 0, 0]} />
+                    <Bar isAnimationActive animationDuration={1000} dataKey="tresorerie" name="Trésorerie" fill="#8D6E63" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </LazyMount>
+            </RapportChartCard>
+          </div>
         </CardContent>
       </Card>
 
       {/* ============ PAGE 2 : Annexes détaillées ============ */}
       <Card className="print-page border-border shadow-sm">
         <CardHeader className="bg-secondary/5 border-b border-border">
-          <CardTitle className="text-sm">Annexe — Détail des ventes et échéances</CardTitle>
+          <CardTitle className="text-sm">Annexe — Détail des ventes, bovins actifs et échéances</CardTitle>
         </CardHeader>
         <CardContent className="p-5 space-y-5">
-          {/* Ventes détaillées */}
+          {/* Tableau mensuel récapitulatif */}
           <div>
-            <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Ventes du mois et cumul</h4>
-            <div className="rounded-md border border-border overflow-hidden">
-              <table className="w-full text-xs">
+            <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Récapitulatif mensuel — exercice {year}</h4>
+            <div className="rounded-md border border-border overflow-x-auto">
+              <table className="w-full text-xs min-w-[800px]">
                 <thead className="bg-muted/60">
                   <tr className="text-left">
-                    <th className="p-2 font-medium">Bovin</th>
-                    <th className="p-2 font-medium hidden sm:table-cell">Date</th>
-                    <th className="p-2 font-medium text-right">Prix vente</th>
-                    <th className="p-2 font-medium text-right hidden md:table-cell">Coût revient</th>
+                    <th className="p-2 font-medium">Mois</th>
+                    <th className="p-2 font-medium text-right">Actifs</th>
+                    <th className="p-2 font-medium text-right">Achats</th>
+                    <th className="p-2 font-medium text-right">Ventes</th>
+                    <th className="p-2 font-medium text-right">CA</th>
+                    <th className="p-2 font-medium text-right">Coût alim.</th>
                     <th className="p-2 font-medium text-right">Marge</th>
-                    <th className="p-2 font-medium text-center">Statut</th>
+                    <th className="p-2 font-medium text-right">Marge/tête</th>
+                    <th className="p-2 font-medium text-right">Trésorerie</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {vendus.map((b) => {
-                    const { coutRevient, marge } = computeBovinMarge(b);
-                    return (
-                      <tr key={b.id} className="border-t border-border">
-                        <td className="p-2 font-mono font-semibold text-primary">{b.identifiant}</td>
-                        <td className="p-2 hidden sm:table-cell text-muted-foreground">{formatDate(b.dateVente)}</td>
-                        <td className="p-2 text-right tabular-nums">{formatFCFA(b.prixVente, false)}</td>
-                        <td className="p-2 text-right tabular-nums hidden md:table-cell text-muted-foreground">{formatFCFA(coutRevient, false)}</td>
-                        <td className={`p-2 text-right tabular-nums font-medium ${marge !== null && marge >= 0 ? "text-emerald-700" : "text-red-700"}`}>
-                          {marge !== null ? formatFCFA(marge, false) : "—"}
-                        </td>
-                        <td className="p-2 text-center">
-                          <Badge variant="outline" className={`text-[0.6rem] ${statutBovinColor(b.statut)}`}>Vendu</Badge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Bovins actifs */}
-          <div>
-            <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Bovins en engraissement</h4>
-            <div className="rounded-md border border-border overflow-hidden">
-              <table className="w-full text-xs">
-                <thead className="bg-muted/60">
-                  <tr className="text-left">
-                    <th className="p-2 font-medium">Bovin</th>
-                    <th className="p-2 font-medium">Race</th>
-                    <th className="p-2 font-medium hidden sm:table-cell">Achat</th>
-                    <th className="p-2 font-medium text-right">Prix achat</th>
-                    <th className="p-2 font-medium text-right hidden md:table-cell">Coûts engrais.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {actifs.map((b) => (
-                    <tr key={b.id} className="border-t border-border">
-                      <td className="p-2 font-mono font-semibold text-primary">{b.identifiant}</td>
-                      <td className="p-2">{b.race}</td>
-                      <td className="p-2 hidden sm:table-cell text-muted-foreground">{formatDate(b.dateAchat)}</td>
-                      <td className="p-2 text-right tabular-nums">{formatFCFA(b.prixAchat, false)}</td>
-                      <td className="p-2 text-right tabular-nums hidden md:table-cell">{formatFCFA(b.coutsEngraissement + b.autresCouts, false)}</td>
+                  {rap.monthly.map((row) => (
+                    <tr key={row.mois} className="border-t border-border">
+                      <td className="p-2 font-medium">{row.mois}</td>
+                      <td className="p-2 text-right tabular-nums">{row.bovinsActifs}</td>
+                      <td className="p-2 text-right tabular-nums">{row.achats}</td>
+                      <td className="p-2 text-right tabular-nums">{row.ventes}</td>
+                      <td className="p-2 text-right tabular-nums">{row.ca > 0 ? formatFCFAShort(row.ca) : "—"}</td>
+                      <td className="p-2 text-right tabular-nums">{row.coutAlimentation > 0 ? formatFCFAShort(row.coutAlimentation) : "—"}</td>
+                      <td className={`p-2 text-right tabular-nums font-medium ${row.margeTotale >= 0 ? "text-emerald-700" : "text-red-700"}`}>
+                        {row.ca > 0 || row.margeTotale !== 0 ? formatFCFAShort(row.margeTotale) : "—"}
+                      </td>
+                      <td className="p-2 text-right tabular-nums">{row.ventes > 0 ? formatFCFA(row.margeParTete, false) : "—"}</td>
+                      <td className={`p-2 text-right tabular-nums ${row.tresorerie >= 0 ? "" : "text-red-600"}`}>{formatFCFAShort(row.tresorerie)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -256,41 +269,65 @@ export function RapportBailleurView() {
           </div>
 
           {/* Échéances détaillées */}
-          <div>
-            <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Tableau d'amortissement — SAVERDEV</h4>
-            <div className="rounded-md border border-border overflow-hidden">
-              <table className="w-full text-xs">
-                <thead className="bg-muted/60">
-                  <tr className="text-left">
-                    <th className="p-2 font-medium">N°</th>
-                    <th className="p-2 font-medium">Date prévue</th>
-                    <th className="p-2 font-medium hidden sm:table-cell">Date payée</th>
-                    <th className="p-2 font-medium text-right">Montant</th>
-                    <th className="p-2 font-medium text-center">Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fin.echeances.map((e) => (
-                    <tr key={e.id} className="border-t border-border">
-                      <td className="p-2 font-mono font-semibold">{e.numero}</td>
-                      <td className="p-2">{formatDate(e.datePrevue)}</td>
-                      <td className="p-2 hidden sm:table-cell text-muted-foreground">{e.datePayee ? formatDate(e.datePayee) : "—"}</td>
-                      <td className="p-2 text-right tabular-nums">{formatFCFA(e.montant, false)}</td>
-                      <td className="p-2 text-center">
-                        <Badge variant="outline" className={`text-[0.6rem] ${statutEcheanceColor(e.statut)}`}>
-                          {e.statut === "PAYEE" ? "Payée" : e.statut === "A_PAYER" ? "À payer" : "En retard"}
-                        </Badge>
-                      </td>
+          {fin && (
+            <div>
+              <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Tableau d'amortissement — {fin.bailleur}</h4>
+              <div className="rounded-md border border-border overflow-hidden">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/60">
+                    <tr className="text-left">
+                      <th className="p-2 font-medium">N°</th>
+                      <th className="p-2 font-medium">Date prévue</th>
+                      <th className="p-2 font-medium hidden sm:table-cell">Date payée</th>
+                      <th className="p-2 font-medium text-right">Montant</th>
+                      <th className="p-2 font-medium text-center">Statut</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {fin.echeances.map((e) => (
+                      <tr key={e.id} className="border-t border-border">
+                        <td className="p-2 font-mono font-semibold">{e.numero}</td>
+                        <td className="p-2">{formatDate(e.datePrevue)}</td>
+                        <td className="p-2 hidden sm:table-cell text-muted-foreground">{e.datePayee ? formatDate(e.datePayee) : "—"}</td>
+                        <td className="p-2 text-right tabular-nums">{formatFCFA(e.montant, false)}</td>
+                        <td className="p-2 text-center">
+                          <Badge variant="outline" className={`text-[0.6rem] ${statutEcheanceColor(e.statut)}`}>
+                            {e.statut === "PAYEE" ? "Payée" : e.statut === "A_PAYER" ? "À payer" : "En retard"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Alertes & faits marquants */}
+          <div>
+            <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5" /> Alertes & faits marquants
+            </h4>
+            <div className="space-y-2">
+              {rap.alertes.filter((a) => !a.resolved).map((a) => (
+                <div key={a.id} className={`rounded-md border px-3 py-2 text-xs ${severiteColor(a.severite)}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{a.message}</span>
+                    <span className="text-[0.6rem] uppercase font-semibold">{a.severite}</span>
+                  </div>
+                </div>
+              ))}
+              {rap.alertes.filter((a) => !a.resolved).length === 0 && (
+                <div className="flex items-center gap-2 text-xs text-emerald-700">
+                  <CheckCircle2 className="h-4 w-4" /> Aucune alerte active.
+                </div>
+              )}
             </div>
           </div>
 
           {/* Pied de page du rapport */}
           <div className="pt-4 border-t border-border text-[0.65rem] text-muted-foreground text-center">
-            Document généré le {formatDate(new Date().toISOString())} · SAVERDEV — Sahel Vert pour un Développement Durable · Confidentiel
+            Document généré le {formatDate(new Date().toISOString())} · SAVERDEV DURABLE — Sahel Vert pour un Développement Durable · Confidentiel
           </div>
         </CardContent>
       </Card>
@@ -298,35 +335,35 @@ export function RapportBailleurView() {
   );
 }
 
-// Sous-composants du rapport
-function ReportKpi({ label, value, hint, highlight }: { label: string; value: string; hint?: string; highlight?: "positive" | "negative" }) {
-  const color = highlight === "positive" ? "text-emerald-700" : highlight === "negative" ? "text-red-700" : "text-foreground";
+// ====== Sous-composants ======
+
+// KPI coloré — style identique au modèle Excel E2A
+function RapportKpiCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className={`text-lg font-bold tabular-nums mt-1 ${color}`}>{value}</p>
-      {hint && <p className="text-[0.6rem] text-muted-foreground mt-0.5">{hint}</p>}
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.3 }}
+      className="rounded-lg p-3 text-white shadow-md"
+      style={{ background: color }}
+    >
+      <p className="text-[0.65rem] font-semibold uppercase tracking-wider leading-tight">{label}</p>
+      <p className="text-xl font-bold tabular-nums mt-1.5">{value}</p>
+    </motion.div>
   );
 }
 
-function ReportSection({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+// Carte conteneur pour graphique
+function RapportChartCard({ title, height, children }: { title: string; height: number; children: React.ReactNode }) {
   return (
-    <div>
-      <h4 className="text-sm font-semibold flex items-center gap-2 mb-2 text-foreground">
-        <Icon className="h-4 w-4 text-primary" /> {title}
-      </h4>
-      {children}
-    </div>
-  );
-}
-
-function KV({ label, value, highlight }: { label: string; value: string; highlight?: "positive" | "negative" }) {
-  const color = highlight === "positive" ? "text-emerald-700" : highlight === "negative" ? "text-red-700" : "text-foreground";
-  return (
-    <div className="flex flex-col">
-      <span className="text-[0.65rem] text-muted-foreground">{label}</span>
-      <span className={`font-semibold tabular-nums ${color}`}>{value}</span>
-    </div>
+    <Card className="border-border">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent style={{ height }} className="pt-1">
+        {children}
+      </CardContent>
+    </Card>
   );
 }

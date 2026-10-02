@@ -324,3 +324,48 @@ Stage Summary:
 - LazyMount : 7 graphiques différés → charge initiale allégée, skeletons préviennent le CLS
 - Lint clean (0 erreur sur mes fichiers ; 1 erreur préexistante dans parametres-view.tsx non touché)
 - Page charge en 200, aucune erreur runtime/console
+
+---
+Task ID: 10
+Agent: main
+Task: Rapport Bailleur selon modèle Excel E2A (Tableau de Bord SAVERDEV)
+
+Work Log:
+- Analyse du fichier upload "Tableau de Bord SAVERDEV_E2A.xlsx" :
+  - Sheet "Données" : 12 mois × 18 colonnes (Bovins actifs, Achats, Ventes, Mortalité, Valeur cheptel, Sacs, Coût alim, CA, Coût achat, Coût engrais, Marge, Coût alim/tête, Marge/tête, Financement accordé, Financement utilisé, Trésorerie, Taux util.) + Structure des coûts (Achat/Alim/Engrais)
+  - Sheet "Tableau de Bord" : 6 KPI colorés + 6 graphiques (Area, Bar×3, Line, Doughnut)
+  - Couleurs exactes : Bovins actifs #1E7B34, CA #1E6091, Marge #14532A, Marge/tête #0F766E, Taux util #E0A008, Trésorerie #8D6E63
+
+- src/lib/types.ts : ajout interfaces RapportMensuel (18 champs), StructureCouts, RapportBailleur
+- src/app/api/rapport-bailleur/route.ts (NOUVEAU) :
+  - GET /api/rapport-bailleur?annee=YYYY
+  - Auto-détection de l'année : si l'année demandée n'a pas de données → prend l'année de l'activité la plus récente
+  - Pour chaque mois (Jan-Déc) : calcule bovins actifs (fin de mois), achats, ventes, mortalité, valeur cheptel, sacs, coût alim, CA, coût achat vendus, coût engrais vendus, marge, coût alim/tête, marge/tête, financement utilisé cumul, trésorerie, taux util
+  - Retourne KPIs synthétiques + monthly[12] + costStructure + alertes
+- src/lib/api.ts : ajout hook useRapportBailleur(annee?)
+- src/components/views/rapport-bailleur-view.tsx : REFAITE selon le modèle Excel
+  - En-tête vert foncé #14532A avec logo SAVERDEV
+  - 6 KPI colorés (couleurs exactes Excel) avec motion d'apparition
+  - 6 graphiques Recharts avec LazyMount (h-full) :
+    1. AreaChart "Évolution du cheptel" (bovins actifs/mois, dégradé vert)
+    2. BarChart "Achats vs Ventes" (bleu + vert)
+    3. BarChart "CA & marge" (bleu + vert foncé)
+    4. LineChart "Marge/tête & coût alim./tête" (teal + ambre)
+    5. Pie/Donut "Structure des coûts" (orange achat, vert alim, bleu engrais)
+    6. BarChart "Financement vs trésorerie" (ambre + marron)
+  - Annexe : tableau récapitulatif mensuel (12 lignes × 9 colonnes) + échéances + alertes
+- Fix bugs :
+  - Doughnut/DoughnutChart n'existent pas dans Recharts → remplacé par Pie/PieChart avec innerRadius
+  - LazyMount height={220} causait hauteur 0 (ResponsiveContainer height:100% sans parent height) → className="h-full" pour remplir le CardContent
+
+Stage Summary:
+- API /api/rapport-bailleur retourne vraies données : 10 bovins actifs, CA 2.3M, marge 403k, marge/tête 100 625, taux 42%, trésorerie -1.9M
+- VLM confirme les 6 graphiques rendent avec données :
+  - ✅ AreaChart : courbe croissance 2→11 (janv→juil) puis plateau 10
+  - ✅ BarChart Achats/Ventes : barres bleues (achats) + vertes (ventes) par mois
+  - ✅ BarChart CA/marge : axe Y "1,2 M"
+  - ✅ LineChart : axe Y "300 k"
+  - ✅ Donut structure coûts : 3 segments (vert, orange, bleu)
+  - ✅ BarChart financement/trésorerie : barres jaunes (+) et marron (-)
+- Lint clean (0 erreur sur nouveaux fichiers)
+- Rapport bailleur fidèle au modèle Excel E2A avec couleurs exactes et 6 graphiques

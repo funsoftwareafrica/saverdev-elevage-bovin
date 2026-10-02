@@ -191,3 +191,50 @@ export interface Paturage { id: string; nom: string; surface: number; coordonnee
 
 export interface Tag { id: string; tag: string; color: string; }
 export interface Validation { id: string; entiteType: string; entiteId: string; action: string; statut: string; dateSaisie: string; dateValidation: string | null; commentaire: string | null; }
+
+// ---------- Rapport Bailleur (modèle Excel E2A) ----------
+
+/** Ligne mensuelle — correspond à une ligne de la feuille "Données" du modèle Excel. */
+export interface RapportMensuel {
+  mois: string;
+  bovinsActifs: number;        // B — bovins actifs (fin de mois)
+  achats: number;              // C — têtes achetées dans le mois
+  ventes: number;              // D — têtes vendues dans le mois
+  mortalite: number;           // E — têtes perdues
+  valeurCheptel: number;       // F — estimation (achat + engrais. des actifs)
+  sacsConsommes: number;       // G — sacs consommés dans le mois
+  coutAlimentation: number;    // H — coût alimentation du mois
+  ca: number;                  // I — chiffre d'affaires du mois
+  coutAchat: number;            // J — coût d'achat des bovins vendus
+  coutEngraissement: number;   // K — coût engraissement des bovins vendus
+  margeTotale: number;         // L — I - J - K
+  coutAlimParTete: number;     // M — H / B
+  margeParTete: number;        // N — L / D
+  financementAccorde: number;  // O — capital total accordé
+  financementUtilise: number;  // P — utilisé cumul
+  tresorerie: number;           // Q — trésorerie disponible
+  tauxUtilisation: number;      // R — P / O
+}
+
+/** Structure des coûts cumulés (pour le doughnut). */
+export interface StructureCouts {
+  achatBovins: number;     // somme J
+  alimentation: number;    // somme H
+  engraissement: number;   // somme K
+}
+
+/** Synthèse pour le rapport bailleur — KPIs + données mensuelles + structure. */
+export interface RapportBailleur {
+  kpis: {
+    bovinsActifs: number;
+    caCumul: number;
+    margeTotale: number;
+    margeParTete: number;
+    tauxUtilisation: number;
+    tresorerie: number;
+  };
+  monthly: RapportMensuel[];
+  costStructure: StructureCouts;
+  alertes: Alerte[];
+}
+

@@ -10,7 +10,7 @@ import type {
   Alerte,
   Historique,
   Tresorerie, Pese, Parametre, NotificationItem, Backup, Soin, RaceStat, ComparaisonMois, Paturage,
-  Dashboard, Tag, Validation,
+  Dashboard, Tag, Validation, RapportBailleur,
 } from "@/lib/types";
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -251,5 +251,13 @@ export function useValidateOperation() {
       if (!r.ok) throw new Error("Échec"); return r.json();
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["validations"] }); qc.invalidateQueries({ queryKey: ["dashboard"] }); },
+  });
+}
+
+// ---------- Rapport Bailleur ----------
+export function useRapportBailleur(annee?: number) {
+  return useQuery<RapportBailleur>({
+    queryKey: ["rapport-bailleur", annee],
+    queryFn: () => fetchJson<RapportBailleur>(`/api/rapport-bailleur${annee ? `?annee=${annee}` : ""}`),
   });
 }
