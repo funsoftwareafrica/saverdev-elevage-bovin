@@ -105,7 +105,7 @@ export function DashboardView() {
                       <stop offset="0%" stopColor="#10B981" /><stop offset="100%" stopColor="#34D399" />
                     </linearGradient>
                     <linearGradient id="gVendu" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#14B8A6" /><stop offset="100%" stopColor="#5EEAD4" />
+                      <stop offset="0%" stopColor="#8B5CF6" /><stop offset="100%" stopColor="#A78BFA" />
                     </linearGradient>
                     <linearGradient id="gMort" x1="0" y1="0" x2="1" y2="1">
                       <stop offset="0%" stopColor="#EF4444" /><stop offset="100%" stopColor="#FCA5A5" />
@@ -326,16 +326,19 @@ export function DashboardView() {
             <CardContent className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[
-                  { poste: "Achat", value: dash.rentabilite.coutAchat, fill: "#14B8A6" },
-                  { poste: "Engrais.", value: dash.rentabilite.coutEngraissement, fill: "#10B981" },
-                  { poste: "Alim.", value: dash.alimentation.coutTotal, fill: "#34D399" },
-                  { poste: "CA", value: dash.rentabilite.ca, fill: "#F59E0B" },
+                  { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: "#F59E0B" },
+                  { poste: "Alimentation", value: dash.alimentation.coutTotal, fill: "#10B981" },
+                  { poste: "Autres coûts", value: dash.rentabilite.coutEngraissement, fill: "#3B82F6" },
                 ]} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
                   <XAxis dataKey="poste" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" />
                   <YAxis tick={{ fontSize: 9 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
                   <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
-                  <Bar dataKey="value" isAnimationActive animationDuration={1000} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="value" isAnimationActive animationDuration={1000} radius={[4, 4, 0, 0]}>
+                    <Cell fill="#F59E0B" />
+                    <Cell fill="#10B981" />
+                    <Cell fill="#3B82F6" />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

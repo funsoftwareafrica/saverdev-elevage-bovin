@@ -249,3 +249,29 @@ Stage Summary:
 - Valeurs exactes confirmées : CA 2.3M, coût achat 1.7M (73%), engrais 178k (8%), marge 403k (17%), marge/tête 100 625 FCFA
 - Lint clean, page charge en 200, aucune erreur runtime
 - La section Rentabilité passe de 4 cartes simples à 4 KPI graphiques + waterfall + jauge + barre empilée + encart
+
+---
+Task ID: 8
+Agent: main
+Task: Variation couleurs donut cheptel + couleurs ventilation des coûts
+
+Work Log:
+- Donut "Répartition du cheptel" : variation des 3 couleurs pour distinction visuelle
+  - En engraissement : vert émeraude (gradient gActif #10B981 → #34D399) — inchangé
+  - Vendus : violet/lavande (gradient gVendu #8B5CF6 → #A78BFA) — CHANGÉ de teal à violet
+  - Mortalité : rouge corail (gradient gMort #EF4444 → #FCA5A5) — inchangé
+- BarChart "Ventilation des coûts" : 3 barres avec couleurs demandées + Cell components
+  - Achat bovin : ORANGE #F59E0B (value: coutAchat ~1.7M)
+  - Alimentation : VERT #10B981 (value: alimentation.coutTotal ~5M)
+  - Autres coûts : BLEU #3B82F6 (value: coutEngraissement ~178k)
+  - Ajout de <Cell> children dans <Bar> pour appliquer les couleurs individuelles
+  - Suppression de l'ancienne barre "CA" (4→3 barres)
+
+Stage Summary:
+- Vérification VLM donut : 3 segments distincts confirmés (vert majoritaire, violet, rouge corail)
+- Vérification VLM ventilation : 3 barres confirmées
+  - Orange "Achat bovin" (~1.5M)
+  - Vert "Alimentation" (~5M, la plus haute)
+  - Bleu "Autres coûts" (~0.2M)
+- Lint clean, page charge en 200
+- Couleurs cohérentes avec la demande utilisateur
