@@ -52,3 +52,18 @@ prompt
 server.log
 # Skills directory
 /skills/
+# AI skills (not part of the app)
+skills/
+tests/
+# tool-results
+tool-results/
+worklog.md
+dev.log
+server.log
+download/
+upload/
+# database
+db/
+
+# env
+.env
