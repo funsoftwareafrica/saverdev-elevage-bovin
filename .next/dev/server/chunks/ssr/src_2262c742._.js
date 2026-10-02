@@ -1,0 +1,1287 @@
+module.exports = [
+"[project]/src/lib/store.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useAppStore",
+    ()=>useAppStore
+]);
+// Store Zustand — état global de l'app (rôle actif, vue courante, mois sélectionné, bovin sélectionné)
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/zustand/esm/react.mjs [app-ssr] (ecmascript)");
+;
+const currentMonthISO = ()=>{
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
+const useAppStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["create"])((set)=>({
+        role: "GERANT",
+        view: "dashboard",
+        selectedBovinId: null,
+        selectedMonth: currentMonthISO(),
+        setRole: (role)=>set((s)=>({
+                    role,
+                    // si la vue courante n'est pas accessible au nouveau rôle, fallback dashboard
+                    view: rolePermissions(role).includes(s.view) ? s.view : "dashboard"
+                })),
+        setView: (view)=>set({
+                view
+            }),
+        openBovin: (id)=>set({
+                view: "fiche-bovin",
+                selectedBovinId: id
+            }),
+        setSelectedMonth: (selectedMonth)=>set({
+                selectedMonth
+            })
+    }));
+// helper local (évite d'importer ROLE_VIEWS partout)
+function rolePermissions(role) {
+    const m = {
+        ELEVEUR: [
+            "dashboard",
+            "bovins",
+            "alimentation",
+            "depenses",
+            "ventes"
+        ],
+        GERANT: [
+            "dashboard",
+            "bovins",
+            "alimentation",
+            "depenses",
+            "ventes",
+            "rentabilite",
+            "financement",
+            "rapport"
+        ],
+        BAILLEUR: [
+            "dashboard",
+            "rentabilite",
+            "financement",
+            "rapport"
+        ],
+        ADMIN: [
+            "dashboard",
+            "bovins",
+            "alimentation",
+            "depenses",
+            "ventes",
+            "rentabilite",
+            "financement",
+            "rapport"
+        ]
+    };
+    return m[role];
+}
+}),
+"[project]/src/lib/types.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// Types partagés de l'application Élevage Bovin (SAVERDEV)
+// Conçus pour matcher le schéma Prisma + besoins UI.
+__turbopack_context__.s([
+    "ROLE_DESCRIPTIONS",
+    ()=>ROLE_DESCRIPTIONS,
+    "ROLE_LABELS",
+    ()=>ROLE_LABELS,
+    "ROLE_VIEWS",
+    ()=>ROLE_VIEWS
+]);
+const ROLE_LABELS = {
+    ELEVEUR: "Éleveur",
+    GERANT: "Gérant",
+    BAILLEUR: "Bailleur",
+    ADMIN: "Administrateur"
+};
+const ROLE_DESCRIPTIONS = {
+    ELEVEUR: "Saisie et consultation des opérations quotidiennes",
+    GERANT: "Saisie, validation, pilotage, reporting et administration",
+    BAILLEUR: "Consultation des tableaux de bord et rapports (lecture seule)",
+    ADMIN: "Administration technique et supervision"
+};
+const ROLE_VIEWS = {
+    ELEVEUR: [
+        "dashboard",
+        "bovins",
+        "fiche-bovin",
+        "alimentation",
+        "depenses",
+        "ventes",
+        "pesees"
+    ],
+    GERANT: [
+        "carte-3d",
+        "dashboard",
+        "bovins",
+        "fiche-bovin",
+        "alimentation",
+        "depenses",
+        "ventes",
+        "rentabilite",
+        "financement",
+        "rapport",
+        "tresorerie",
+        "pesees",
+        "parametres",
+        "paturages"
+    ],
+    BAILLEUR: [
+        "bailleur-synthese",
+        "financement",
+        "rapport"
+    ],
+    ADMIN: [
+        "carte-3d",
+        "dashboard",
+        "bovins",
+        "fiche-bovin",
+        "alimentation",
+        "depenses",
+        "ventes",
+        "rentabilite",
+        "financement",
+        "rapport",
+        "tresorerie",
+        "pesees",
+        "parametres",
+        "paturages"
+    ]
+};
+}),
+"[project]/src/lib/api.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useAddTag",
+    ()=>useAddTag,
+    "useAlertes",
+    ()=>useAlertes,
+    "useAlimentations",
+    ()=>useAlimentations,
+    "useBackups",
+    ()=>useBackups,
+    "useBovin",
+    ()=>useBovin,
+    "useBovins",
+    ()=>useBovins,
+    "useCreateAlimentation",
+    ()=>useCreateAlimentation,
+    "useCreateBackup",
+    ()=>useCreateBackup,
+    "useCreateBovin",
+    ()=>useCreateBovin,
+    "useCreateDepense",
+    ()=>useCreateDepense,
+    "useCreatePese",
+    ()=>useCreatePese,
+    "useCreateSoin",
+    ()=>useCreateSoin,
+    "useCreateVente",
+    ()=>useCreateVente,
+    "useDashboard",
+    ()=>useDashboard,
+    "useDepenses",
+    ()=>useDepenses,
+    "useFinancement",
+    ()=>useFinancement,
+    "useHistorique",
+    ()=>useHistorique,
+    "useNotifications",
+    ()=>useNotifications,
+    "useParams",
+    ()=>useParams,
+    "usePaturages",
+    ()=>usePaturages,
+    "usePesees",
+    ()=>usePesees,
+    "useRapportBailleur",
+    ()=>useRapportBailleur,
+    "useSoins",
+    ()=>useSoins,
+    "useStatsComparaison",
+    ()=>useStatsComparaison,
+    "useStatsRaces",
+    ()=>useStatsRaces,
+    "useTags",
+    ()=>useTags,
+    "useTresorerie",
+    ()=>useTresorerie,
+    "useUpdateParam",
+    ()=>useUpdateParam,
+    "useValidateOperation",
+    ()=>useValidateOperation,
+    "useValidations",
+    ()=>useValidations,
+    "useVentes",
+    ()=>useVentes
+]);
+// Hooks React (TanStack Query) — fetch les données depuis les API routes.
+// Chaque hook expose { data, isLoading, error } et utilise des clés de cache stables.
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useQuery.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/useMutation.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js [app-ssr] (ecmascript)");
+;
+async function fetchJson(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`API ${url} → ${r.status}`);
+    return r.json();
+}
+function useDashboard() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "dashboard"
+        ],
+        queryFn: ()=>fetchJson("/api/dashboard")
+    });
+}
+function useBovins() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "bovins"
+        ],
+        queryFn: ()=>fetchJson("/api/bovins")
+    });
+}
+function useBovin(id) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "bovin",
+            id
+        ],
+        queryFn: ()=>fetchJson(`/api/bovins/${id}`),
+        enabled: !!id
+    });
+}
+function useCreateBovin() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/bovins", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec création bovin");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "bovins"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "historique"
+                ]
+            });
+        }
+    });
+}
+function useAlimentations() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "alimentation"
+        ],
+        queryFn: ()=>fetchJson("/api/alimentation")
+    });
+}
+function useCreateAlimentation() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/alimentation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec création alimentation");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "alimentation"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "bovins"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "historique"
+                ]
+            });
+        }
+    });
+}
+function useDepenses() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "depenses"
+        ],
+        queryFn: ()=>fetchJson("/api/depenses")
+    });
+}
+function useCreateDepense() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/depenses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec création dépense");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "depenses"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "bovins"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "historique"
+                ]
+            });
+        }
+    });
+}
+function useVentes() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "ventes"
+        ],
+        queryFn: ()=>fetchJson("/api/ventes")
+    });
+}
+function useCreateVente() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/ventes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec enregistrement vente");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "ventes"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "bovins"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "historique"
+                ]
+            });
+        }
+    });
+}
+function useFinancement() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "financement"
+        ],
+        queryFn: ()=>fetchJson("/api/financement")
+    });
+}
+function useAlertes() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "alertes"
+        ],
+        queryFn: ()=>fetchJson("/api/alertes")
+    });
+}
+function useHistorique() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "historique"
+        ],
+        queryFn: ()=>fetchJson("/api/historique")
+    });
+}
+function useTresorerie() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "tresorerie"
+        ],
+        queryFn: ()=>fetchJson("/api/tresorerie")
+    });
+}
+function usePesees(bovinId) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "pesees",
+            bovinId
+        ],
+        queryFn: ()=>fetchJson(`/api/pesees${bovinId ? `?bovinId=${bovinId}` : ""}`)
+    });
+}
+function useCreatePese() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/pesees", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "pesees"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+        }
+    });
+}
+function useParams() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "parametres"
+        ],
+        queryFn: ()=>fetchJson("/api/parametres")
+    });
+}
+function useUpdateParam() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/parametres", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: ()=>qc.invalidateQueries({
+                queryKey: [
+                    "parametres"
+                ]
+            })
+    });
+}
+function useNotifications() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "notifications"
+        ],
+        queryFn: ()=>fetchJson("/api/notifications")
+    });
+}
+function useBackups() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "backups"
+        ],
+        queryFn: ()=>fetchJson("/api/backup")
+    });
+}
+function useCreateBackup() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async ()=>{
+            const r = await fetch("/api/backup", {
+                method: "POST"
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: ()=>qc.invalidateQueries({
+                queryKey: [
+                    "backups"
+                ]
+            })
+    });
+}
+function useSoins(bovinId) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "soins",
+            bovinId
+        ],
+        queryFn: ()=>fetchJson(`/api/soins${bovinId ? `?bovinId=${bovinId}` : ""}`)
+    });
+}
+function useCreateSoin() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch("/api/soins", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "soins"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+        }
+    });
+}
+function useStatsRaces() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "stats-races"
+        ],
+        queryFn: ()=>fetchJson("/api/stats/races")
+    });
+}
+function useStatsComparaison() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "stats-comparaison"
+        ],
+        queryFn: ()=>fetchJson("/api/stats/comparaison")
+    });
+}
+function usePaturages() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "paturages"
+        ],
+        queryFn: ()=>fetchJson("/api/paturages")
+    });
+}
+function useTags(bovinId) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "tags",
+            bovinId
+        ],
+        queryFn: ()=>fetchJson(`/api/bovins/${bovinId}/tags`),
+        enabled: !!bovinId
+    });
+}
+function useAddTag() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch(`/api/bovins/${data.bovinId}/tags`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: (_, data)=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "tags",
+                    data.bovinId
+                ]
+            });
+        }
+    });
+}
+function useValidations() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "validations"
+        ],
+        queryFn: ()=>fetchJson("/api/validations")
+    });
+}
+function useValidateOperation() {
+    const qc = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useMutation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMutation"])({
+        mutationFn: async (data)=>{
+            const r = await fetch(`/api/validations/${data.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!r.ok) throw new Error("Échec");
+            return r.json();
+        },
+        onSuccess: ()=>{
+            qc.invalidateQueries({
+                queryKey: [
+                    "validations"
+                ]
+            });
+            qc.invalidateQueries({
+                queryKey: [
+                    "dashboard"
+                ]
+            });
+        }
+    });
+}
+function useRapportBailleur(annee) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
+        queryKey: [
+            "rapport-bailleur",
+            annee
+        ],
+        queryFn: ()=>fetchJson(`/api/rapport-bailleur${annee ? `?annee=${annee}` : ""}`)
+    });
+}
+}),
+"[project]/src/lib/format.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// Helpers de formatage — Application Élevage Bovin (SAVERDEV)
+/** Formate un montant en FCFA avec séparateurs de milliers. */ __turbopack_context__.s([
+    "CHART_COLORS",
+    ()=>CHART_COLORS,
+    "formatDate",
+    ()=>formatDate,
+    "formatFCFA",
+    ()=>formatFCFA,
+    "formatFCFAShort",
+    ()=>formatFCFAShort,
+    "formatMonthLabel",
+    ()=>formatMonthLabel,
+    "joursEntre",
+    ()=>joursEntre,
+    "moisLabel",
+    ()=>moisLabel,
+    "nextBovinIdentifiant",
+    ()=>nextBovinIdentifiant,
+    "severiteColor",
+    ()=>severiteColor,
+    "statutBovinColor",
+    ()=>statutBovinColor,
+    "statutEcheanceColor",
+    ()=>statutEcheanceColor
+]);
+function formatFCFA(value, withSymbol = true) {
+    if (value == null || isNaN(value)) value = 0;
+    const formatted = new Intl.NumberFormat("fr-FR", {
+        maximumFractionDigits: 0
+    }).format(value);
+    return withSymbol ? `${formatted} FCFA` : formatted;
+}
+function formatFCFAShort(value) {
+    if (value == null || isNaN(value)) value = 0;
+    if (Math.abs(value) >= 1_000_000) {
+        return `${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)} M FCFA`;
+    }
+    if (Math.abs(value) >= 1_000) {
+        return `${Math.round(value / 1000)} k FCFA`;
+    }
+    return `${value} FCFA`;
+}
+function formatDate(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+function formatMonthLabel(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("fr-FR", {
+        month: "short",
+        year: "numeric"
+    });
+}
+function moisLabel(monthIndex) {
+    const noms = [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Août",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre"
+    ];
+    return noms[monthIndex] ?? "—";
+}
+function joursEntre(debut, fin = null) {
+    const d1 = new Date(debut).getTime();
+    const d2 = fin ? new Date(fin).getTime() : Date.now();
+    return Math.max(0, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
+}
+function statutEcheanceColor(s) {
+    switch(s){
+        case "PAYEE":
+            return "text-emerald-700 bg-emerald-100 border-emerald-200";
+        case "A_PAYER":
+            return "text-amber-700 bg-amber-100 border-amber-200";
+        case "EN_RETARD":
+            return "text-red-700 bg-red-100 border-red-200";
+        default:
+            return "text-muted-foreground bg-muted border-border";
+    }
+}
+function statutBovinColor(s) {
+    switch(s){
+        case "EN_ENGRAISSEMENT":
+            return "text-primary bg-primary/10 border-primary/20";
+        case "VENDU":
+            return "text-emerald-700 bg-emerald-50 border-emerald-200";
+        case "MORT":
+            return "text-red-700 bg-red-50 border-red-200";
+        default:
+            return "text-muted-foreground bg-muted border-border";
+    }
+}
+function severiteColor(s) {
+    switch(s){
+        case "INFO":
+            return "text-sky-700 bg-sky-50 border-sky-200";
+        case "WARNING":
+            return "text-amber-700 bg-amber-50 border-amber-200";
+        case "CRITICAL":
+            return "text-red-700 bg-red-50 border-red-200";
+        default:
+            return "text-muted-foreground bg-muted border-border";
+    }
+}
+function nextBovinIdentifiant(existing) {
+    let max = 0;
+    for (const b of existing){
+        const m = /BOV-(\d+)/.exec(b.identifiant);
+        if (m) max = Math.max(max, parseInt(m[1], 10));
+    }
+    return `BOV-${String(max + 1).padStart(3, "0")}`;
+}
+const CHART_COLORS = {
+    vertForet: "#10B981",
+    marronTerre: "#14B8A6",
+    vertClair: "#34D399",
+    bleuCiel: "#34D399",
+    ocreSahel: "#F59E0B",
+    rougeTerre: "#EF4444"
+};
+}),
+"[project]/src/lib/calculations.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// Calculs purs — réutilisables côté serveur (API) et client (vues).
+// Aucune dépendance à React ou aux données mockées.
+__turbopack_context__.s([
+    "computeBovinMarge",
+    ()=>computeBovinMarge,
+    "computeDashboardFromData",
+    ()=>computeDashboardFromData
+]);
+function computeBovinMarge(b) {
+    const coutRevient = b.prixAchat + b.coutsEngraissement + b.autresCouts;
+    const marge = b.statut === "VENDU" ? b.prixVente - coutRevient : null;
+    return {
+        coutRevient,
+        marge
+    };
+}
+/** Retourne la clé mois "YYYY-MM" d'une date ISO. */ function monthKey(iso) {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+/** Construit la liste des mois couvrant la période où il y a des données.
+ *  Trouve la 1ère et la dernière date de données, génère les mois intermédiaires.
+ *  Garantit min 6 mois ; limite à maxMonths (on garde les plus récents). */ function dataMonths(dates, minMonths = 6, maxMonths = 18) {
+    const now = new Date();
+    let earliest = null;
+    let latest = null;
+    for (const iso of dates){
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) continue;
+        if (!earliest || d < earliest) earliest = d;
+        if (!latest || d > latest) latest = d;
+    }
+    // Si aucune date de données → derniers minMonths mois jusqu'à maintenant
+    if (!earliest || !latest) {
+        const out = [];
+        for(let i = minMonths - 1; i >= 0; i--){
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            out.push({
+                key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+                label: d.toLocaleDateString("fr-FR", {
+                    month: "short"
+                }).replace(".", "")
+            });
+        }
+        return out;
+    }
+    const start = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+    const end = new Date(Math.max(latest.getTime(), now.getTime()));
+    const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+    const all = [];
+    const cur = new Date(start);
+    while(cur <= endMonth){
+        all.push({
+            key: `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`,
+            label: cur.toLocaleDateString("fr-FR", {
+                month: "short"
+            }).replace(".", "")
+        });
+        cur.setMonth(cur.getMonth() + 1);
+    }
+    // Si trop de mois, on garde les plus récents (maxMonths)
+    if (all.length > maxMonths) return all.slice(all.length - maxMonths);
+    // Si pas assez de mois, on complète par le passé
+    while(all.length < minMonths){
+        const first = all[0];
+        const [y, m] = first.key.split("-").map(Number);
+        const d = new Date(y, m - 2, 1);
+        all.unshift({
+            key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+            label: d.toLocaleDateString("fr-FR", {
+                month: "short"
+            }).replace(".", "")
+        });
+    }
+    return all;
+}
+function computeDashboardFromData(data) {
+    const { bovins, alimentations, depenses = [], financement, alertes } = data;
+    const actifs = bovins.filter((b)=>b.statut === "EN_ENGRAISSEMENT");
+    const vendus = bovins.filter((b)=>b.statut === "VENDU");
+    const morts = bovins.filter((b)=>b.statut === "MORT");
+    // Rentabilité
+    const ca = vendus.reduce((s, b)=>s + b.prixVente, 0);
+    const coutAchat = vendus.reduce((s, b)=>s + b.prixAchat, 0);
+    const coutEngrais = vendus.reduce((s, b)=>s + b.coutsEngraissement + b.autresCouts, 0);
+    const margeTotale = vendus.reduce((s, b)=>s + (b.prixVente - b.prixAchat - b.coutsEngraissement - b.autresCouts), 0);
+    const margeParTete = vendus.length ? margeTotale / vendus.length : 0;
+    // Alimentation
+    const nbSacs = alimentations.reduce((s, a)=>s + a.quantite, 0);
+    const coutAlimTotal = alimentations.reduce((s, a)=>s + a.coutTotal, 0);
+    const coutAlimParTete = bovins.length ? coutAlimTotal / (actifs.length + vendus.length) : 0;
+    // Valeur du cheptel
+    const valeurCheptel = actifs.reduce((s, b)=>s + b.prixAchat + b.coutsEngraissement, 0);
+    // Engraissement : durée moyenne
+    const durees = vendus.map((b)=>{
+        if (!b.dateVente) return 0;
+        return Math.round((new Date(b.dateVente).getTime() - new Date(b.dateAchat).getTime()) / (1000 * 60 * 60 * 24));
+    });
+    const dureeMoyenne = durees.length ? durees.reduce((s, d)=>s + d, 0) / durees.length : 0;
+    // Financement
+    const echeances = financement.echeances;
+    const payees = echeances.filter((e)=>e.statut === "PAYEE");
+    const aPayer = echeances.filter((e)=>e.statut === "A_PAYER");
+    const enRetard = echeances.filter((e)=>e.statut === "EN_RETARD");
+    const montantUtilise = payees.reduce((s, e)=>s + e.montant, 0);
+    const tauxUtilisation = montantUtilise / financement.montantFinance * 100;
+    // === Évolution mensuelle RÉELLE ===
+    // CA mensuel = somme des ventes (prixVente) des bovins vendus ce mois
+    // Coûts mensuels = achats de bovins (prixAchat) + alimentations (coutTotal) + dépenses (montant)
+    // Marge = CA - Coûts
+    // La fenêtre couvre la période réelle des données (min 6, max 12 mois)
+    const allDates = [
+        ...bovins.map((b)=>b.dateAchat),
+        ...vendus.map((b)=>b.dateVente).filter(Boolean),
+        ...alimentations.map((a)=>a.date),
+        ...depenses.map((d)=>d.date)
+    ];
+    const months = dataMonths(allDates);
+    const evolutionMensuelle = months.map((m)=>{
+        const caMois = vendus.filter((b)=>b.dateVente && monthKey(b.dateVente) === m.key).reduce((s, b)=>s + b.prixVente, 0);
+        const coutAchatMois = bovins.filter((b)=>monthKey(b.dateAchat) === m.key).reduce((s, b)=>s + b.prixAchat, 0);
+        const coutAlimMois = alimentations.filter((a)=>monthKey(a.date) === m.key).reduce((s, a)=>s + a.coutTotal, 0);
+        const coutDepMois = depenses.filter((d)=>monthKey(d.date) === m.key).reduce((s, d)=>s + d.montant, 0);
+        const couts = coutAchatMois + coutAlimMois + coutDepMois;
+        const marge = caMois - couts;
+        return {
+            mois: m.label,
+            ca: caMois,
+            couts,
+            marge
+        };
+    });
+    // === Ventes par mois RÉELLES ===
+    const ventesParMois = months.map((m)=>{
+        const bovinsVendusMois = vendus.filter((b)=>b.dateVente && monthKey(b.dateVente) === m.key);
+        return {
+            mois: m.label,
+            ventes: bovinsVendusMois.reduce((s, b)=>s + b.prixVente, 0),
+            nbTetes: bovinsVendusMois.length
+        };
+    });
+    return {
+        cheptel: {
+            bovinsActifs: actifs.length,
+            bovinsVendus: vendus.length,
+            entreesMois: 1,
+            sortiesMois: 1,
+            mortalite: morts.length,
+            valeurCheptel
+        },
+        engraissement: {
+            dureeMoyenneJours: Math.round(dureeMoyenne),
+            nbEnCycle: actifs.length,
+            poidsMoyen: Math.round(actifs.reduce((s, b)=>s + b.poidsAchat, 0) / Math.max(1, actifs.length))
+        },
+        alimentation: {
+            nbSacs,
+            coutTotal: coutAlimTotal,
+            coutParTete: coutAlimParTete
+        },
+        rentabilite: {
+            ca,
+            coutAchat,
+            coutEngraissement: coutEngrais,
+            margeParTete,
+            margeTotale
+        },
+        financement: {
+            montantFinance: financement.montantFinance,
+            montantUtilise,
+            solde: financement.montantFinance - montantUtilise,
+            echeancesPayees: payees.length,
+            echeancesAPayer: aPayer.length,
+            echeancesEnRetard: enRetard.length,
+            tauxUtilisation
+        },
+        alertes,
+        evolutionMensuelle,
+        ventesParMois
+    };
+}
+}),
+"[project]/src/lib/export.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+// Helpers d'export — CSV (universel, Excel/Sheets/LibreOffice compatibles).
+__turbopack_context__.s([
+    "downloadFile",
+    ()=>downloadFile,
+    "exportCSV",
+    ()=>exportCSV,
+    "toCSV",
+    ()=>toCSV
+]);
+function toCSV(rows, columns) {
+    const escape = (v)=>{
+        if (v == null) return "";
+        const s = String(v);
+        if (/[;"\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+        return s;
+    };
+    const header = columns.map((c)=>escape(c.label)).join(";");
+    const body = rows.map((row)=>columns.map((c)=>escape(row[c.key])).join(";")).join("\n");
+    return "\uFEFF" + header + "\n" + body;
+}
+function downloadFile(content, filename, mimeType = "text/csv;charset=utf-8") {
+    if ("TURBOPACK compile-time truthy", 1) return;
+    //TURBOPACK unreachable
+    ;
+    const blob = undefined;
+    const url = undefined;
+    const a = undefined;
+}
+function exportCSV(rows, columns, filename) {
+    downloadFile(toCSV(rows, columns), filename);
+}
+}),
+"[project]/src/hooks/use-mobile.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useIsMobile",
+    ()=>useIsMobile
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+;
+const MOBILE_BREAKPOINT = 768;
+function useIsMobile() {
+    const [isMobile, setIsMobile] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"](undefined);
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"](()=>{
+        const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+        const onChange = ()=>{
+            setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+        };
+        mql.addEventListener("change", onChange);
+        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+        return ()=>mql.removeEventListener("change", onChange);
+    }, []);
+    return !!isMobile;
+}
+}),
+"[project]/src/app/page.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Home
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+// Shell principal de l'application SAVERDEV Élevage Bovin.
+// Routeur de vues par état local (Zustand) — pas de routing Next.js (single page).
+// Rôles : Éleveur / Gérant / Bailleur (lecture seule) / Admin.
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/store.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/types.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$sidebar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/app/app-sidebar.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/app/app-header.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$footer$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/app/app-footer.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$dashboard$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/dashboard-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$bovins$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/bovins-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$fiche$2d$bovin$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/fiche-bovin-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$alimentation$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/alimentation-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$depenses$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/depenses-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$ventes$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/ventes-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$rentabilite$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/rentabilite-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$financement$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/financement-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$tresorerie$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/tresorerie-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$pesees$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/pesees-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$parametres$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/parametres-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$paturages$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/paturages-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$rapport$2d$bailleur$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/rapport-bailleur-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$bailleur$2d$synthese$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/bailleur-synthese-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$carte$2d$3d$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/views/carte-3d-view.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/framer-motion/dist/es/render/components/motion/proxy.mjs [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs [app-ssr] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+const VIEW_TITLES = {
+    dashboard: "Tableau de bord",
+    bovins: "Cheptel — Bovins",
+    "fiche-bovin": "Fiche bovin",
+    alimentation: "Alimentation",
+    depenses: "Dépenses d'exploitation",
+    ventes: "Ventes & sorties",
+    rentabilite: "Rentabilité",
+    financement: "Financement & Bailleur",
+    tresorerie: "Prévisions de trésorerie",
+    pesees: "Pesées connectées",
+    parametres: "Paramètres & seuils",
+    paturages: "Pâturages",
+    rapport: "Rapport bailleur",
+    "bailleur-synthese": "Synthèse bailleur",
+    "carte-3d": "Carte 3D — Exploitation"
+};
+const VIEW_COMPONENTS = {
+    dashboard: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$dashboard$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardView"],
+    bovins: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$bovins$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["BovinsView"],
+    "fiche-bovin": __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$fiche$2d$bovin$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["FicheBovinView"],
+    alimentation: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$alimentation$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlimentationView"],
+    depenses: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$depenses$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DepensesView"],
+    ventes: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$ventes$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["VentesView"],
+    rentabilite: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$rentabilite$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["RentabiliteView"],
+    financement: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$financement$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["FinancementView"],
+    tresorerie: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$tresorerie$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TresorerieView"],
+    pesees: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$pesees$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PeseesView"],
+    parametres: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$parametres$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ParametresView"],
+    paturages: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$paturages$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PaturagesView"],
+    rapport: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$rapport$2d$bailleur$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["RapportBailleurView"],
+    "bailleur-synthese": __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$bailleur$2d$synthese$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["BailleurSyntheseView"],
+    "carte-3d": __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$carte$2d$3d$2d$view$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Carte3DView"]
+};
+function Home() {
+    const role = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppStore"])((s)=>s.role);
+    const view = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppStore"])((s)=>s.view);
+    const selectedBovinId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppStore"])((s)=>s.selectedBovinId);
+    const allowedViews = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ROLE_VIEWS"][role];
+    const effectiveView = allowedViews.includes(view) ? view : allowedViews[0] ?? "dashboard";
+    const ViewComponent = VIEW_COMPONENTS[effectiveView];
+    const subtitle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
+        if (effectiveView === "fiche-bovin" && selectedBovinId) return selectedBovinId;
+        return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ROLE_DESCRIPTIONS"][role];
+    }, [
+        effectiveView,
+        selectedBovinId,
+        role
+    ]);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "min-h-screen flex flex-col bg-background gradient-mesh",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AppHeader"], {
+                title: VIEW_TITLES[effectiveView],
+                subtitle: subtitle
+            }, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 83,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex flex-1 w-full",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$sidebar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AppSidebar"], {
+                        activeView: effectiveView,
+                        role: role
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/page.tsx",
+                        lineNumber: 85,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+                        className: "flex-1 min-w-0 overflow-x-hidden",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AnimatePresence"], {
+                                mode: "wait",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
+                                    initial: {
+                                        opacity: 0,
+                                        y: 12,
+                                        filter: "blur(4px)"
+                                    },
+                                    animate: {
+                                        opacity: 1,
+                                        y: 0,
+                                        filter: "blur(0px)"
+                                    },
+                                    exit: {
+                                        opacity: 0,
+                                        y: -8,
+                                        filter: "blur(2px)"
+                                    },
+                                    transition: {
+                                        duration: 0.35,
+                                        ease: [
+                                            0.22,
+                                            1,
+                                            0.36,
+                                            1
+                                        ]
+                                    },
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ViewComponent, {}, void 0, false, {
+                                        fileName: "[project]/src/app/page.tsx",
+                                        lineNumber: 96,
+                                        columnNumber: 17
+                                    }, this)
+                                }, effectiveView, false, {
+                                    fileName: "[project]/src/app/page.tsx",
+                                    lineNumber: 89,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/page.tsx",
+                                lineNumber: 88,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/page.tsx",
+                            lineNumber: 87,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/page.tsx",
+                        lineNumber: 86,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 84,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$app$2f$app$2d$footer$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AppFooter"], {}, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 102,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/app/page.tsx",
+        lineNumber: 82,
+        columnNumber: 5
+    }, this);
+}
+}),
+];
+
+//# sourceMappingURL=src_2262c742._.js.map
