@@ -1,6 +1,5 @@
-// Prisma schema — Application Élevage Bovin d'Engraissement (SAVERDEV)
-// Gestion : cheptel, achats, ventes, alimentation (imputation par tête),
-// dépenses, financement, échéances, alertes, historique.
+// Prisma schema — CRM Application
+// Contacts, Companies, Deals (Pipeline), Activities, Notes
 
 generator client {
   provider = "prisma-client-js"
@@ -11,207 +10,110 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------- Auth & rôles ----------
-model User {
+// ---------- Companies ----------
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  industry    String   @default("")
+  website     String   @default("")
+  location    String   @default("")
+  employees   Int      @default(0)
+  revenue     Float    @default(0)
+  description String   @default("")
+  status      String   @default("active")   // active, inactive, prospect
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  contacts Contact[]
+  deals    Deal[]
+  notes    Note[]
+
+  @@index([name])
+  @@index([industry])
+}
+
+// ---------- Contacts ----------
+model Contact {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      Role     @default(GERANT)
-  password  String
+  firstName String
+  lastName  String
+  email     String   @default("")
+  phone     String   @default("")
+  position  String   @default("")        // job title
+  avatar    String   @default("")
+  source    String   @default("manual")  // manual, referral, website, linkedin, event
+  status    String   @default("active")  // active, inactive, lead
+  companyId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  historiques Historique[]
+  company    Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  deals      Deal[]
+  activities Activity[]
+  notes      Note[]
+
+  @@index([lastName])
+  @@index([email])
+  @@index([status])
 }
 
-enum Role {
-  ELEVEUR
-  GERANT
-  BAILLEUR
-  ADMIN
-}
-
-// ---------- Cheptel ----------
-model Bovin {
-  id                String        @id @default(cuid())
-  identifiant       String        @unique          // BOV-001
-  race              String        @default("Zébu")
-  sexe              String        @default("Mâle")
-  dateAchat         DateTime
-  prixAchat         Float                              // FCFA
-  poidsAchat        Float         @default(0)            // kg
-  statut            StatutBovin   @default(EN_ENGRAISSEMENT)
-  dateVente         DateTime?
-  prixVente         Float         @default(0)
-  coutsEngraissement Float        @default(0)            // cumul auto (alimentation imputée)
-  autresCouts       Float         @default(0)            // dépenses imputées
-  clientVente       String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  alimentations     AlimentationBovin[]
-  depenses          DepenseBovin[]
-
-  @@index([statut])
-}
-
-enum StatutBovin {
-  EN_ENGRAISSEMENT
-  VENDU
-  MORT
-}
-
-// ---------- Alimentation (achat d'aliments + imputation par tête) ----------
-model Alimentation {
-  id            String              @id @default(cuid())
-  date          DateTime
-  produit       String                               // ex: "Son de blé", "Tourteau coton"
-  quantite      Float                                 // sacs ou kg
-  unite         String              @default("sac")
-  coutTotal     Float                                 // FCFA, payé pour le lot
-  nbBovinsConcernes Int                               // nb têtes qui consomment
-  coutParTete   Float              @default(0)         // calcul auto
-  commentaire   String?
-  createdAt     DateTime           @default(now())
-
-  bovins        AlimentationBovin[]
-
-  @@index([date])
-}
-
-model AlimentationBovin {
-  id             String       @id @default(cuid())
-  alimentationId String
-  bovinId        String
-  partImputee    Float                           // FCFA imputés à ce bovin
-
-  alimentation   Alimentation @relation(fields: [alimentationId], references: [id], onDelete: Cascade)
-  bovin          Bovin        @relation(fields: [bovinId], references: [id], onDelete: Cascade)
-
-  @@unique([alimentationId, bovinId])
-}
-
-// ---------- Dépenses d'exploitation (soins, transport, main-d'œuvre, etc.) ----------
-model Depense {
-  id            String   @id @default(cuid())
-  date          DateTime
-  categorie    String                          // "Soins vétérinaires", "Transport", "Main-d'œuvre", "Autres"
-  libelle       String
-  montant       Float                            // FCFA
-  nbBovinsConcernes Int   @default(0)            // 0 = charge globale non imputée
-  createdAt     DateTime @default(now())
-
-  bovins        DepenseBovin[]
-
-  @@index([date])
-  @@index([categorie])
-}
-
-model DepenseBovin {
-  id          String  @id @default(cuid())
-  depenseId   String
-  bovinId     String
-  partImputee Float
-
-  depense Depense @relation(fields: [depenseId], references: [id], onDelete: Cascade)
-  bovin  Bovin   @relation(fields: [bovinId], references: [id], onDelete: Cascade)
-
-  @@unique([depenseId, bovinId])
-}
-
-// ---------- Financement & échéances (côté bailleur) ----------
-model Financement {
-  id             String   @id @default(cuid())
-  bailleur       String                          // "SAVERDEV", "BOA", etc.
-  montantFinance Float                           // FCFA accordés
-  dateOctroi     DateTime
-  tauxInteret    Float     @default(0)             // % annuel
-  dureeMois      Int
-  echeances      Echeance[]
-  createdAt      DateTime @default(now())
-}
-
-model Echeance {
-  id             String       @id @default(cuid())
-  financementId  String
-  numero         Int                              // 1, 2, 3...
-  datePrevue     DateTime
-  montant        Float                            // FCFA à rembourser
-  statut         StatutEcheance @default(A_PAYER)
-  datePayee      DateTime?
-
-  financement    Financement @relation(fields: [financementId], references: [id], onDelete: Cascade)
-
-  @@index([statut])
-}
-
-enum StatutEcheance {
-  PAYEE
-  A_PAYER
-  EN_RETARD
-}
-
-// ---------- Alertes ----------
-model Alerte {
+// ---------- Deals (Pipeline) ----------
+model Deal {
   id          String   @id @default(cuid())
+  title       String
+  value       Float    @default(0)
+  stage       String   @default("lead")  // lead, qualified, proposal, negotiation, closed_won, closed_lost
+  probability Int      @default(0)       // 0-100
+  closeDate   DateTime?
+  description String   @default("")
+  companyId   String?
+  contactId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company    Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  activities Activity[]
+  notes      Note[]
+
+  @@index([stage])
+  @@index([value])
+}
+
+// ---------- Activities ----------
+model Activity {
+  id          String   @id @default(cuid())
+  type        String                     // call, email, meeting, task, note
+  title       String
+  description String   @default("")
   date        DateTime @default(now())
-  type        String                          // "ECHEANCE", "BUDGET", "MORTALITE", "MARGE", "AUTRE"
-  severite    String                          // "INFO", "WARNING", "CRITICAL"
-  message     String
-  resolved    Boolean  @default(false)
-}
+  completed   Boolean  @default(false)
+  contactId   String?
+  dealId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-// ---------- Historique / journal ----------
-model Historique {
-  id          String   @id @default(cuid())
-  date        DateTime @default(now())
-  userId      String?
-  action      String                          // "CREATE_BOVIN", "VENTE", "ALIMENTATION", etc.
-  entiteType  String                          // "Bovin", "Vente", "Alimentation"...
-  entiteId    String?
-  details     String?
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
 
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
+  @@index([type])
   @@index([date])
+  @@index([completed])
 }
 
-// ---------- Tags personnalisables (bovins) ----------
-model Tag {
+// ---------- Notes ----------
+model Note {
   id        String   @id @default(cuid())
-  bovinId   String
-  tag       String
-  color     String   @default("#10B981")
+  content   String
+  companyId String?
+  contactId String?
+  dealId    String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([bovinId])
-  @@index([tag])
-}
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
 
-// ---------- Photos de profil (bovins) ----------
-model Photo {
-  id        String   @id @default(cuid())
-  bovinId   String
-  url       String
-  isProfile Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@index([bovinId])
-}
-
-// ---------- Validation workflow ----------
-model Validation {
-  id          String   @id @default(cuid())
-  entiteType  String
-  entiteId    String
-  action      String
-  statut      String   @default("EN_ATTENTE")
-  saisiePar   String?
-  validePar   String?
-  dateSaisie  DateTime @default(now())
-  dateValidation DateTime?
-  commentaire String?
-
-  @@index([statut])
-  @@index([entiteType])
+  @@index([createdAt])
 }
