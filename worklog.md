@@ -175,3 +175,39 @@ Stage Summary:
 - Lint clean (0 erreur sur dashboard-view ; 1 erreur préexistante dans parametres-view non touché)
 - API /api/dashboard retourne exactement les KPI attendus (10 bovins actifs, 4.7M valeur cheptel, 127j durée, 410 sacs, 2.3M CA, 403k marge)
 - Le tableau de bord est maintenant riche en graphismes : 13+ visualisations (donuts, jauges, aires, radar, composed, sparklines, anneaux, barres animées)
+
+---
+Task ID: 6
+Agent: main
+Task: Animation 3D sur l'en-tête et le bandeau d'alerte du tableau de bord
+
+Work Log:
+- Création du composant DashboardHeader3D (remplace le ViewHeader standard pour le dashboard) :
+  - Carte entilée avec parallaxe souris (useMotionValue + useSpring + useTransform, rotateX/rotateY ±8°)
+  - Cube 3D isométrique avec rotation permanente (rotateY 360° en 14s) — 6 faces (avant/arrière/gauche/droite/haut/bas) avec couleurs distinctes (primary, emerald-700, teal-500, emerald-600, emerald-400, teal-800)
+  - translateZ sur 3 niveaux : icône cube (40px), titre (30px), badge live (55px) → effet de profondeur
+  - Halos radiaux animés en fond (scale + opacity pulsation 5-6s)
+  - Badge "Données en direct" flottant (y: 0→-6→0) avec point pulse (opacity + scale)
+  - Ombre portée verte glow (0_20px_50px)
+  - Titre en text-gradient (vert→teal→clair)
+- Création du composant AlertBanner3D (remplace l'ancien bandeau alerte) :
+  - Entrée animée (x: -30→0, rotateY: -25→0)
+  - Parallaxe souris (rotateX/rotateY ±10°)
+  - Cube rouge 3D rotatif (rotateY + rotateX 360° en 8s) avec 4 faces (rouge 400/500/700/800)
+  - Anneaux pulsants (scale 1→1.5/1.7, opacity 1→0)
+  - Coin plié 3D en haut à droite (border + clipPath + rotateY 35°)
+  - Barre rouge gauche 3D (translateZ 15px, scaleX pulsation)
+  - Badge "URGENT" flottant (y + rotate oscillation, translateZ 35px)
+  - Halo rouge flottant (scale + opacity)
+  - Compteur critique pulsant (scale 1→1.15)
+
+Stage Summary:
+- Vérification Agent Browser + VLM :
+  - ✅ Cube 3D vert avec faces visibles (devant/dessus) confirmé par VLM
+  - ✅ Cube 3D rouge rotatif dans bandeau alerte confirmé
+  - ✅ Coin plié en haut à droite du bandeau confirmé
+  - ✅ Badge URGENT rouge confirmé
+  - ✅ Effet de profondeur (dégradé + ombre) confirmé
+- Lint clean (0 erreur sur dashboard-view)
+- Page charge en 200, aucune erreur runtime
+- L'en-tête "Tableau de bord" et le bandeau d'alerte critique sont maintenant des éléments 3D animés avec cubes rotatifs, parallaxe souris, profondeur translateZ, anneaux pulsants et badge flottant

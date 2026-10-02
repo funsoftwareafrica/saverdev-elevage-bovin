@@ -26,7 +26,8 @@ import {
   RadialBar, RadialBarChart, Radar, RadarChart, ResponsiveContainer,
   Tooltip, XAxis, YAxis,
 } from "recharts";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 export function DashboardView() {
   const { data: dash, isLoading } = useDashboard();
@@ -44,36 +45,14 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      <ViewHeader
-        title="Tableau de bord"
-        description="Vue synthétique de l'exploitation — cheptel, engraissement, alimentation, rentabilité, financement, risques."
-        icon={Activity}
-      />
+      <DashboardHeader3D />
 
-      {/* === BANDEAU ALERTE CRITIQUE === */}
+      {/* === BANDEAU ALERTE CRITIQUE — 3D animé === */}
       {alertesActives.some((a) => a.severite === "CRITICAL") && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Card className="border-red-200 bg-gradient-to-r from-red-50 to-red-50/30 overflow-hidden relative">
-            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500" />
-            <CardContent className="p-4 flex items-start gap-3 pl-5">
-              <div className="h-9 w-9 shrink-0 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-red-900">
-                  {alertesActives.filter((a) => a.severite === "CRITICAL").length} alerte(s) critique(s) à traiter
-                </p>
-                <p className="text-xs text-red-800/80 mt-0.5">
-                  {alertesActives.find((a) => a.severite === "CRITICAL")?.message}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <AlertBanner3D
+          count={alertesActives.filter((a) => a.severite === "CRITICAL").length}
+          message={alertesActives.find((a) => a.severite === "CRITICAL")?.message ?? ""}
+        />
       )}
 
       {/* === HERO KPI STRIP — 4 grosses tuiles animées === */}
@@ -502,6 +481,215 @@ export function DashboardView() {
 // ============================================================
 //   SOUS-COMPOSANTS GRAPHIQUES
 // ============================================================
+
+// --- EN-TÊTE 3D : titre "Tableau de bord" avec parallaxe souris ---
+function DashboardHeader3D() {
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 150, damping: 18 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 150, damping: 18 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+
+  return (
+    <div ref={ref} style={{ perspective: "1200px" }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+      <motion.div
+        initial={{ opacity: 0, y: 20, rotateX: 25 }}
+        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.10] via-emerald-50/50 to-teal-50/40 p-5 sm:p-6 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.30),0_8px_20px_-4px_rgba(16,185,129,0.15)]"
+      >
+        {/* Halo radial animé en fond */}
+        <motion.div
+          aria-hidden
+          className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/25 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.85, 0.6] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-teal-400/20 blur-3xl"
+          animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.7, 0.5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4" style={{ transform: "translateZ(40px)", transformStyle: "preserve-3d" }}>
+            {/* Cube 3D isométrique avec rotation permanente + icône */}
+            <motion.div
+              className="relative shrink-0"
+              style={{ width: 56, height: 56, transformStyle: "preserve-3d" }}
+              initial={{ rotateX: -25, rotateY: -25 }}
+              animate={{ rotateY: 360 }}
+              transition={{ rotateY: { duration: 14, repeat: Infinity, ease: "linear" }, rotateX: { duration: 0 }}
+              }>
+              {/* Face avant */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.5)] flex items-center justify-center" style={{ transform: "translateZ(14px)" }}>
+                <Activity className="h-7 w-7 text-white" />
+              </div>
+              {/* Face arrière */}
+              <div className="absolute inset-0 rounded-xl bg-emerald-700" style={{ transform: "translateZ(-14px) rotateY(180deg)" }} />
+              {/* Face droite */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700" style={{ transform: "rotateY(90deg) translateZ(14px)", width: "100%" }} />
+              {/* Face gauche */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800" style={{ transform: "rotateY(-90deg) translateZ(14px)", width: "100%" }} />
+              {/* Face haut */}
+              <div className="absolute inset-0 rounded-xl bg-emerald-400/90" style={{ transform: "rotateX(90deg) translateZ(14px)", width: "100%" }} />
+              {/* Face bas */}
+              <div className="absolute inset-0 rounded-xl bg-teal-800/80" style={{ transform: "rotateX(-90deg) translateZ(14px)", width: "100%" }} />
+            </motion.div>
+
+            <div style={{ transform: "translateZ(30px)" }}>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient">
+                Tableau de bord
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                Vue synthétique de l'exploitation — cheptel, engraissement, alimentation, rentabilité, financement, risques.
+              </p>
+            </div>
+          </div>
+
+          {/* Indicateur live flottant */}
+          <motion.div
+            className="flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-3.5 py-2 border border-primary/30 shadow-[0_4px_15px_rgba(16,185,129,0.15)]"
+            style={{ transform: "translateZ(55px)" }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <motion.span
+              className="h-2.5 w-2.5 rounded-full bg-primary"
+              animate={{ opacity: [1, 0.3, 1], scale: [1, 1.4, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <span className="text-[0.7rem] font-semibold text-foreground">Données en direct</span>
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// --- BANDEAU ALERTE 3D : parallaxe + icône qui pulse en 3D ---
+function AlertBanner3D({ count, message }: { count: number; message: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { stiffness: 200, damping: 16 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { stiffness: 200, damping: 16 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -30, rotateY: -25 }}
+      animate={{ opacity: 1, x: 0, rotateY: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      ref={ref}
+      style={{ perspective: "1000px" }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <motion.div
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="relative overflow-hidden rounded-2xl border border-red-300/70 bg-gradient-to-r from-red-50 via-red-50/80 to-red-50/30 shadow-[0_15px_40px_-10px_rgba(239,68,68,0.35),0_5px_15px_-3px_rgba(239,68,68,0.2)]"
+      >
+        {/* Coin plié 3D en haut à droite */}
+        <div className="absolute top-0 right-0 z-20" style={{ transform: "translateZ(1px)" }}>
+          <div className="relative w-0 h-0 border-l-[28px] border-l-transparent border-t-[28px] border-t-red-500" style={{ transformStyle: "preserve-3d" }}>
+            <div className="absolute top-[-28px] right-0 w-[28px] h-[28px] bg-gradient-to-bl from-red-100 to-red-200 shadow-[2px_2px_4px_rgba(0,0,0,0.1)]" style={{ transform: "rotateY(35deg)", transformOrigin: "right", clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
+          </div>
+        </div>
+
+        {/* Barre rouge gauche avec pulsation 3D */}
+        <motion.div
+          className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-red-400 via-red-500 to-red-600 rounded-l-2xl"
+          style={{ transform: "translateZ(15px)" }}
+          animate={{ opacity: [1, 0.5, 1], scaleX: [1, 1.3, 1] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+        {/* Halo rouge flottant */}
+        <motion.div
+          aria-hidden
+          className="absolute -right-8 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-400/25 blur-2xl"
+          animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0.55, 0.35] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <div className="relative p-4 sm:p-5 flex items-center gap-4 pl-7">
+          {/* Icône AlertTriangle 3D avec cube rouge + anneaux pulsants */}
+          <div className="relative h-14 w-14 shrink-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+            {/* Anneaux pulsants */}
+            <motion.div
+              className="absolute inset-0 rounded-full bg-red-200/60"
+              animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-red-400"
+              animate={{ scale: [1, 1.7, 1], opacity: [0.9, 0, 0.9] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+            />
+            {/* Cube rouge 3D avec rotation */}
+            <motion.div
+              className="relative"
+              style={{ width: 40, height: 40, transformStyle: "preserve-3d", transform: "translateZ(25px)" }}
+              animate={{ rotateY: [0, 360], rotateX: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(10px)" }}>
+                <AlertTriangle className="h-5 w-5 text-white" />
+              </div>
+              <div className="absolute inset-0 rounded-lg bg-red-700" style={{ transform: "translateZ(-10px) rotateY(180deg)" }} />
+              <div className="absolute inset-0 rounded-lg bg-red-500" style={{ transform: "rotateY(90deg) translateZ(10px)", width: "100%" }} />
+              <div className="absolute inset-0 rounded-lg bg-red-800" style={{ transform: "rotateY(-90deg) translateZ(10px)", width: "100%" }} />
+            </motion.div>
+          </div>
+
+          {/* Texte avec profondeur */}
+          <div className="flex-1 min-w-0" style={{ transform: "translateZ(25px)" }}>
+            <div className="flex items-center gap-2">
+              <motion.span
+                className="inline-flex items-center justify-center h-6 min-w-6 px-1.5 rounded-full bg-red-600 text-white text-[0.7rem] font-bold tabular-nums shadow-[0_2px_8px_rgba(239,68,68,0.4)]"
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+              >
+                {count}
+              </motion.span>
+              <p className="text-sm font-bold text-red-900">
+                alerte{count > 1 ? "s" : ""} critique{count > 1 ? "s" : ""} à traiter
+              </p>
+            </div>
+            <p className="text-xs text-red-800/85 mt-1 font-medium">{message}</p>
+          </div>
+
+          {/* Badge URGENT 3D flottant */}
+          <motion.div
+            className="hidden sm:flex items-center rounded-md bg-red-600 px-2.5 py-1 shadow-[0_4px_12px_rgba(239,68,68,0.35)]"
+            style={{ transform: "translateZ(35px)" }}
+            animate={{ y: [0, -3, 0], rotate: [0, -2, 2, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <span className="text-[0.65rem] font-bold text-white tracking-wider">URGENT</span>
+          </motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 function SectionTitle({ icon: Icon, title, subtitle }: { icon: LucideIcon; title: string; subtitle?: string }) {
   return (
