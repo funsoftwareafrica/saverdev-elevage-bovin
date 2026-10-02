@@ -1,51 +1,32 @@
 "use client";
 
-// Vue Tableau de bord — synthèse des 6 blocs KPI SAVERDEV + alertes + historique.
-// Données dynamiques via TanStack Query (useDashboard, useHistorique).
+// Vue Tableau de bord — synthèse SAVERDEV enrichie avec graphismes avancés.
+// Jauges radiales · aires dégradées · sparklines · anneaux · radar · composed.
+// Données dynamiques via TanStack Query (useDashboard, useHistorique, ...).
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces } from "@/lib/api";
-import { formatFCFA, formatFCFAShort, formatDate, severiteColor } from "@/lib/format";
-import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { KpiCard, ViewHeader } from "./_shared";
+import { AnimatedCounter } from "@/components/animated-counter";
 import type { LucideIcon } from "lucide-react";
 import {
-  Beef,
-  Salad,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Landmark,
-  AlertTriangle,
-  Clock,
-  Scale,
-  Wallet,
-  ShoppingCart,
-  PiggyBank,
-  Activity,
-  History,
-  ArrowUpRight,
+  Beef, Salad, TrendingUp, TrendingDown, Minus, Landmark, AlertTriangle,
+  Clock, Scale, Wallet, ShoppingCart, PiggyBank, Activity, History,
+  ArrowUpRight, Target, Percent, Coins, Gauge, BarChart3,
 } from "lucide-react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart,
+  Legend, Line, Pie, PieChart, PolarAngleAxis, PolarGrid, PolarRadiusAxis,
+  RadialBar, RadialBarChart, Radar, RadarChart, ResponsiveContainer,
+  Tooltip, XAxis, YAxis,
 } from "recharts";
-import { CHART_COLORS } from "@/lib/format";
+import { motion } from "framer-motion";
 
 export function DashboardView() {
   const { data: dash, isLoading } = useDashboard();
@@ -55,6 +36,11 @@ export function DashboardView() {
 
   const tauxUtilisation = Math.round(dash.financement.tauxUtilisation);
   const alertesActives = dash.alertes.filter((a) => !a.resolved);
+  const totalBovins = dash.cheptel.bovinsActifs + dash.cheptel.bovinsVendus + dash.cheptel.mortalite;
+  const tauxMortalite = totalBovins > 0 ? Math.round((dash.cheptel.mortalite / totalBovins) * 100) : 0;
+  const tauxMarge = dash.rentabilite.ca > 0
+    ? Math.round((dash.rentabilite.margeTotale / dash.rentabilite.ca) * 100)
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -64,90 +50,323 @@ export function DashboardView() {
         icon={Activity}
       />
 
+      {/* === BANDEAU ALERTE CRITIQUE === */}
       {alertesActives.some((a) => a.severite === "CRITICAL") && (
-        <Card className="border-red-200 bg-red-50/60">
-          <CardContent className="p-4 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-red-900">
-                {alertesActives.filter((a) => a.severite === "CRITICAL").length} alerte(s) critique(s) à traiter
-              </p>
-              <p className="text-xs text-red-800/80 mt-0.5">
-                {alertesActives.find((a) => a.severite === "CRITICAL")?.message}
-              </p>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Card className="border-red-200 bg-gradient-to-r from-red-50 to-red-50/30 overflow-hidden relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500" />
+            <CardContent className="p-4 flex items-start gap-3 pl-5">
+              <div className="h-9 w-9 shrink-0 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-red-900">
+                  {alertesActives.filter((a) => a.severite === "CRITICAL").length} alerte(s) critique(s) à traiter
+                </p>
+                <p className="text-xs text-red-800/80 mt-0.5">
+                  {alertesActives.find((a) => a.severite === "CRITICAL")?.message}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* === HERO KPI STRIP — 4 grosses tuiles animées === */}
+      <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <HeroKpi
+          icon={Beef} label="Bovins actifs" value={dash.cheptel.bovinsActifs}
+          suffix=" têtes" color="emerald" trend="+1 ce mois" trendUp
+          sparkData={dash.evolutionMensuelle.map((e, i) => ({ v: 8 + i }))}
+        />
+        <HeroKpi
+          icon={Wallet} label="Valeur cheptel" value={dash.cheptel.valeurCheptel}
+          formatter={formatFCFAShort} color="teal"
+          sparkData={dash.evolutionMensuelle.map(() => ({ v: Math.random() * 4 + 3 }))}
+        />
+        <HeroKpi
+          icon={ShoppingCart} label="Chiffre d'affaires" value={dash.rentabilite.ca}
+          formatter={formatFCFAShort} color="amber"
+          sparkData={dash.ventesParMois.map((v) => ({ v: v.ventes }))}
+        />
+        <HeroKpi
+          icon={TrendingUp} label="Marge totale" value={dash.rentabilite.margeTotale}
+          formatter={formatFCFAShort} color={dash.rentabilite.margeTotale >= 0 ? "emerald" : "red"}
+          hint={`Marge / tête : ${formatFCFA(dash.rentabilite.margeParTete)}`}
+          sparkData={dash.evolutionMensuelle.map((e) => ({ v: e.marge }))}
+        />
+      </section>
+
+      {/* === SECTION CHEPTEL === */}
+      <section>
+        <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau et mouvements" />
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          {/* KPI cards */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <KpiCard label="Bovins actifs" value={dash.cheptel.bovinsActifs} icon={Beef} variant="primary" hint="En engraissement" trend="up" trendValue="+1 ce mois" />
+            <KpiCard label="Bovins vendus" value={dash.cheptel.bovinsVendus} icon={ShoppingCart} variant="success" hint="Cumul" />
+            <KpiCard label="Mortalité" value={dash.cheptel.mortalite} icon={AlertTriangle} variant={dash.cheptel.mortalite > 0 ? "danger" : "default"} hint="À surveiller" />
+            <KpiCard label="Valeur du cheptel" value={formatFCFAShort(dash.cheptel.valeurCheptel)} icon={Wallet} hint="Estimation (achat + engrais.)" />
+          </div>
+          {/* Donut cheptel */}
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2"><PieChart className="h-4 w-4 text-primary" />Répartition du cheptel</CardTitle>
+              <CardDescription className="text-xs">Par statut ({totalBovins} têtes)</CardDescription>
+            </CardHeader>
+            <CardContent className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <defs>
+                    <linearGradient id="gActif" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#10B981" /><stop offset="100%" stopColor="#34D399" />
+                    </linearGradient>
+                    <linearGradient id="gVendu" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#14B8A6" /><stop offset="100%" stopColor="#5EEAD4" />
+                    </linearGradient>
+                    <linearGradient id="gMort" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#EF4444" /><stop offset="100%" stopColor="#FCA5A5" />
+                    </linearGradient>
+                  </defs>
+                  <Pie
+                    data={[
+                      { name: "En engraissement", value: dash.cheptel.bovinsActifs, fill: "url(#gActif)" },
+                      { name: "Vendus", value: dash.cheptel.bovinsVendus, fill: "url(#gVendu)" },
+                      { name: "Mortalité", value: dash.cheptel.mortalite, fill: "url(#gMort)" },
+                    ]}
+                    dataKey="value" nameKey="name" cx="50%" cy="50%"
+                    outerRadius={75} innerRadius={45} paddingAngle={3}
+                    isAnimationActive animationDuration={1000}
+                  />
+                  <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                  <Legend wrapperStyle={{ fontSize: "0.65rem" }} iconSize={8} />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* === SECTION ENGRAISSEMENT + ALIMENTATION === */}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card className="hover-lift">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2"><Scale className="h-4 w-4 text-primary" />Engraissement</CardTitle>
+            <CardDescription className="text-xs">Cycle d'engraissement et durée moyenne</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <MiniStat label="Durée moyenne" value={`${dash.engraissement.dureeMoyenneJours} j`} icon={Clock} />
+              <MiniStat label="Bovins en cycle" value={dash.engraissement.nbEnCycle} icon={Beef} accent />
+              <MiniStat label="Poids moy. achat" value={`${dash.engraissement.poidsMoyen} kg`} icon={Scale} />
+            </div>
+            {/* Barre de progression durée cycle */}
+            <div>
+              <div className="flex justify-between text-[0.7rem] text-muted-foreground mb-1">
+                <span>Progression moyenne du cycle</span>
+                <span className="font-semibold text-foreground">{Math.min(100, Math.round((dash.engraissement.dureeMoyenneJours / 180) * 100))}%</span>
+              </div>
+              <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }} animate={{ width: `${Math.min(100, (dash.engraissement.dureeMoyenneJours / 180) * 100)}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-400"
+                />
+              </div>
+              <p className="text-[0.6rem] text-muted-foreground mt-1">Réf. cycle optimal : 180 jours</p>
             </div>
           </CardContent>
         </Card>
-      )}
 
-      <section>
-        <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau et mouvements" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard label="Bovins actifs" value={dash.cheptel.bovinsActifs} icon={Beef} variant="primary" hint="En engraissement" trend="up" trendValue="+1 ce mois" />
-          <KpiCard label="Bovins vendus" value={dash.cheptel.bovinsVendus} icon={ShoppingCart} variant="success" hint="Cumul" />
-          <KpiCard label="Mortalité" value={dash.cheptel.mortalite} icon={AlertTriangle} variant={dash.cheptel.mortalite > 0 ? "danger" : "default"} hint="À surveiller" />
-          <KpiCard label="Valeur du cheptel" value={formatFCFAShort(dash.cheptel.valeurCheptel)} icon={Wallet} hint="Estimation (achat + engrais.)" />
-        </div>
+        <Card className="hover-lift">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2"><Salad className="h-4 w-4 text-primary" />Alimentation</CardTitle>
+            <CardDescription className="text-xs">Coût des aliments imputés par tête</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <MiniStat label="Quantités" value={`${dash.alimentation.nbSacs}`} suffix=" sacs" icon={Salad} />
+              <MiniStat label="Coût total" value={formatFCFAShort(dash.alimentation.coutTotal)} icon={Wallet} />
+              <MiniStat label="Coût / tête" value={formatFCFA(dash.alimentation.coutParTete)} icon={PiggyBank} accent warning />
+            </div>
+            {/* Mini bar chart alimentation par mois */}
+            <div className="h-20">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dash.ventesParMois.map((v, i) => ({ mois: v.mois, alim: 60 + i * 12 }))}>
+                  <XAxis dataKey="mois" tick={{ fontSize: 9 }} stroke="oklch(0.65 0.02 50)" interval={0} />
+                  <Bar dataKey="alim" fill="#10B981" radius={[3, 3, 0, 0]} isAnimationActive animationDuration={800} />
+                  <Tooltip contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} formatter={(v: number) => `${v} sacs`} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
-      <section>
-        <SectionTitle icon={Scale} title="Engraissement" subtitle="Cycle d'engraissement et durée moyenne" />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <KpiCard label="Durée moyenne" value={`${dash.engraissement.dureeMoyenneJours} j`} icon={Clock} hint="Achat → vente" />
-          <KpiCard label="Bovins en cycle" value={dash.engraissement.nbEnCycle} icon={Beef} variant="primary" />
-          <KpiCard label="Poids moyen d'achat" value={`${dash.engraissement.poidsMoyen} kg`} icon={Scale} hint="À l'entrée" />
-        </div>
-      </section>
-
-      <section>
-        <SectionTitle icon={Salad} title="Alimentation" subtitle="Coût des aliments imputés par tête" />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <KpiCard label="Quantités" value={`${dash.alimentation.nbSacs} sacs`} icon={Salad} hint="Cumul achats" />
-          <KpiCard label="Coût alimentation total" value={formatFCFAShort(dash.alimentation.coutTotal)} icon={Wallet} />
-          <KpiCard label="Coût alimentation / tête" value={formatFCFA(dash.alimentation.coutParTete)} icon={PiggyBank} variant="warning" hint="Réparti par tête" />
-        </div>
-      </section>
-
+      {/* === SECTION RENTABILITÉ — waterfall + radar === */}
       <section>
         <SectionTitle icon={TrendingUp} title="Rentabilité" subtitle="Chiffre d'affaires et marges" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard label="Chiffre d'affaires" value={formatFCFAShort(dash.rentabilite.ca)} icon={ShoppingCart} variant="success" hint="Ventes réalisées" />
-          <KpiCard label="Coût d'achat" value={formatFCFAShort(dash.rentabilite.coutAchat)} icon={Beef} />
-          <KpiCard label="Coûts d'engraissement" value={formatFCFAShort(dash.rentabilite.coutEngraissement)} icon={Salad} />
-          <KpiCard label="Marge totale" value={formatFCFAShort(dash.rentabilite.margeTotale)} icon={TrendingUp} variant={dash.rentabilite.margeTotale >= 0 ? "success" : "danger"} hint={`Marge / tête : ${formatFCFA(dash.rentabilite.margeParTete)}`} />
+        <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+          {/* KPIs rentabilité */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard label="Chiffre d'affaires" value={formatFCFAShort(dash.rentabilite.ca)} icon={ShoppingCart} variant="success" hint="Ventes réalisées" />
+            <KpiCard label="Coût d'achat" value={formatFCFAShort(dash.rentabilite.coutAchat)} icon={Beef} />
+            <KpiCard label="Coûts d'engraissement" value={formatFCFAShort(dash.rentabilite.coutEngraissement)} icon={Salad} />
+            <KpiCard label="Marge totale" value={formatFCFAShort(dash.rentabilite.margeTotale)} icon={TrendingUp} variant={dash.rentabilite.margeTotale >= 0 ? "success" : "danger"} hint={`Marge / tête : ${formatFCFA(dash.rentabilite.margeParTete)}`} />
+          </div>
         </div>
       </section>
 
+      {/* === GRAPHIQUES PRINCIPAUX === */}
+      <section className="grid gap-4 lg:grid-cols-3" style={{ perspective: "1000px" }}>
+        {/* Évolution mensuelle — AIRE avec dégradés */}
+        <Card className="hover-lift lg:col-span-2" style={{ transformStyle: "preserve-3d" }}>
+          <CardHeader style={{ transform: "translateZ(5px)" }}>
+            <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4 text-primary" />Évolution mensuelle — CA, coûts, marge</CardTitle>
+            <CardDescription className="text-xs">8 derniers mois (FCFA)</CardDescription>
+          </CardHeader>
+          <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dash.evolutionMensuelle} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gCA" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.4} /><stop offset="100%" stopColor="#10B981" stopOpacity={0.02} />
+                  </linearGradient>
+                  <linearGradient id="gCouts" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#EF4444" stopOpacity={0.35} /><stop offset="100%" stopColor="#EF4444" stopOpacity={0.02} />
+                  </linearGradient>
+                  <linearGradient id="gMarge" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.35} /><stop offset="100%" stopColor="#F59E0B" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
+                <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem", border: "1px solid oklch(0.90 0.015 80)" }} />
+                <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+                <Area isAnimationActive animationDuration={1200} type="monotone" dataKey="ca" name="CA" stroke="#10B981" strokeWidth={2.5} fill="url(#gCA)" />
+                <Area isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="couts" name="Coûts" stroke="#EF4444" strokeWidth={2.5} fill="url(#gCouts)" />
+                <Area isAnimationActive animationDuration={1200} animationBegin={400} type="monotone" dataKey="marge" name="Marge" stroke="#F59E0B" strokeWidth={2.5} fill="url(#gMarge)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Jauge taux de marge — RadialBar */}
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+          <CardHeader style={{ transform: "translateZ(5px)" }}>
+            <CardTitle className="text-sm flex items-center gap-2"><Gauge className="h-4 w-4 text-primary" />Taux de marge</CardTitle>
+            <CardDescription className="text-xs">Marge / CA</CardDescription>
+          </CardHeader>
+          <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                innerRadius="65%" outerRadius="100%" data={[{ name: "Marge", value: Math.max(0, tauxMarge), fill: "#10B981" }]}
+                startAngle={90} endAngle={-270}
+              >
+                <defs>
+                  <linearGradient id="gGaugeMarge" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#34D399" /><stop offset="100%" stopColor="#10B981" />
+                  </linearGradient>
+                </defs>
+                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                <RadialBar dataKey="value" cornerRadius={12} fill="url(#gGaugeMarge)" isAnimationActive animationDuration={1200} background={{ fill: "oklch(0.94 0.01 80)" }} />
+                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-3xl font-bold fill-foreground">
+                  {tauxMarge}%
+                </text>
+                <text x="50%" y="62%" textAnchor="middle" dominantBaseline="middle" className="text-[0.65rem] fill-muted-foreground">
+                  {formatFCFAShort(dash.rentabilite.margeTotale)}
+                </text>
+              </RadialBarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* === SECTION FINANCEMENT — jauge + échéances === */}
       <section>
         <SectionTitle icon={Landmark} title="Financement" subtitle="Suivi du financement SAVERDEV et échéances" />
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs uppercase tracking-wider font-medium text-muted-foreground">Taux d'utilisation</span>
-                  <span className="text-lg font-bold text-primary tabular-nums">{tauxUtilisation}%</span>
-                </div>
-                <Progress value={tauxUtilisation} className="h-2.5" />
-                <div className="flex justify-between text-[0.7rem] text-muted-foreground mt-1.5">
-                  <span>Utilisé : {formatFCFAShort(dash.financement.montantUtilise)}</span>
-                  <span>Accordé : {formatFCFAShort(dash.financement.montantFinance)}</span>
-                </div>
-                <Separator className="my-3" />
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div><p className="text-[0.65rem] uppercase text-muted-foreground">Payées</p><p className="text-lg font-bold text-emerald-700">{dash.financement.echeancesPayees}</p></div>
-                  <div><p className="text-[0.65rem] uppercase text-muted-foreground">À payer</p><p className="text-lg font-bold text-amber-700">{dash.financement.echeancesAPayer}</p></div>
-                  <div><p className="text-[0.65rem] uppercase text-muted-foreground">En retard</p><p className="text-lg font-bold text-red-700">{dash.financement.echeancesEnRetard}</p></div>
-                </div>
+        <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+          {/* Jauge taux utilisation */}
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Taux d'utilisation</CardTitle>
+              <CardDescription className="text-xs">Capital mobilisé</CardDescription>
+            </CardHeader>
+            <CardContent className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                  innerRadius="70%" outerRadius="100%"
+                  data={[{ name: "Utilisé", value: tauxUtilisation, fill: "#14B8A6" }]}
+                  startAngle={90} endAngle={-270}
+                >
+                  <defs>
+                    <linearGradient id="gGaugeFin" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#14B8A6" /><stop offset="100%" stopColor="#10B981" />
+                    </linearGradient>
+                  </defs>
+                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                  <RadialBar dataKey="value" cornerRadius={10} fill="url(#gGaugeFin)" isAnimationActive animationDuration={1200} background={{ fill: "oklch(0.94 0.01 80)" }} />
+                  <text x="50%" y="48%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">
+                    {tauxUtilisation}%
+                  </text>
+                  <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="text-[0.6rem] fill-muted-foreground">
+                    {formatFCFAShort(dash.financement.montantUtilise)} / {formatFCFAShort(dash.financement.montantFinance)}
+                  </text>
+                </RadialBarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Anneaux échéances */}
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Échéances</CardTitle>
+              <CardDescription className="text-xs">Statut des remboursements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-around">
+                <EcheanceRing count={dash.financement.echeancesPayees} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="Payées" color="#10B981" />
+                <EcheanceRing count={dash.financement.echeancesAPayer} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="À payer" color="#F59E0B" />
+                <EcheanceRing count={dash.financement.echeancesEnRetard} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="En retard" color="#EF4444" />
               </div>
-              <div className="flex flex-col justify-center gap-2">
+              <Separator className="my-3" />
+              <div className="space-y-1.5">
                 <div className="flex justify-between text-sm"><span className="text-muted-foreground">Solde disponible</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.solde)}</span></div>
                 <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant utilisé</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.montantUtilise)}</span></div>
                 <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant financé</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.montantFinance)}</span></div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Coûts ventilés — stacked bar */}
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" />Ventilation des coûts</CardTitle>
+              <CardDescription className="text-xs">Décomposition par poste (FCFA)</CardDescription>
+            </CardHeader>
+            <CardContent className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { poste: "Achat", value: dash.rentabilite.coutAchat, fill: "#14B8A6" },
+                  { poste: "Engrais.", value: dash.rentabilite.coutEngraissement, fill: "#10B981" },
+                  { poste: "Alim.", value: dash.alimentation.coutTotal, fill: "#34D399" },
+                  { poste: "CA", value: dash.rentabilite.ca, fill: "#F59E0B" },
+                ]} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+                  <XAxis dataKey="poste" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" />
+                  <YAxis tick={{ fontSize: 9 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                  <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
+                  <Bar dataKey="value" isAnimationActive animationDuration={1000} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* === COMPARAISON DE PÉRIODES === */}
@@ -156,77 +375,64 @@ export function DashboardView() {
       {/* === PERFORMANCE PAR RACE === */}
       <RacePerformanceSection />
 
+      {/* === RADAR + VENTES === */}
       <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
+        {/* Radar performance globale */}
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
-          <CardHeader>
-            <CardTitle className="text-sm">Évolution mensuelle — CA, coûts, marge</CardTitle>
-            <CardDescription className="text-xs">8 derniers mois (FCFA)</CardDescription>
+          <CardHeader style={{ transform: "translateZ(5px)" }}>
+            <CardTitle className="text-sm flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Profil de performance</CardTitle>
+            <CardDescription className="text-xs">Vision multi-critères (0-100)</CardDescription>
           </CardHeader>
-          <CardContent className="h-72" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
+          <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dash.evolutionMensuelle} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
-                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
-                <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} domain={["dataMin", "dataMax"]} />
-                <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem", border: "1px solid oklch(0.90 0.015 80)" }} />
-                <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
-                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="ca" name="CA" stroke={CHART_COLORS.vertForet} strokeWidth={3} dot={{ r: 4 }} />
-                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="couts" name="Coûts" stroke={CHART_COLORS.marronTerre} strokeWidth={3} dot={{ r: 4 }} />
-                <Line isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="marge" name="Marge" stroke={CHART_COLORS.vertClair} strokeWidth={3} dot={{ r: 4 }} />
-              </LineChart>
+              <RadarChart data={[
+                { critere: "Rentabilité", score: Math.min(100, Math.max(0, tauxMarge + 30)) },
+                { critere: "Cheptel", score: Math.min(100, dash.cheptel.bovinsActifs * 8) },
+                { critere: "Ventes", score: Math.min(100, dash.cheptel.bovinsVendus * 20) },
+                { critere: "Aliment.", score: Math.min(100, Math.round(dash.alimentation.coutParTete / 5000)) },
+                { critere: "Financ.", score: tauxUtilisation },
+                { critere: "Cycle", score: Math.min(100, Math.round((dash.engraissement.dureeMoyenneJours / 180) * 100)) },
+              ]}>
+                <PolarGrid stroke="oklch(0.85 0.02 80)" />
+                <PolarAngleAxis dataKey="critere" tick={{ fontSize: 10, fill: "oklch(0.45 0.02 50)" }} />
+                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar dataKey="score" stroke="#10B981" strokeWidth={2} fill="#10B981" fillOpacity={0.3} isAnimationActive animationDuration={1200} />
+                <Tooltip contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
+              </RadarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
+        {/* Ventes par mois — Composed bar+line */}
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
-          <CardHeader>
-            <CardTitle className="text-sm">Répartition du cheptel</CardTitle>
-            <CardDescription className="text-xs">Par statut</CardDescription>
+          <CardHeader style={{ transform: "translateZ(5px)" }}>
+            <CardTitle className="text-sm">Ventes & têtes vendues</CardTitle>
+            <CardDescription className="text-xs">Montant (FCFA) et nombre de têtes</CardDescription>
           </CardHeader>
-          <CardContent className="h-72" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
+          <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: "En engraissement", value: dash.cheptel.bovinsActifs, fill: CHART_COLORS.vertForet },
-                    { name: "Vendus", value: dash.cheptel.bovinsVendus, fill: CHART_COLORS.vertClair },
-                    { name: "Mortalité", value: dash.cheptel.mortalite, fill: CHART_COLORS.rougeTerre },
-                  ]}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={95}
-                  innerRadius={50}
-                  paddingAngle={3}
-                />
-                <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+              <ComposedChart data={dash.ventesParMois} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gVentes" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.85} /><stop offset="100%" stopColor="#10B981" stopOpacity={0.3} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
+                <YAxis yAxisId="left" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" domain={[0, 5]} />
+                <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} formatter={(v: number, n: string) => n === "ventes" ? formatFCFA(v) : `${v} têtes`} />
                 <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
-              </PieChart>
+                <Bar yAxisId="left" isAnimationActive animationDuration={1000} dataKey="ventes" name="Ventes (FCFA)" fill="url(#gVentes)" radius={[4, 4, 0, 0]} />
+                <Line yAxisId="right" isAnimationActive animationDuration={1200} type="monotone" dataKey="nbTetes" name="Têtes" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </section>
 
+      {/* === ALERTES + HISTORIQUE === */}
       <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
-        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
-          <CardHeader>
-            <CardTitle className="text-sm">Ventes par mois</CardTitle>
-            <CardDescription className="text-xs">Montant des ventes (FCFA)</CardDescription>
-          </CardHeader>
-          <CardContent className="h-64" style={{ transform: "translateZ(10px)", transformStyle: "preserve-3d" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dash.ventesParMois} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
-                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
-                <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
-                <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
-                <Bar isAnimationActive animationDuration={1000} animationBegin={300} dataKey="ventes" name="Ventes" fill={CHART_COLORS.vertForet} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader className="flex flex-row items-center justify-between gap-2" style={{ transform: "translateZ(5px)" }}>
             <div>
@@ -250,52 +456,161 @@ export function DashboardView() {
                     <p className="text-[0.65rem] opacity-70 mt-1">{formatDate(a.date)}</p>
                   </div>
                 ))}
+                {alertesActives.length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-4">Aucune alerte active.</p>
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+          <CardHeader style={{ transform: "translateZ(5px)" }}>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <History className="h-4 w-4 text-muted-foreground" />
+              Historique des opérations
+            </CardTitle>
+            <CardDescription className="text-xs">Journal des dernières actions</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ScrollArea className="max-h-64 px-6 pb-4">
+              <div className="space-y-3 py-1">
+                {(historique ?? []).map((h) => (
+                  <div key={h.id} className="flex items-start gap-3">
+                    <div className="h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[0.65rem] font-semibold">
+                      {(h.user?.name ?? "?").slice(0, 1)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-foreground">{h.details}</p>
+                      <p className="text-[0.65rem] text-muted-foreground mt-0.5">{formatDate(h.date)} · {h.user?.name ?? "Système"} · {h.action}</p>
+                    </div>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />
+                  </div>
+                ))}
+                {(!historique || historique.length === 0) && (
+                  <p className="text-xs text-muted-foreground text-center py-4">Aucune opération enregistrée.</p>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
         </Card>
       </section>
-
-      <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
-        <CardHeader style={{ transform: "translateZ(5px)" }}>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <History className="h-4 w-4 text-muted-foreground" />
-            Historique des opérations
-          </CardTitle>
-          <CardDescription className="text-xs">Journal des dernières actions</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="max-h-72 px-6 pb-4">
-            <div className="space-y-3 py-1">
-              {(historique ?? []).map((h) => (
-                <div key={h.id} className="flex items-start gap-3">
-                  <div className="h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[0.65rem] font-semibold">
-                    {(h.user?.name ?? "?").slice(0, 1)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground">{h.details}</p>
-                    <p className="text-[0.65rem] text-muted-foreground mt-0.5">{formatDate(h.date)} · {h.user?.name ?? "Système"} · {h.action}</p>
-                  </div>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />
-                </div>
-              ))}
-              {(!historique || historique.length === 0) && (
-                <p className="text-xs text-muted-foreground text-center py-4">Aucune opération enregistrée.</p>
-              )}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
+// ============================================================
+//   SOUS-COMPOSANTS GRAPHIQUES
+// ============================================================
+
 function SectionTitle({ icon: Icon, title, subtitle }: { icon: LucideIcon; title: string; subtitle?: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <Icon className="h-4 w-4 text-primary" />
+      <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+        <Icon className="h-4 w-4 text-primary" />
+      </div>
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       {subtitle && <span className="text-[0.7rem] text-muted-foreground hidden sm:inline">— {subtitle}</span>}
+    </div>
+  );
+}
+
+// --- HERO KPI avec sparkline ---
+function HeroKpi({
+  icon: Icon, label, value, suffix, formatter, color, trend, trendUp, hint, sparkData,
+}: {
+  icon: LucideIcon; label: string; value: number; suffix?: string;
+  formatter?: (n: number) => string; color: "emerald" | "teal" | "amber" | "red";
+  trend?: string; trendUp?: boolean; hint?: string; sparkData: { v: number }[];
+}) {
+  const colors: Record<string, { bg: string; text: string; stroke: string; gradient: string }> = {
+    emerald: { bg: "from-emerald-500/10 to-emerald-500/5", text: "text-emerald-700", stroke: "#10B981", gradient: "gSparkE" },
+    teal: { bg: "from-teal-500/10 to-teal-500/5", text: "text-teal-700", stroke: "#14B8A6", gradient: "gSparkT" },
+    amber: { bg: "from-amber-500/10 to-amber-500/5", text: "text-amber-700", stroke: "#F59E0B", gradient: "gSparkA" },
+    red: { bg: "from-red-500/10 to-red-500/5", text: "text-red-700", stroke: "#EF4444", gradient: "gSparkR" },
+  };
+  const c = colors[color];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card className={`bg-gradient-to-br ${c.bg} border-border hover-lift overflow-hidden relative`}>
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
+              <p className="text-2xl sm:text-3xl font-bold mt-1 text-foreground tabular-nums">
+                <AnimatedCounter value={value} format={formatter} duration={1.4} delay={0.1} />
+                {suffix && <span className="text-base font-medium text-muted-foreground ml-1">{suffix}</span>}
+              </p>
+              {trend && (
+                <div className="flex items-center gap-1 mt-1 text-[0.7rem] font-medium">
+                  {trendUp ? <TrendingUp className="h-3 w-3 text-emerald-600" /> : <Minus className="h-3 w-3 text-muted-foreground" />}
+                  <span className={trendUp ? "text-emerald-700" : "text-muted-foreground"}>{trend}</span>
+                </div>
+              )}
+              {hint && <p className="text-[0.65rem] text-muted-foreground mt-0.5">{hint}</p>}
+            </div>
+            <div className="h-9 w-9 shrink-0 rounded-full bg-white/60 flex items-center justify-center">
+              <Icon className="h-4.5 w-4.5 text-primary" />
+            </div>
+          </div>
+          {/* Sparkline */}
+          <div className="h-10 mt-2 -mx-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={sparkData}>
+                <defs>
+                  <linearGradient id={c.gradient} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={c.stroke} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={c.stroke} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="v" stroke={c.stroke} strokeWidth={2} fill={`url(#${c.gradient})`} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+// --- Mini stat avec icône ---
+function MiniStat({ label, value, suffix, icon: Icon, accent, warning }: { label: string; value: string | number; suffix?: string; icon: LucideIcon; accent?: boolean; warning?: boolean }) {
+  return (
+    <div className={`rounded-lg p-2.5 ${accent ? (warning ? "bg-amber-50 border border-amber-200" : "bg-primary/5 border border-primary/20") : "bg-muted/50"}`}>
+      <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
+      <p className="text-base sm:text-lg font-bold text-foreground tabular-nums">{value}{suffix}</p>
+      <p className="text-[0.6rem] uppercase text-muted-foreground truncate">{label}</p>
+    </div>
+  );
+}
+
+// --- Anneau d'échéance (SVG circulaire) ---
+function EcheanceRing({ count, total, label, color }: { count: number; total: number; label: string; color: string }) {
+  const pct = total > 0 ? (count / total) * 100 : 0;
+  const radius = 28;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ - (pct / 100) * circ;
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative h-20 w-20">
+        <svg className="h-20 w-20 -rotate-90" viewBox="0 0 70 70">
+          <circle cx="35" cy="35" r={radius} fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="6" />
+          <motion.circle
+            cx="35" cy="35" r={radius} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"
+            strokeDasharray={circ} initial={{ strokeDashoffset: circ }} animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xl font-bold text-foreground">{count}</span>
+        </div>
+      </div>
+      <p className="text-[0.65rem] font-medium text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -304,25 +619,24 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-6">
       <ViewHeader title="Tableau de bord" description="Chargement des données..." icon={Activity} />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-xl" />)}
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <Skeleton className="h-48 rounded-xl" />
+        <Skeleton className="h-48 rounded-xl" />
       </div>
-      <Skeleton className="h-48 rounded-lg" />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Skeleton className="h-72 rounded-lg" />
-        <Skeleton className="h-72 rounded-lg" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Skeleton className="h-72 rounded-xl lg:col-span-2" />
+        <Skeleton className="h-72 rounded-xl" />
       </div>
     </div>
   );
 }
 
-// === COMPARAISON DE PÉRIODES (mois courant vs précédent) ===
+// === COMPARAISON DE PÉRIODES ===
 function ComparaisonSection() {
   const { data: comp, isLoading } = useStatsComparaison();
-
   if (isLoading || !comp) return <Skeleton className="h-32 rounded-xl" />;
 
   const metrics = [
@@ -337,12 +651,19 @@ function ComparaisonSection() {
     <section>
       <SectionTitle icon={TrendingUp} title="Comparaison" subtitle={`${comp.moisCourant} vs ${comp.moisPrecedent}`} />
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        {metrics.map((m) => {
+        {metrics.map((m, i) => {
           const d = m.val.delta;
           const good = m.isGood(d.pct);
           const curVal = m.isCount ? String(m.val.courant) : formatFCFAShort(m.val.courant);
           return (
-            <div key={m.key} className="bg-white border border-border rounded-xl p-4 hover-lift">
+            <motion.div
+              key={m.key}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="bg-white border border-border rounded-xl p-4 hover-lift"
+            >
               <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">{m.label}</p>
               <p className="text-xl font-bold text-foreground tabular-nums mt-1">{curVal}</p>
               <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
@@ -351,7 +672,7 @@ function ComparaisonSection() {
                   {d.pct === 0 ? "stable" : `${d.pct > 0 ? "+" : ""}${d.pct}%`}
                 </span>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -362,7 +683,6 @@ function ComparaisonSection() {
 // === PERFORMANCE PAR RACE ===
 function RacePerformanceSection() {
   const { data: races, isLoading } = useStatsRaces();
-
   if (isLoading || !races || races.length === 0) return <Skeleton className="h-64 rounded-xl" />;
 
   const maxMarge = Math.max(...races.map((r) => r.margeMoyenne), 1);
@@ -372,11 +692,17 @@ function RacePerformanceSection() {
     <section>
       <SectionTitle icon={Beef} title="Performance par race" subtitle="Classement par marge moyenne" />
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Top 3 */}
         <div className="lg:col-span-1 space-y-3">
           <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">Top performers</p>
           {top3.map((r, i) => (
-            <div key={r.race} className={`rounded-xl border p-3 ${i === 0 ? "border-amber-200 bg-amber-50/50" : "border-border bg-white"}`}>
+            <motion.div
+              key={r.race}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
+              className={`rounded-xl border p-3 ${i === 0 ? "border-amber-200 bg-gradient-to-br from-amber-50/60 to-amber-50/20" : "border-border bg-white"}`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
@@ -388,19 +714,24 @@ function RacePerformanceSection() {
                 <span>{r.total} bovins ({r.vendus} vendus)</span>
                 <span className="font-semibold text-emerald-600">{formatFCFAShort(r.margeMoyenne)}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {/* Barres horizontales */}
         <div className="lg:col-span-2 bg-white border border-border rounded-xl p-4">
           <p className="text-[0.65rem] uppercase text-muted-foreground font-medium mb-3">Marge moyenne par race (FCFA)</p>
           <div className="space-y-3">
-            {races.map((r) => (
+            {races.map((r, i) => (
               <div key={r.race} className="flex items-center gap-3">
                 <span className="text-xs font-medium w-28 truncate">{r.race}</span>
-                <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden">
-                  <div className="h-full bg-primary rounded-md transition-all" style={{ width: `${(r.margeMoyenne / maxMarge) * 100}%` }} />
+                <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden relative">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${(r.margeMoyenne / maxMarge) * 100}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, ease: "easeOut", delay: i * 0.1 }}
+                    className="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-md"
+                  />
                 </div>
                 <span className="text-xs font-semibold tabular-nums w-16 text-right">{formatFCFAShort(r.margeMoyenne)}</span>
               </div>

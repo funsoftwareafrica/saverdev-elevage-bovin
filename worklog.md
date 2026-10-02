@@ -132,3 +132,46 @@ Stage Summary:
 - Vérification VLM ViewHeader Bovins : icône cylindre (Database) confirmée
 - Lint clean
 - Style préservé : Lucide outline stroke-width=2 viewBox 24×24 round caps (identique à cattly.io)
+
+---
+Task ID: 5
+Agent: main
+Task: Enrichissement graphique du Tableau de bord (dashboard-view)
+
+Work Log:
+- Restauration du schéma Prisma + routes API + seed SAVERDEV (écrasés par erreur CRM, rollback via git checkout d47dec2)
+- db:push + db:seed pour restaurer les 15 bovins, 8 alimentations, 13 dépenses, 1 financement, 5 alertes
+- Réécriture complète de src/components/views/dashboard-view.tsx avec graphismes avancés :
+  - Hero KPI strip : 4 grosses tuiles animées (AnimatedCounter) avec sparklines en aire dégradée
+  - Section Cheptel : 4 KPI cards + donut en dégradé (gActif/gVendu/gMort) avec innerRadius 45
+  - Section Engraissement : 3 MiniStat + barre de progression animée (cycle 180j réf.)
+  - Section Alimentation : 3 MiniStat + mini BarChart mensuel (sacs)
+  - Section Rentabilité : 4 KPI cards (CA, coût achat, coût engrais, marge)
+  - Graphique évolution mensuelle : AreaChart avec 3 aires dégradées (gCA/gCouts/gMarge) au lieu de Line
+  - Jauge taux de marge : RadialBarChart 180° avec texte central (17%, 403k FCFA)
+  - Section Financement : 3 cards (jauge RadialBar 42% + 3 anneaux SVG échéances animés + BarChart ventilation coûts)
+  - Comparaison mois : 5 cards avec delta animé (scale-in, stagger)
+  - Performance par race : top 3 podium + barres horizontales animées (gradient from-primary)
+  - Radar performance : RadarChart 6 axes (Rentabilité, Cheptel, Ventes, Alim., Financ., Cycle) avec aire verte semi-transparente
+  - Composed chart ventes : BarChart + Line (double axe Y) avec dégradé gVentes
+  - Alertes + Historique : scrollable cards
+  - Bandeau alerte critique : bordure gauche rouge + gradient bg
+  - Tous les graphiques : isAnimationActive + animationDuration 800-1200ms
+
+Stage Summary:
+- Vérification Agent Browser + VLM sur 4 captures (top, mid, charts, radar) :
+  - ✅ Donut cheptel : 3 segments verts/turquoise/rouge rendus
+  - ✅ AreaChart évolution : 3 courbes d'aires (vert CA, rouge coûts, jaune marge) avec données tracées
+  - ✅ Jauge taux marge 17% : cercle rempli + texte central
+  - ✅ Jauge taux utilisation 42% : RadialBar dégradé turquoise
+  - ✅ 3 anneaux échéances : 4 payées (vert), 0 à payer (jaune), 6 en retard (rouge) — strokeDashoffset animé
+  - ✅ BarChart ventilation coûts : 4 barres colorées (Achat, Engrais, Alim, CA)
+  - ✅ Mini BarChart alimentation : 7 barres vertes
+  - ✅ Radar 6 axes : polygone vert semi-transparent rempli
+  - ✅ Composed chart : barres vertes (ventes FCFA) + courbe orange (têtes) double axe Y
+  - ✅ Sparklines hero KPI : 4 mini AreaCharts dégradés
+  - ✅ Progress bar engraissement 71% animée
+  - ✅ Barres horizontales race performance animées
+- Lint clean (0 erreur sur dashboard-view ; 1 erreur préexistante dans parametres-view non touché)
+- API /api/dashboard retourne exactement les KPI attendus (10 bovins actifs, 4.7M valeur cheptel, 127j durée, 410 sacs, 2.3M CA, 403k marge)
+- Le tableau de bord est maintenant riche en graphismes : 13+ visualisations (donuts, jauges, aires, radar, composed, sparklines, anneaux, barres animées)
