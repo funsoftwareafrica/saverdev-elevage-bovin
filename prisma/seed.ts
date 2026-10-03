@@ -7,7 +7,7 @@ import { MOCK_BOVINS, MOCK_ALIMENTATIONS, MOCK_DEPENSES, MOCK_FINANCEMENT, MOCK_
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Début du seed SAVERDEV...");
+  console.log("Début du seed SAVERDEV...");
 
   // Nettoyage (ordre respectant les foreign keys)
   await prisma.historique.deleteMany();
@@ -20,7 +20,7 @@ async function main() {
   await prisma.alimentation.deleteMany();
   await prisma.bovin.deleteMany();
   await prisma.user.deleteMany();
-  console.log("  ✓ Tables nettoyées");
+  console.log("  OK Tables nettoyées");
 
   // ---- Users (4 rôles) ----
   const users = await Promise.all([
@@ -29,7 +29,7 @@ async function main() {
     prisma.user.create({ data: { email: "bailleur@saverdev.org", name: "SAVERDEV Finance", role: Role.BAILLEUR, password: "demo" } }),
     prisma.user.create({ data: { email: "admin@saverdev.org", name: "Admin", role: Role.ADMIN, password: "demo" } }),
   ]);
-  console.log(`  ✓ ${users.length} utilisateurs créés (4 rôles)`);
+  console.log(`  OK ${users.length} utilisateurs créés (4 rôles)`);
 
   // ---- Bovins ----
   const bovinIdMap = new Map<string, string>(); // mockId -> dbId
@@ -52,7 +52,7 @@ async function main() {
     });
     bovinIdMap.set(b.id, created.id);
   }
-  console.log(`  ✓ ${MOCK_BOVINS.length} bovins créés (BOV-001 à BOV-015)`);
+  console.log(`  OK ${MOCK_BOVINS.length} bovins créés (BOV-001 à BOV-015)`);
 
   // ---- Alimentations + imputation par tête ----
   // Pour la démo, on impute aux N premiers bovins actifs/vendus
@@ -80,7 +80,7 @@ async function main() {
       })),
     });
   }
-  console.log(`  ✓ ${MOCK_ALIMENTATIONS.length} alimentations créées (avec imputation par tête)`);
+  console.log(`  OK ${MOCK_ALIMENTATIONS.length} alimentations créées (avec imputation par tête)`);
 
   // ---- Dépenses ----
   for (const d of MOCK_DEPENSES) {
@@ -106,7 +106,7 @@ async function main() {
       });
     }
   }
-  console.log(`  ✓ ${MOCK_DEPENSES.length} dépenses créées`);
+  console.log(`  OK ${MOCK_DEPENSES.length} dépenses créées`);
 
   // ---- Financement + échéances ----
   const fin = await prisma.financement.create({
@@ -130,7 +130,7 @@ async function main() {
       },
     });
   }
-  console.log(`  ✓ Financement ${MOCK_FINANCEMENT.bailleur} (${MOCK_FINANCEMENT.montantFinance} FCFA) + ${MOCK_FINANCEMENT.echeances.length} échéances`);
+  console.log(`  OK Financement ${MOCK_FINANCEMENT.bailleur} (${MOCK_FINANCEMENT.montantFinance} FCFA) + ${MOCK_FINANCEMENT.echeances.length} échéances`);
 
   // ---- Alertes ----
   for (const a of MOCK_ALERTES) {
@@ -144,7 +144,7 @@ async function main() {
       },
     });
   }
-  console.log(`  ✓ ${MOCK_ALERTES.length} alertes créées`);
+  console.log(`  OK ${MOCK_ALERTES.length} alertes créées`);
 
   // ---- Historique ----
   const gerant = users[1]; // Aïssa
@@ -162,9 +162,9 @@ async function main() {
       },
     });
   }
-  console.log(`  ✓ ${MOCK_HISTORIQUES.length} entrées d'historique créées`);
+  console.log(`  OK ${MOCK_HISTORIQUES.length} entrées d'historique créées`);
 
-  console.log("\n✅ Seed terminé avec succès !");
+  console.log("\nSeed terminé avec succès !");
   console.log("   Comptes démo :");
   console.log("   - eleveur@saverdev.org / demo");
   console.log("   - gerant@saverdev.org / demo");
@@ -174,7 +174,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error("❌ Erreur de seed :", e);
+    console.error("Erreur de seed :", e);
     process.exit(1);
   })
   .finally(async () => {
