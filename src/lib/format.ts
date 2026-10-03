@@ -103,15 +103,10 @@ export function nextBovinIdentifiant(existing: { identifiant: string }[]): strin
 }
 
 /**
- * Couleurs de graphiques SAVERDEV — valeurs oklch directes (Recharts/SVG
+ * Couleurs de graphiques SAVERDEV — valeurs hex directes (Recharts/SVG
  * ne résout pas var(--chart-X) dans les attributs stroke/fill).
- * Mappe sur --chart-1..5 + --destructive définis dans globals.css.
+ * Définies dans src/lib/config.ts (source de vérité unique).
+ * Re-exportées ici pour compatibilité avec les imports existants.
  */
-export const CHART_COLORS = {
-  vertForet: "#10B981",     // chart-1 (primary) — SAVERDEV vert forêt
-  marronTerre: "#14B8A6",   // chart-2 (secondary) — SAVERDEV marron terre
-  vertClair: "#34D399",     // chart-3 (accent) — SAVERDEV vert clair
-  bleuCiel: "#34D399",      // chart-4 — SAVERDEV bleu ciel
-  ocreSahel: "#F59E0B",     // chart-5 — sahel
-  rougeTerre: "#EF4444",    // destructive — rouge terre
-} as const;
+import { CHART_COLORS } from "@/lib/config";
+export { CHART_COLORS };

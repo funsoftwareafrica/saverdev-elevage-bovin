@@ -5,47 +5,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAppStore } from "@/lib/store";
-import { ROLE_LABELS, ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
+import { ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
+import { NAV_ITEMS, ROLE_LABELS } from "@/lib/config";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { cn } from "@/lib/utils";
-import {
-  Activity,
-  Database,
-  Package,
-  CreditCard,
-  TrendingUp,
-  BarChart3,
-  Clock,
-  FileText,
-  ChevronRight,
-  Menu,
-  Shield,
-  Box,
-} from "lucide-react";
+import { ChevronRight, Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface NavItem {
-  key: ViewKey;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-// Icônes alignées sur le set cattly.io (Lucide outline, stroke-width 2, viewBox 24×24) :
-// Activity (métriques), Database (records), Package (inventaire), CreditCard (billing),
-// TrendingUp (croissance), BarChart3 (charts), Clock (échéances), FileText (documents).
-const NAV_ITEMS: NavItem[] = [
-  { key: "dashboard", label: "Tableau de bord", icon: Activity },
-  { key: "bovins", label: "Bovins", icon: Database },
-  { key: "alimentation", label: "Alimentation", icon: Package },
-  { key: "depenses", label: "Dépenses", icon: CreditCard },
-  { key: "ventes", label: "Ventes", icon: TrendingUp },
-  { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
-  { key: "financement", label: "Financement", icon: Clock },
-  { key: "rapport", label: "Rapport bailleur", icon: FileText },
-  { key: "carte-3d", label: "Carte 3D", icon: Box },
-];
 
 interface Props {
   activeView: ViewKey;

@@ -19,7 +19,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Beef, Salad, TrendingUp, TrendingDown, Minus, Landmark, AlertTriangle,
   Clock, Scale, Wallet, ShoppingCart, PiggyBank, Activity, History,
-  ArrowUpRight, Target, Percent, Coins, Gauge, BarChart3,
+  ArrowUpRight, Target, Percent, Coins, Gauge, BarChart3, Trophy,
 } from "lucide-react";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart,
@@ -1192,7 +1192,7 @@ function RacePerformanceSection() {
                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
                   <span className="text-sm font-semibold">{r.race}</span>
                 </div>
-                {i === 0 && <span className="text-lg">🏆</span>}
+                {i === 0 && <Trophy className="h-4 w-4 text-amber-500" />}
               </div>
               <div className="flex justify-between mt-2 text-[0.7rem] text-muted-foreground">
                 <span>{r.total} bovins ({r.vendus} vendus)</span>

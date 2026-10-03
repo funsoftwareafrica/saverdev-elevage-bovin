@@ -1,6 +1,8 @@
 {
   "/api/dashboard/route": "app/api/dashboard/route.js",
+  "/api/financement/route": "app/api/financement/route.js",
   "/api/historique/route": "app/api/historique/route.js",
+  "/api/rapport-bailleur/route": "app/api/rapport-bailleur/route.js",
   "/api/stats/comparaison/route": "app/api/stats/comparaison/route.js",
   "/api/stats/races/route": "app/api/stats/races/route.js",
   "/page": "app/page.js"

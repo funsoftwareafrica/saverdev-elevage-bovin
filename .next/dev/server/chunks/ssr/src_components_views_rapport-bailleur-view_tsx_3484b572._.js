@@ -11,7 +11,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // 6 KPI colorés + 6 graphiques + annexes imprimables.
 // Données dynamiques via /api/rapport-bailleur (12 mois de l'exercice).
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/api.ts [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/format.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/config.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/src/lib/format.ts [app-ssr] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/store.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$saverdev$2d$logo$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/saverdev-logo.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/skeleton.tsx [app-ssr] (ecmascript)");
@@ -56,20 +57,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$mo
 ;
 ;
 ;
-// Couleurs exactes du modèle Excel E2A
-const KPI_COLORS = {
-    bovinsActifs: "#1E7B34",
-    ca: "#1E6091",
-    marge: "#14532A",
-    margeParTete: "#0F766E",
-    tauxUtil: "#E0A008",
-    tresorerie: "#8D6E63"
-};
+;
+// Couleurs du modèle Excel E2A (source : src/lib/config.ts)
+const KPI_COLORS = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["RAPPORT_KPI_COLORS"];
 const DOUGHNUT_COLORS = [
-    "#F59E0B",
-    "#10B981",
-    "#3B82F6"
-]; // achat, alimentation, engraissement
+    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["COST_STRUCTURE_COLORS"].achatBovin,
+    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["COST_STRUCTURE_COLORS"].alimentation,
+    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["COST_STRUCTURE_COLORS"].autresCouts
+];
 function RapportBailleurView() {
     const selectedMonth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppStore"])((s)=>s.selectedMonth);
     const year = selectedMonth ? parseInt(selectedMonth.split("-")[0], 10) : new Date().getFullYear();
@@ -86,14 +81,14 @@ function RapportBailleurView() {
                             className: "h-5 w-5 text-primary"
                         }, void 0, false, {
                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                            lineNumber: 45,
+                            lineNumber: 39,
                             columnNumber: 11
                         }, this),
                         " Rapport bailleur"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                    lineNumber: 44,
+                    lineNumber: 38,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -104,23 +99,23 @@ function RapportBailleurView() {
                             className: "h-16"
                         }, i, false, {
                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                            lineNumber: 47,
+                            lineNumber: 41,
                             columnNumber: 71
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                    lineNumber: 47,
+                    lineNumber: 41,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-            lineNumber: 43,
+            lineNumber: 37,
             columnNumber: 7
         }, this);
     }
     const [y, m] = selectedMonth.split("-").map(Number);
-    const moisLabelFull = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["moisLabel"])(m - 1) + " " + y;
+    const moisLabelFull = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["moisLabel"])(m - 1) + " " + y;
     const handlePrint = ()=>{
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].info("Préparation du PDF...", {
             description: "Utilisez « Imprimer » puis « Enregistrer en PDF »."
@@ -142,14 +137,14 @@ function RapportBailleurView() {
                                         className: "h-5 w-5 text-primary"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 66,
+                                        lineNumber: 60,
                                         columnNumber: 13
                                     }, this),
                                     " Rapport bailleur"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 65,
+                                lineNumber: 59,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -161,13 +156,13 @@ function RapportBailleurView() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 68,
+                                lineNumber: 62,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 64,
+                        lineNumber: 58,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -182,14 +177,14 @@ function RapportBailleurView() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 72,
+                                        lineNumber: 66,
                                         columnNumber: 13
                                     }, this),
                                     " Imprimer"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 71,
+                                lineNumber: 65,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -201,26 +196,26 @@ function RapportBailleurView() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 75,
+                                        lineNumber: 69,
                                         columnNumber: 13
                                     }, this),
                                     " Export PDF"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 74,
+                                lineNumber: 68,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 70,
+                        lineNumber: 64,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 63,
+                lineNumber: 57,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -240,7 +235,7 @@ function RapportBailleurView() {
                                         variant: "light"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 85,
+                                        lineNumber: 79,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -250,7 +245,7 @@ function RapportBailleurView() {
                                                 children: "SAVERDEV DURABLE — Tableau de bord"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 87,
+                                                lineNumber: 81,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -258,19 +253,19 @@ function RapportBailleurView() {
                                                 children: "Sahel Vert · Développement"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 88,
+                                                lineNumber: 82,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 86,
+                                        lineNumber: 80,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 84,
+                                lineNumber: 78,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -281,7 +276,7 @@ function RapportBailleurView() {
                                         children: "Reporting mensuel destiné au bailleur"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 92,
+                                        lineNumber: 86,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -293,19 +288,19 @@ function RapportBailleurView() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 93,
+                                        lineNumber: 87,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 91,
+                                lineNumber: 85,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 83,
+                        lineNumber: 77,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -320,34 +315,34 @@ function RapportBailleurView() {
                                         color: KPI_COLORS.bovinsActifs
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 100,
+                                        lineNumber: 94,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportKpiCard, {
                                         label: "Chiffre d'affaires cumulé",
-                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(rap.kpis.caCumul),
+                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(rap.kpis.caCumul),
                                         color: KPI_COLORS.ca
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 101,
+                                        lineNumber: 95,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportKpiCard, {
                                         label: "Marge totale cumulée",
-                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(rap.kpis.margeTotale),
+                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(rap.kpis.margeTotale),
                                         color: KPI_COLORS.marge
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 102,
+                                        lineNumber: 96,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportKpiCard, {
                                         label: "Marge moyenne / tête",
-                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(rap.kpis.margeParTete),
+                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(rap.kpis.margeParTete),
                                         color: KPI_COLORS.margeParTete
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 103,
+                                        lineNumber: 97,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportKpiCard, {
@@ -356,22 +351,22 @@ function RapportBailleurView() {
                                         color: KPI_COLORS.tauxUtil
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 104,
+                                        lineNumber: 98,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportKpiCard, {
                                         label: "Trésorerie disponible",
-                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(rap.kpis.tresorerie),
+                                        value: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(rap.kpis.tresorerie),
                                         color: KPI_COLORS.tresorerie
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 105,
+                                        lineNumber: 99,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 99,
+                                lineNumber: 93,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -386,7 +381,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 112,
+                                                lineNumber: 106,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -415,7 +410,7 @@ function RapportBailleurView() {
                                                                         stopOpacity: 0.5
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                        lineNumber: 117,
+                                                                        lineNumber: 111,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("stop", {
@@ -424,18 +419,18 @@ function RapportBailleurView() {
                                                                         stopOpacity: 0.05
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                        lineNumber: 118,
+                                                                        lineNumber: 112,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 116,
+                                                                lineNumber: 110,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 115,
+                                                            lineNumber: 109,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CartesianGrid"], {
@@ -443,7 +438,7 @@ function RapportBailleurView() {
                                                             stroke: "#E5E7EB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 121,
+                                                            lineNumber: 115,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -454,7 +449,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 122,
+                                                            lineNumber: 116,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -464,7 +459,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 123,
+                                                            lineNumber: 117,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -474,7 +469,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 124,
+                                                            lineNumber: 118,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Area$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Area"], {
@@ -488,28 +483,28 @@ function RapportBailleurView() {
                                                             fill: "url(#rCheptel)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 125,
+                                                            lineNumber: 119,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 114,
+                                                    lineNumber: 108,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 113,
+                                                lineNumber: 107,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 112,
+                                            lineNumber: 106,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 111,
+                                        lineNumber: 105,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportChartCard, {
@@ -521,7 +516,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 133,
+                                                lineNumber: 127,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -541,7 +536,7 @@ function RapportBailleurView() {
                                                             stroke: "#E5E7EB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 136,
+                                                            lineNumber: 130,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -552,7 +547,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 137,
+                                                            lineNumber: 131,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -562,7 +557,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 138,
+                                                            lineNumber: 132,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -572,7 +567,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 139,
+                                                            lineNumber: 133,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {
@@ -581,7 +576,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 140,
+                                                            lineNumber: 134,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -598,7 +593,7 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 141,
+                                                            lineNumber: 135,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -615,28 +610,28 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 142,
+                                                            lineNumber: 136,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 135,
+                                                    lineNumber: 129,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 134,
+                                                lineNumber: 128,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 133,
+                                            lineNumber: 127,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 132,
+                                        lineNumber: 126,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportChartCard, {
@@ -648,7 +643,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 150,
+                                                lineNumber: 144,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -668,7 +663,7 @@ function RapportBailleurView() {
                                                             stroke: "#E5E7EB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 153,
+                                                            lineNumber: 147,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -679,7 +674,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 154,
+                                                            lineNumber: 148,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -687,21 +682,21 @@ function RapportBailleurView() {
                                                                 fontSize: 9
                                                             },
                                                             stroke: "#6B7280",
-                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(v).replace(" FCFA", "")
+                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(v).replace(" FCFA", "")
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 155,
+                                                            lineNumber: 149,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
-                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(v),
+                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(v),
                                                             contentStyle: {
                                                                 fontSize: "0.75rem",
                                                                 borderRadius: "0.5rem"
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 156,
+                                                            lineNumber: 150,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {
@@ -710,7 +705,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 157,
+                                                            lineNumber: 151,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -727,7 +722,7 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 158,
+                                                            lineNumber: 152,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -744,28 +739,28 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 159,
+                                                            lineNumber: 153,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 152,
+                                                    lineNumber: 146,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 151,
+                                                lineNumber: 145,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 150,
+                                            lineNumber: 144,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 149,
+                                        lineNumber: 143,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportChartCard, {
@@ -777,7 +772,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 167,
+                                                lineNumber: 161,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -797,7 +792,7 @@ function RapportBailleurView() {
                                                             stroke: "#E5E7EB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 170,
+                                                            lineNumber: 164,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -808,7 +803,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 171,
+                                                            lineNumber: 165,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -816,21 +811,21 @@ function RapportBailleurView() {
                                                                 fontSize: 9
                                                             },
                                                             stroke: "#6B7280",
-                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(v).replace(" FCFA", "")
+                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(v).replace(" FCFA", "")
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 172,
+                                                            lineNumber: 166,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
-                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(v),
+                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(v),
                                                             contentStyle: {
                                                                 fontSize: "0.75rem",
                                                                 borderRadius: "0.5rem"
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 173,
+                                                            lineNumber: 167,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {
@@ -839,7 +834,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 174,
+                                                            lineNumber: 168,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Line"], {
@@ -855,7 +850,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 175,
+                                                            lineNumber: 169,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Line"], {
@@ -871,28 +866,28 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 176,
+                                                            lineNumber: 170,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 169,
+                                                    lineNumber: 163,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 168,
+                                                lineNumber: 162,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 167,
+                                            lineNumber: 161,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 166,
+                                        lineNumber: 160,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportChartCard, {
@@ -904,7 +899,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 184,
+                                                lineNumber: 178,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -940,23 +935,23 @@ function RapportBailleurView() {
                                                                     fill: c
                                                                 }, i, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 197,
+                                                                    lineNumber: 191,
                                                                     columnNumber: 54
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 187,
+                                                            lineNumber: 181,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
-                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(v),
+                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(v),
                                                             contentStyle: {
                                                                 fontSize: "0.75rem",
                                                                 borderRadius: "0.5rem"
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 199,
+                                                            lineNumber: 193,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {
@@ -966,28 +961,28 @@ function RapportBailleurView() {
                                                             iconSize: 8
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 200,
+                                                            lineNumber: 194,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 186,
+                                                    lineNumber: 180,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 185,
+                                                lineNumber: 179,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 184,
+                                            lineNumber: 178,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 183,
+                                        lineNumber: 177,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(RapportChartCard, {
@@ -999,7 +994,7 @@ function RapportBailleurView() {
                                                 className: "h-full w-full rounded-md"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 208,
+                                                lineNumber: 202,
                                                 columnNumber: 55
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
@@ -1019,7 +1014,7 @@ function RapportBailleurView() {
                                                             stroke: "#E5E7EB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 211,
+                                                            lineNumber: 205,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -1030,7 +1025,7 @@ function RapportBailleurView() {
                                                             stroke: "#6B7280"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 212,
+                                                            lineNumber: 206,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -1038,21 +1033,21 @@ function RapportBailleurView() {
                                                                 fontSize: 9
                                                             },
                                                             stroke: "#6B7280",
-                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(v).replace(" FCFA", "")
+                                                            tickFormatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(v).replace(" FCFA", "")
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 213,
+                                                            lineNumber: 207,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
-                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(v),
+                                                            formatter: (v)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(v),
                                                             contentStyle: {
                                                                 fontSize: "0.75rem",
                                                                 borderRadius: "0.5rem"
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 214,
+                                                            lineNumber: 208,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {
@@ -1061,7 +1056,7 @@ function RapportBailleurView() {
                                                             }
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 215,
+                                                            lineNumber: 209,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -1078,7 +1073,7 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 216,
+                                                            lineNumber: 210,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -1095,46 +1090,46 @@ function RapportBailleurView() {
                                                             ]
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 217,
+                                                            lineNumber: 211,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 210,
+                                                    lineNumber: 204,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 209,
+                                                lineNumber: 203,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 208,
+                                            lineNumber: 202,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 207,
+                                        lineNumber: 201,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 109,
+                                lineNumber: 103,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 97,
+                        lineNumber: 91,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 81,
+                lineNumber: 75,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1147,12 +1142,12 @@ function RapportBailleurView() {
                             children: "Annexe — Détail des ventes, bovins actifs et échéances"
                         }, void 0, false, {
                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                            lineNumber: 229,
+                            lineNumber: 223,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 228,
+                        lineNumber: 222,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1168,7 +1163,7 @@ function RapportBailleurView() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 234,
+                                        lineNumber: 228,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1186,7 +1181,7 @@ function RapportBailleurView() {
                                                                 children: "Mois"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 239,
+                                                                lineNumber: 233,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1194,7 +1189,7 @@ function RapportBailleurView() {
                                                                 children: "Actifs"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 240,
+                                                                lineNumber: 234,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1202,7 +1197,7 @@ function RapportBailleurView() {
                                                                 children: "Achats"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 241,
+                                                                lineNumber: 235,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1210,7 +1205,7 @@ function RapportBailleurView() {
                                                                 children: "Ventes"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 242,
+                                                                lineNumber: 236,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1218,7 +1213,7 @@ function RapportBailleurView() {
                                                                 children: "CA"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 243,
+                                                                lineNumber: 237,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1226,7 +1221,7 @@ function RapportBailleurView() {
                                                                 children: "Coût alim."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 244,
+                                                                lineNumber: 238,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1234,7 +1229,7 @@ function RapportBailleurView() {
                                                                 children: "Marge"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 245,
+                                                                lineNumber: 239,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1242,7 +1237,7 @@ function RapportBailleurView() {
                                                                 children: "Marge/tête"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 246,
+                                                                lineNumber: 240,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1250,18 +1245,18 @@ function RapportBailleurView() {
                                                                 children: "Trésorerie"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 247,
+                                                                lineNumber: 241,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                        lineNumber: 238,
+                                                        lineNumber: 232,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 237,
+                                                    lineNumber: 231,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1273,7 +1268,7 @@ function RapportBailleurView() {
                                                                     children: row.mois
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 253,
+                                                                    lineNumber: 247,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1281,7 +1276,7 @@ function RapportBailleurView() {
                                                                     children: row.bovinsActifs
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 254,
+                                                                    lineNumber: 248,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1289,7 +1284,7 @@ function RapportBailleurView() {
                                                                     children: row.achats
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 255,
+                                                                    lineNumber: 249,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1297,75 +1292,75 @@ function RapportBailleurView() {
                                                                     children: row.ventes
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 256,
+                                                                    lineNumber: 250,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 text-right tabular-nums",
-                                                                    children: row.ca > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(row.ca) : "—"
+                                                                    children: row.ca > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(row.ca) : "—"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 257,
+                                                                    lineNumber: 251,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 text-right tabular-nums",
-                                                                    children: row.coutAlimentation > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(row.coutAlimentation) : "—"
+                                                                    children: row.coutAlimentation > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(row.coutAlimentation) : "—"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 258,
+                                                                    lineNumber: 252,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: `p-2 text-right tabular-nums font-medium ${row.margeTotale >= 0 ? "text-emerald-700" : "text-red-700"}`,
-                                                                    children: row.ca > 0 || row.margeTotale !== 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(row.margeTotale) : "—"
+                                                                    children: row.ca > 0 || row.margeTotale !== 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(row.margeTotale) : "—"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 259,
+                                                                    lineNumber: 253,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 text-right tabular-nums",
-                                                                    children: row.ventes > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(row.margeParTete, false) : "—"
+                                                                    children: row.ventes > 0 ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(row.margeParTete, false) : "—"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 262,
+                                                                    lineNumber: 256,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: `p-2 text-right tabular-nums ${row.tresorerie >= 0 ? "" : "text-red-600"}`,
-                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFAShort"])(row.tresorerie)
+                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFAShort"])(row.tresorerie)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 263,
+                                                                    lineNumber: 257,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, row.mois, true, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 252,
+                                                            lineNumber: 246,
                                                             columnNumber: 21
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 250,
+                                                    lineNumber: 244,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 236,
+                                            lineNumber: 230,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 235,
+                                        lineNumber: 229,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 233,
+                                lineNumber: 227,
                                 columnNumber: 11
                             }, this),
                             fin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1378,7 +1373,7 @@ function RapportBailleurView() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 274,
+                                        lineNumber: 268,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1396,7 +1391,7 @@ function RapportBailleurView() {
                                                                 children: "N°"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 279,
+                                                                lineNumber: 273,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1404,7 +1399,7 @@ function RapportBailleurView() {
                                                                 children: "Date prévue"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 280,
+                                                                lineNumber: 274,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1412,7 +1407,7 @@ function RapportBailleurView() {
                                                                 children: "Date payée"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 281,
+                                                                lineNumber: 275,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1420,7 +1415,7 @@ function RapportBailleurView() {
                                                                 children: "Montant"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 282,
+                                                                lineNumber: 276,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1428,18 +1423,18 @@ function RapportBailleurView() {
                                                                 children: "Statut"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 283,
+                                                                lineNumber: 277,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                        lineNumber: 278,
+                                                        lineNumber: 272,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 277,
+                                                    lineNumber: 271,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1451,75 +1446,75 @@ function RapportBailleurView() {
                                                                     children: e.numero
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 289,
+                                                                    lineNumber: 283,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2",
-                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatDate"])(e.datePrevue)
+                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatDate"])(e.datePrevue)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 290,
+                                                                    lineNumber: 284,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 hidden sm:table-cell text-muted-foreground",
-                                                                    children: e.datePayee ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatDate"])(e.datePayee) : "—"
+                                                                    children: e.datePayee ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatDate"])(e.datePayee) : "—"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 291,
+                                                                    lineNumber: 285,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 text-right tabular-nums",
-                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatFCFA"])(e.montant, false)
+                                                                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatFCFA"])(e.montant, false)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 292,
+                                                                    lineNumber: 286,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "p-2 text-center",
                                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
                                                                         variant: "outline",
-                                                                        className: `text-[0.6rem] ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["statutEcheanceColor"])(e.statut)}`,
+                                                                        className: `text-[0.6rem] ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["statutEcheanceColor"])(e.statut)}`,
                                                                         children: e.statut === "PAYEE" ? "Payée" : e.statut === "A_PAYER" ? "À payer" : "En retard"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                        lineNumber: 294,
+                                                                        lineNumber: 288,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                    lineNumber: 293,
+                                                                    lineNumber: 287,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, e.id, true, {
                                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                            lineNumber: 288,
+                                                            lineNumber: 282,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 286,
+                                                    lineNumber: 280,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                            lineNumber: 276,
+                                            lineNumber: 270,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 275,
+                                        lineNumber: 269,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 273,
+                                lineNumber: 267,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1531,21 +1526,21 @@ function RapportBailleurView() {
                                                 className: "h-3.5 w-3.5"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 309,
+                                                lineNumber: 303,
                                                 columnNumber: 15
                                             }, this),
                                             " Alertes & faits marquants"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 308,
+                                        lineNumber: 302,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "space-y-2",
                                         children: [
                                             rap.alertes.filter((a)=>!a.resolved).map((a)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: `rounded-md border px-3 py-2 text-xs ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["severiteColor"])(a.severite)}`,
+                                                    className: `rounded-md border px-3 py-2 text-xs ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["severiteColor"])(a.severite)}`,
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex items-center justify-between gap-2",
                                                         children: [
@@ -1554,7 +1549,7 @@ function RapportBailleurView() {
                                                                 children: a.message
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 315,
+                                                                lineNumber: 309,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1562,18 +1557,18 @@ function RapportBailleurView() {
                                                                 children: a.severite
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                                lineNumber: 316,
+                                                                lineNumber: 310,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                        lineNumber: 314,
+                                                        lineNumber: 308,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, a.id, false, {
                                                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                    lineNumber: 313,
+                                                    lineNumber: 307,
                                                     columnNumber: 17
                                                 }, this)),
                                             rap.alertes.filter((a)=>!a.resolved).length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1583,56 +1578,56 @@ function RapportBailleurView() {
                                                         className: "h-4 w-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                        lineNumber: 322,
+                                                        lineNumber: 316,
                                                         columnNumber: 19
                                                     }, this),
                                                     " Aucune alerte active."
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                                lineNumber: 321,
+                                                lineNumber: 315,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                        lineNumber: 311,
+                                        lineNumber: 305,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 307,
+                                lineNumber: 301,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "pt-4 border-t border-border text-[0.65rem] text-muted-foreground text-center",
                                 children: [
                                     "Document généré le ",
-                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatDate"])(new Date().toISOString()),
+                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["formatDate"])(new Date().toISOString()),
                                     " · SAVERDEV DURABLE — Sahel Vert pour un Développement Durable · Confidentiel"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                                lineNumber: 329,
+                                lineNumber: 323,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                        lineNumber: 231,
+                        lineNumber: 225,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 227,
+                lineNumber: 221,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-        lineNumber: 61,
+        lineNumber: 55,
         columnNumber: 5
     }, this);
 }
@@ -1664,7 +1659,7 @@ function RapportKpiCard({ label, value, color }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 351,
+                lineNumber: 345,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1672,13 +1667,13 @@ function RapportKpiCard({ label, value, color }) {
                 children: value
             }, void 0, false, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 352,
+                lineNumber: 346,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-        lineNumber: 343,
+        lineNumber: 337,
         columnNumber: 5
     }, this);
 }
@@ -1694,12 +1689,12 @@ function RapportChartCard({ title, height, children }) {
                     children: title
                 }, void 0, false, {
                     fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                    lineNumber: 362,
+                    lineNumber: 356,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 361,
+                lineNumber: 355,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1710,13 +1705,13 @@ function RapportChartCard({ title, height, children }) {
                 children: children
             }, void 0, false, {
                 fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-                lineNumber: 364,
+                lineNumber: 358,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/views/rapport-bailleur-view.tsx",
-        lineNumber: 360,
+        lineNumber: 354,
         columnNumber: 5
     }, this);
 }

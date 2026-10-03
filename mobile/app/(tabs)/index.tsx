@@ -42,7 +42,7 @@ export default function DashboardScreen() {
       {/* Header simple */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Bonjour 👋</Text>
+          <Text style={styles.greeting}>Bonjour</Text>
           <Text style={styles.roleLine}>{ROLE_LABELS[role]}</Text>
         </View>
         <SaverdevLogo size={44} />

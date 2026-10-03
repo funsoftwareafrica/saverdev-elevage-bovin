@@ -5,6 +5,7 @@
 // Données dynamiques via /api/rapport-bailleur (12 mois de l'exercice).
 
 import { useRapportBailleur, useFinancement } from "@/lib/api";
+import { RAPPORT_KPI_COLORS, COST_STRUCTURE_COLORS } from "@/lib/config";
 import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutEcheanceColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { SaverdevLogo } from "@/components/saverdev-logo";
@@ -21,16 +22,9 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 
-// Couleurs exactes du modèle Excel E2A
-const KPI_COLORS = {
-  bovinsActifs: "#1E7B34",    // vert
-  ca: "#1E6091",              // bleu
-  marge: "#14532A",           // vert foncé
-  margeParTete: "#0F766E",   // teal
-  tauxUtil: "#E0A008",        // ambre/or
-  tresorerie: "#8D6E63",      // marron
-};
-const DOUGHNUT_COLORS = ["#F59E0B", "#10B981", "#3B82F6"]; // achat, alimentation, engraissement
+// Couleurs du modèle Excel E2A (source : src/lib/config.ts)
+const KPI_COLORS = RAPPORT_KPI_COLORS;
+const DOUGHNUT_COLORS = [COST_STRUCTURE_COLORS.achatBovin, COST_STRUCTURE_COLORS.alimentation, COST_STRUCTURE_COLORS.autresCouts];
 
 export function RapportBailleurView() {
   const selectedMonth = useAppStore((s) => s.selectedMonth);
