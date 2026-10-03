@@ -1,2 +1,12 @@
 skills/
 node_modules/
+
+# Next.js build output
+.next/
+out/
+# Next.js build output
+.next/
+out/
+# scripts
+.zscripts/
+next-env.d.ts
