@@ -37,7 +37,7 @@ export function RapportBailleurView() {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-          <HugeiconsIcon icon={FileText} size={5} className="text-primary" /> Rapport bailleur
+          <HugeiconsIcon icon={FileText} size={20} className="text-primary" /> Rapport bailleur
         </h2>
         <div className="space-y-3">{Array.from({length:5}).map((_,i)=><Skeleton key={i} className="h-16"/>)}</div>
       </div>
@@ -58,16 +58,16 @@ export function RapportBailleurView() {
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <HugeiconsIcon icon={FileText} size={5} className="text-primary" /> Rapport bailleur
+            <HugeiconsIcon icon={FileText} size={20} className="text-primary" /> Rapport bailleur
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">Tableau de bord — modèle E2A, exercice {year}.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint}>
-            <HugeiconsIcon icon={Printer} size={4} /> Imprimer
+            <HugeiconsIcon icon={Printer} size={16} /> Imprimer
           </Button>
           <Button size="sm" className="bg-primary" onClick={handlePrint}>
-            <HugeiconsIcon icon={Download} size={4} /> Export PDF
+            <HugeiconsIcon icon={Download} size={16} /> Export PDF
           </Button>
         </div>
       </div>
@@ -301,7 +301,7 @@ export function RapportBailleurView() {
           {/* Alertes & faits marquants */}
           <div>
             <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-              <HugeiconsIcon icon={AlertCircle} size={3} className=".5 .5" /> Alertes & faits marquants
+              <HugeiconsIcon icon={AlertCircle} size={12} className=".5 .5" /> Alertes & faits marquants
             </h4>
             <div className="space-y-2">
               {rap.alertes.filter((a) => !a.resolved).map((a) => (
@@ -314,7 +314,7 @@ export function RapportBailleurView() {
               ))}
               {rap.alertes.filter((a) => !a.resolved).length === 0 && (
                 <div className="flex items-center gap-2 text-xs text-emerald-700">
-                  <HugeiconsIcon icon={CheckCircle2} size={4} /> Aucune alerte active.
+                  <HugeiconsIcon icon={CheckCircle2} size={16} /> Aucune alerte active.
                 </div>
               )}
             </div>

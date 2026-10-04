@@ -29,7 +29,7 @@ export function TresorerieView() {
               <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(m.sorties, false)}</td>
               <td className={`p-2 text-right tabular-nums font-medium ${m.solde >= 0 ? "text-emerald-700" : "text-red-700"}`}>{formatFCFA(m.solde, false)}</td>
               <td className={`p-2 text-right tabular-nums font-bold ${m.soldeCumule >= 0 ? "text-foreground" : "text-red-700"}`}>{formatFCFA(m.soldeCumule, false)}</td>
-              <td className="p-2 text-center">{m.enRisque ? <span className="inline-flex items-center gap-1 text-red-600 font-medium"><HugeiconsIcon icon={AlertTriangle} size={3} /> Risque</span> : <HugeiconsIcon icon={Check} size={3} className="inline text-emerald-600" />}</td>
+              <td className="p-2 text-center">{m.enRisque ? <span className="inline-flex items-center gap-1 text-red-600 font-medium"><HugeiconsIcon icon={AlertTriangle} size={12} /> Risque</span> : <HugeiconsIcon icon={Check} size={12} className="inline text-emerald-600" />}</td>
             </tr>
           ))}</tbody>
         </table></div>

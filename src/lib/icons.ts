@@ -64,6 +64,10 @@ import {
   QrCode01Icon as QrCode,
   Search01Icon as Search,
   UserIcon as User,
+  Layers01Icon as Layers,
+  ArrowExpand01Icon as Maximize2,
+  ArrowReloadHorizontalIcon as RotateCw,
+  Compass01Icon as Navigation,
 } from "@hugeicons/core-free-icons";
 
 // Export groupé pour usage direct
@@ -76,6 +80,7 @@ export {
   BarChartHorizontal, PieChart, Settings, Printer, Download, Plus, Trash, Pencil, X,
   AlertCircle, LayoutGrid, Eye, Calendar, CalendarClock, HardDrive, Info,
   Map, MapPin, QrCode, Search, User,
+  Layers, Maximize2, RotateCw, Navigation,
 };
 
 // Type utilitaire pour les props d'icône

@@ -100,7 +100,7 @@ export function FinancementView() {
                   <div key={e.id} className={`rounded-lg border px-3 py-2 ${statutEcheanceColor(e.statut)}`}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        {e.statut === "EN_RETARD" ? <HugeiconsIcon icon={AlertCircle} size={4} /> : <HugeiconsIcon icon={CalendarClock} size={4} />}
+                        {e.statut === "EN_RETARD" ? <HugeiconsIcon icon={AlertCircle} size={16} /> : <HugeiconsIcon icon={CalendarClock} size={16} />}
                         <div>
                           <p className="text-sm font-semibold">Échéance n°{e.numero}</p>
                           <p className="text-[0.65rem] opacity-80">{formatDate(e.datePrevue)}</p>

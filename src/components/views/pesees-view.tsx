@@ -34,7 +34,7 @@ export function PeseesView() {
   return (
     <div className="space-y-6">
       <ViewHeader title="Pesées connectées" description="Suivi du poids par bovin — manuel ou balance connectée" icon={Scale}
-        action={<Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild><Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Nouvelle pesée</Button></DialogTrigger>
+        action={<Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild><Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={16} /> Nouvelle pesée</Button></DialogTrigger>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Nouvelle pesée</DialogTitle></DialogHeader>
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="space-y-1.5"><Label className="text-xs">Bovin</Label><select name="bovinId" required className="w-full h-9 rounded-md border px-3 text-sm">{actifs.map((b) => <option key={b.id} value={b.id}>{b.identifiant} — {b.race}</option>)}</select></div>

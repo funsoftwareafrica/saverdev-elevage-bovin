@@ -127,12 +127,12 @@ export function BovinsView() {
           !readOnly && (
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleExport}>
-                <HugeiconsIcon icon={Download} size={4} /> Export CSV
+                <HugeiconsIcon icon={Download} size={16} /> Export CSV
               </Button>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-primary">
-                    <HugeiconsIcon icon={Plus} size={4} /> Nouvel achat
+                    <HugeiconsIcon icon={Plus} size={16} /> Nouvel achat
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -197,7 +197,7 @@ export function BovinsView() {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">
-              <HugeiconsIcon icon={Search} size={4} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <HugeiconsIcon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Rechercher (BOV-001, Zébu...)"
                 value={search}
@@ -265,11 +265,11 @@ export function BovinsView() {
                               <span className="text-muted-foreground">—</span>
                             ) : marge >= 0 ? (
                               <span className="text-emerald-700 flex items-center justify-end gap-0.5">
-                                <HugeiconsIcon icon={TrendingUp} size={3} />{formatFCFA(marge, false)}
+                                <HugeiconsIcon icon={TrendingUp} size={12} />{formatFCFA(marge, false)}
                               </span>
                             ) : (
                               <span className="text-red-700 flex items-center justify-end gap-0.5">
-                                <HugeiconsIcon icon={TrendingDown} size={3} />{formatFCFA(marge, false)}
+                                <HugeiconsIcon icon={TrendingDown} size={12} />{formatFCFA(marge, false)}
                               </span>
                             )}
                           </TableCell>
@@ -280,7 +280,7 @@ export function BovinsView() {
                           </TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <HugeiconsIcon icon={Eye} size={4} />
+                              <HugeiconsIcon icon={Eye} size={16} />
                             </Button>
                           </TableCell>
                         </TableRow>

@@ -72,7 +72,7 @@ export function DepensesView() {
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Nouvelle dépense</Button>
+                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={16} /> Nouvelle dépense</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -181,7 +181,7 @@ export function DepensesView() {
                       <TableCell className="text-sm">{d.libelle}</TableCell>
                       <TableCell className="text-center hidden sm:table-cell">
                         {d.nbBovinsConcernes > 0 ? (
-                          <Badge variant="outline" className="text-[0.65rem] gap-1"><HugeiconsIcon icon={Beef} size={3} /> {d.nbBovinsConcernes}</Badge>
+                          <Badge variant="outline" className="text-[0.65rem] gap-1"><HugeiconsIcon icon={Beef} size={12} /> {d.nbBovinsConcernes}</Badge>
                         ) : <span className="text-[0.65rem] text-muted-foreground">Global</span>}
                       </TableCell>
                       <TableCell className="text-right text-sm tabular-nums font-medium">{formatFCFA(d.montant, false)}</TableCell>

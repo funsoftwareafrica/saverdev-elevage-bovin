@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { KpiCard, ViewHeader } from "./_shared";
 import { usePaturages, useBovins } from "@/lib/api";
-import { MapPin, Layers, RotateCw, Maximize2, Navigation, Box, Beef, Eye } from "lucide-react";
+import { MapPin, Layers, RotateCw, Maximize2, Navigation, Box, Beef, Eye } from "@/lib/icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -57,16 +58,16 @@ export function Carte3DView() {
         action={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setTilt((t) => Math.max(20, t - 10))}>
-              <Eye className="h-4 w-4" /> Vue +
+              <HugeiconsIcon icon={Eye} size={16} /> Vue +
             </Button>
             <Button variant="outline" size="sm" onClick={() => setRotation((r) => (r + 15) % 360)}>
-              <RotateCw className="h-4 w-4" /> Rotation
+              <HugeiconsIcon icon={RotateCw} size={16} /> Rotation
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowGoogleMaps((v) => !v)}>
-              <Navigation className="h-4 w-4" /> {showGoogleMaps ? "Vue 3D" : "Google Maps"}
+              <HugeiconsIcon icon={Navigation} size={16} /> {showGoogleMaps ? "Vue 3D" : "Google Maps"}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowLabels((v) => !v)}>
-              <Layers className="h-4 w-4" /> {showLabels ? "Masquer" : "Afficher"} labels
+              <HugeiconsIcon icon={Layers} size={16} /> {showLabels ? "Masquer" : "Afficher"} labels
             </Button>
           </div>
         }
@@ -84,7 +85,7 @@ export function Carte3DView() {
       <Card className="overflow-hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Navigation className="h-4 w-4 text-primary" /> Vue 3D isométrique — {ZINDER_NAME}
+            <HugeiconsIcon icon={Navigation} size={16} className="text-primary" /> Vue 3D isométrique — {ZINDER_NAME}
           </CardTitle>
           <CardDescription className="text-xs">
             Coordonnées GPS : {ZINDER_CENTER.lat}°N, {ZINDER_CENTER.lng}°E · Cliquez sur une parcelle pour les détails
@@ -187,7 +188,7 @@ export function Carte3DView() {
                       {showLabels && (
                         <div className="mb-2">
                           <div className="flex items-center gap-1.5">
-                            <MapPin size={12} style={{ color: p.color }} />
+                            <HugeiconsIcon icon={MapPin} size={48} style={{ color: p.color }} />
                             <span className="text-xs font-bold" style={{ color: p.color }}>{p.nom}</span>
                           </div>
                           <p className="text-[0.6rem] text-slate-500 mt-0.5">
@@ -258,7 +259,7 @@ export function Carte3DView() {
             {/* Overlay infos */}
             <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg z-10">
               <p className="text-xs font-semibold flex items-center gap-1.5">
-                <Navigation className="h-3 w-3 text-primary" />
+                <HugeiconsIcon icon={Navigation} size={12} className="text-primary" />
                 {ZINDER_NAME}
               </p>
               <p className="text-[0.65rem] text-muted-foreground mt-1">
@@ -330,7 +331,7 @@ export function Carte3DView() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" /> Parcelles géolocalisées — {ZINDER_NAME}
+            <HugeiconsIcon icon={MapPin} size={16} className="text-primary" /> Parcelles géolocalisées — {ZINDER_NAME}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">

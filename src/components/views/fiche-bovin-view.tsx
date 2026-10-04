@@ -3,7 +3,7 @@
 // Vue Fiche bovin — détail complet d'un bovin (identification, achat, coûts, marge).
 
 import { useBovin, useTags, useAddTag } from "@/lib/api";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { computeBovinMarge } from "@/lib/calculations";
 import { useAppStore } from "@/lib/store";
 import { formatFCFA, formatDate, statutBovinColor, joursEntre } from "@/lib/format";
@@ -32,7 +32,7 @@ export function FicheBovinView() {
     return (
       <div className="space-y-6">
         <Button variant="ghost" size="sm" onClick={() => setView("bovins")} className="text-muted-foreground">
-          <HugeiconsIcon icon={ArrowLeft} size={4} /> Retour à la liste
+          <HugeiconsIcon icon={ArrowLeft} size={16} /> Retour à la liste
         </Button>
         <Skeleton className="h-32 rounded-lg" />
         <div className="grid gap-4 md:grid-cols-2">
@@ -51,7 +51,7 @@ export function FicheBovinView() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => setView("bovins")} className="text-muted-foreground">
-          <HugeiconsIcon icon={ArrowLeft} size={4} /> Retour à la liste
+          <HugeiconsIcon icon={ArrowLeft} size={16} /> Retour à la liste
         </Button>
       </div>
 
@@ -61,7 +61,7 @@ export function FicheBovinView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                <HugeiconsIcon icon={Beef} size={7} />
+                <HugeiconsIcon icon={Beef} size={28} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export function FicheBovinView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={Wallet} size={4} /> Coûts & marge
+              <HugeiconsIcon icon={Wallet} size={16} /> Coûts & marge
             </CardTitle>
             <CardDescription className="text-xs">Calcul automatique du coût de revient</CardDescription>
           </CardHeader>
@@ -128,7 +128,7 @@ export function FicheBovinView() {
                 <CostRow icon={TrendingUp} label="Prix de vente" value={bovin.prixVente} />
                 <Separator />
                 <div className="flex justify-between font-semibold text-sm">
-                  <span className="flex items-center gap-1.5"><HugeiconsIcon icon={TrendingUp} size={4} /> Marge</span>
+                  <span className="flex items-center gap-1.5"><HugeiconsIcon icon={TrendingUp} size={16} /> Marge</span>
                   <span className={`tabular-nums ${marge !== null && marge >= 0 ? "text-emerald-700" : "text-red-700"}`}>
                     {marge !== null ? formatFCFA(marge) : "—"}
                   </span>
@@ -191,7 +191,7 @@ export function FicheBovinView() {
                 className="h-8 text-sm flex-1"
               />
               <Button type="submit" size="sm" variant="outline" disabled={addTag.isPending || !newTag.trim()}>
-                <HugeiconsIcon icon={Plus} size={3} className=".5 .5" />
+                <HugeiconsIcon icon={Plus} size={12} className=".5 .5" />
               </Button>
             </form>
           </CardContent>
@@ -201,7 +201,7 @@ export function FicheBovinView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={QrCode} size={4} className="text-primary" /> QR Code & étiquette
+              <HugeiconsIcon icon={QrCode} size={16} className="text-primary" /> QR Code & étiquette
             </CardTitle>
             <CardDescription className="text-xs">Scannez pour accéder à la fiche mobile</CardDescription>
           </CardHeader>
@@ -235,7 +235,7 @@ export function FicheBovinView() {
                 }
               }}
             >
-              <HugeiconsIcon icon={Printer} size={4} /> Imprimer l'étiquette
+              <HugeiconsIcon icon={Printer} size={16} /> Imprimer l'étiquette
             </Button>
           </CardContent>
         </Card>
@@ -244,22 +244,22 @@ export function FicheBovinView() {
   );
 }
 
-function Row({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+function Row({ icon: Icon, label, value }: { icon: IconSvgElement; label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-muted-foreground flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5" /> {label}
+        <HugeiconsIcon icon={Icon} size={56} /> {label}
       </span>
       <span className="font-medium tabular-nums">{value}</span>
     </div>
   );
 }
 
-function CostRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number }) {
+function CostRow({ icon: Icon, label, value }: { icon: IconSvgElement; label: string; value: number }) {
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
       <span className="text-muted-foreground flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5" /> {label}
+        <HugeiconsIcon icon={Icon} size={56} /> {label}
       </span>
       <span className="tabular-nums">{formatFCFA(value)}</span>
     </div>

@@ -34,15 +34,15 @@ export function ParametresView() {
             {list.map((p) => (<div key={p.id} className="flex items-center gap-3 border-b pb-3 last:border-0">
               <div className="flex-1"><p className="text-sm font-medium">{p.description ?? p.cle}</p></div>
               <Input value={values[p.cle] ?? ""} onChange={(e) => setValues({ ...values, [p.cle]: e.target.value })} className="w-32 h-8 text-sm" />
-              <Button size="sm" variant="ghost" onClick={() => updateParam.mutate({ cle: p.cle, valeur: values[p.cle] ?? "" }, { onSuccess: () => toast.success("Paramètre mis à jour") })}><HugeiconsIcon icon={Check} size={4} /></Button>
+              <Button size="sm" variant="ghost" onClick={() => updateParam.mutate({ cle: p.cle, valeur: values[p.cle] ?? "" }, { onSuccess: () => toast.success("Paramètre mis à jour") })}><HugeiconsIcon icon={Check} size={16} /></Button>
             </div>))}
           </CardContent>
         </Card>
       )}
       {/* Sauvegardes */}
-      <Card><CardHeader><CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Database} size={4} className="text-primary" /> Sauvegardes</CardTitle><CardDescription className="text-xs">Sauvegarde quotidienne auto + manuelle</CardDescription></CardHeader>
+      <Card><CardHeader><CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Database} size={16} className="text-primary" /> Sauvegardes</CardTitle><CardDescription className="text-xs">Sauvegarde quotidienne auto + manuelle</CardDescription></CardHeader>
         <CardContent className="space-y-4">
-          <Button onClick={() => createBackup.mutate(undefined, { onSuccess: () => toast.success("Sauvegarde créée") })} disabled={createBackup.isPending} className="bg-primary"><HugeiconsIcon icon={Database} size={4} /> {createBackup.isPending ? "En cours..." : "Sauvegarder maintenant"}</Button>
+          <Button onClick={() => createBackup.mutate(undefined, { onSuccess: () => toast.success("Sauvegarde créée") })} disabled={createBackup.isPending} className="bg-primary"><HugeiconsIcon icon={Database} size={16} /> {createBackup.isPending ? "En cours..." : "Sauvegarder maintenant"}</Button>
           {backupList.length > 0 && (<div className="border rounded-lg divide-y max-h-48 overflow-auto scroll-thin">
             {backupList.slice(0, 10).map((b: Backup) => (<div key={b.id} className="flex items-center justify-between px-3 py-2">
               <div><p className="text-xs font-medium">{b.filename}</p><p className="text-[0.65rem] text-muted-foreground">{formatDate(b.date)} · {b.size} o · {b.entities} ent.</p></div>

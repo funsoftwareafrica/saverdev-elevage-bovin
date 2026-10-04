@@ -75,7 +75,7 @@ export async function GET(req: Request) {
 
     const valeurCheptel = bovinsActifsMois.reduce((s, b) => s + b.prixAchat + b.coutsEngraissement, 0);
 
-    const alimMois = alimentations.filter((a) => monthKey(a.date) === m.key);
+    const alimMois = alimentations.filter((a) => monthKey(a.date.toISOString()) === m.key);
     const sacsConsommes = alimMois.reduce((s, a) => s + a.quantite, 0);
     const coutAlimentation = alimMois.reduce((s, a) => s + a.coutTotal, 0);
 

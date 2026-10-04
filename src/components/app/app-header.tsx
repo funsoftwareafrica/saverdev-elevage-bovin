@@ -58,7 +58,7 @@ export function AppHeader({ title, subtitle }: Props) {
 
         {/* Sélecteur de mois */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <HugeiconsIcon icon={Calendar} size={4} className="text-muted-foreground" />
+          <HugeiconsIcon icon={Calendar} size={16} className="text-muted-foreground" />
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="h-8 w-[150px] text-xs">
               <SelectValue />

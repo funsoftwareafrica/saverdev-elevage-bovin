@@ -69,7 +69,7 @@ export function VentesView() {
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Enregistrer une vente</Button>
+                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={16} /> Enregistrer une vente</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -157,7 +157,7 @@ export function VentesView() {
                       <TableCell className="font-mono font-semibold text-primary text-sm">{b.identifiant}</TableCell>
                       <TableCell className="text-xs hidden sm:table-cell">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <HugeiconsIcon icon={Calendar} size={3} /> {formatDate(b.dateVente)}
+                          <HugeiconsIcon icon={Calendar} size={12} /> {formatDate(b.dateVente)}
                         </div>
                       </TableCell>
                       <TableCell className="text-xs hidden md:table-cell">{b.clientVente ?? "—"}</TableCell>
@@ -165,9 +165,9 @@ export function VentesView() {
                       <TableCell className="text-right text-sm tabular-nums hidden lg:table-cell text-muted-foreground">{formatFCFA(coutRevient, false)}</TableCell>
                       <TableCell className="text-right text-sm tabular-nums font-medium">
                         {marge !== null && marge >= 0 ? (
-                          <span className="text-emerald-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingUp} size={3} />{formatFCFA(marge, false)}</span>
+                          <span className="text-emerald-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingUp} size={12} />{formatFCFA(marge, false)}</span>
                         ) : (
-                          <span className="text-red-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingDown} size={3} />{formatFCFA(marge ?? 0, false)}</span>
+                          <span className="text-red-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingDown} size={12} />{formatFCFA(marge ?? 0, false)}</span>
                         )}
                       </TableCell>
                     </TableRow>

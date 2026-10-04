@@ -88,7 +88,7 @@ export function RentabiliteView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={PiggyBank} size={4} className="text-primary" /> Synthèse marge par tête
+              <HugeiconsIcon icon={PiggyBank} size={16} className="text-primary" /> Synthèse marge par tête
             </CardTitle>
             <CardDescription className="text-xs">Calcul : prix de vente – coût de revient</CardDescription>
           </CardHeader>

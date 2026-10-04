@@ -121,7 +121,7 @@ export function AppSidebar({ activeView, role }: Props) {
             className="fixed top-2 left-2 z-50 h-10 w-10 bg-sidebar text-sidebar-foreground shadow-md md:hidden"
             aria-label="Ouvrir le menu"
           >
-            <Menu className="h-5 w-5" />
+            <HugeiconsIcon icon={Menu} size={20} />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0 bg-sidebar text-sidebar-foreground">

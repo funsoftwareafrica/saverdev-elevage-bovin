@@ -126,9 +126,9 @@ export function KpiCard({
             {hint && <p className="text-[0.7rem] text-muted-foreground mt-1">{hint}</p>}
             {trend && trendValue && (
               <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
-                {trend === "up" && <HugeiconsIcon icon={TrendingUp} size={12} className="text-emerald-600" />}
-                {trend === "down" && <HugeiconsIcon icon={TrendingDown} size={12} className="text-red-600" />}
-                {trend === "flat" && <HugeiconsIcon icon={Minus} size={12} className="text-muted-foreground" />}
+                {trend === "up" && <HugeiconsIcon icon={TrendingUp} size={48} className="text-emerald-600" />}
+                {trend === "down" && <HugeiconsIcon icon={TrendingDown} size={48} className="text-red-600" />}
+                {trend === "flat" && <HugeiconsIcon icon={Minus} size={48} className="text-muted-foreground" />}
                 <span
                   className={cn(
                     trend === "up" && "text-emerald-700",
@@ -158,7 +158,7 @@ export function EmptyState({
   title,
   description,
 }: {
-  icon?: LucideIcon;
+  icon?: IconSvgElement;
   title: string;
   description?: string;
 }) {
@@ -166,7 +166,7 @@ export function EmptyState({
     <div className="flex flex-col items-center justify-center text-center py-12 px-4">
       {Icon && (
         <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-          <Icon className="h-6 w-6 text-muted-foreground" />
+          <HugeiconsIcon icon={Icon} size={24} className="text-muted-foreground" />
         </div>
       )}
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>

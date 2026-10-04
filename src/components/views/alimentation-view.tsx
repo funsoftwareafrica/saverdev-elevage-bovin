@@ -87,7 +87,7 @@ export function AlimentationView() {
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-primary">
-                  <HugeiconsIcon icon={Plus} size={4} /> Nouvel achat
+                  <HugeiconsIcon icon={Plus} size={16} /> Nouvel achat
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -181,7 +181,7 @@ export function AlimentationView() {
                     <TableCell className="text-right text-sm tabular-nums">{formatFCFA(a.coutTotal, false)}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">
                       <Badge variant="outline" className="text-[0.65rem] gap-1">
-                        <HugeiconsIcon icon={Beef} size={3} /> {a.nbBovinsConcernes}
+                        <HugeiconsIcon icon={Beef} size={12} /> {a.nbBovinsConcernes}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums text-primary font-medium">
