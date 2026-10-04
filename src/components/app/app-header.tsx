@@ -3,6 +3,7 @@
 // Header sticky — logo mobile, titre de la vue, sélecteur de mois, sélecteur de rôle.
 
 import { useAppStore } from "@/lib/store";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { ROLE_LABELS, type Role } from "@/lib/types";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import {
@@ -13,7 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, UserRound } from "lucide-react";
+import { Calendar } from "@/lib/icons";
+import { UserRound } from "lucide-react";
 
 interface Props {
   title: string;
@@ -56,7 +58,7 @@ export function AppHeader({ title, subtitle }: Props) {
 
         {/* Sélecteur de mois */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <HugeiconsIcon icon={Calendar} size={4} className="text-muted-foreground" />
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="h-8 w-[150px] text-xs">
               <SelectValue />

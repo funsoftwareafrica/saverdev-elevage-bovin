@@ -3,6 +3,7 @@
 // Vue Rentabilité — analyse des marges, ventilation des coûts, tendances.
 
 import { useBovins, useDashboard } from "@/lib/api";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatFCFAShort, formatDate, CHART_COLORS } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, TrendingDown, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "@/lib/icons";
 import {
   Bar,
   BarChart,
@@ -87,7 +88,7 @@ export function RentabiliteView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <PiggyBank className="h-4 w-4 text-primary" /> Synthèse marge par tête
+              <HugeiconsIcon icon={PiggyBank} size={4} className="text-primary" /> Synthèse marge par tête
             </CardTitle>
             <CardDescription className="text-xs">Calcul : prix de vente – coût de revient</CardDescription>
           </CardHeader>

@@ -3,6 +3,7 @@
 // Vue Financement & Bailleur — suivi du financement SAVERDEV, échéances et trésorerie.
 
 import { useFinancement } from "@/lib/api";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { formatFCFA, formatFCFAShort, formatDate, statutEcheanceColor } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Landmark, Wallet, CalendarClock, CheckCircle2, AlertCircle, Clock, PiggyBank } from "lucide-react";
+import { Landmark, Wallet, CalendarClock, CheckCircle2, AlertCircle, Clock, PiggyBank } from "@/lib/icons";
 // Clock est utilisé pour l'en-tête (aligné cattly.io) + KPI échéances ; Landmark reste pour KPI financement
 import { ViewHeader, KpiCard } from "./_shared";
 // pas de useMemo ici pour éviter le lint react-hooks/preserve-manual-memoization
@@ -99,7 +100,7 @@ export function FinancementView() {
                   <div key={e.id} className={`rounded-lg border px-3 py-2 ${statutEcheanceColor(e.statut)}`}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        {e.statut === "EN_RETARD" ? <AlertCircle className="h-4 w-4" /> : <CalendarClock className="h-4 w-4" />}
+                        {e.statut === "EN_RETARD" ? <HugeiconsIcon icon={AlertCircle} size={4} /> : <HugeiconsIcon icon={CalendarClock} size={4} />}
                         <div>
                           <p className="text-sm font-semibold">Échéance n°{e.numero}</p>
                           <p className="text-[0.65rem] opacity-80">{formatDate(e.datePrevue)}</p>

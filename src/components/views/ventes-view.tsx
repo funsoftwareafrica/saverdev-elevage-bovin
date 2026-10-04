@@ -3,6 +3,7 @@
 // Vue Ventes & sorties — enregistrement des ventes + calcul automatique de la marge.
 
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useVentes, useBovins, useCreateVente } from "@/lib/api";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatDate } from "@/lib/format";
@@ -16,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User } from "lucide-react";
+import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User } from "@/lib/icons";
 // Note: ShoppingCart reste pour les KPI cards (ventes/CA), TrendingUp pour l'en-tête (aligné sur cattly.io)
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
@@ -68,7 +69,7 @@ export function VentesView() {
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-primary"><Plus className="h-4 w-4" /> Enregistrer une vente</Button>
+                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Enregistrer une vente</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -156,7 +157,7 @@ export function VentesView() {
                       <TableCell className="font-mono font-semibold text-primary text-sm">{b.identifiant}</TableCell>
                       <TableCell className="text-xs hidden sm:table-cell">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <Calendar className="h-3 w-3" /> {formatDate(b.dateVente)}
+                          <HugeiconsIcon icon={Calendar} size={3} /> {formatDate(b.dateVente)}
                         </div>
                       </TableCell>
                       <TableCell className="text-xs hidden md:table-cell">{b.clientVente ?? "—"}</TableCell>
@@ -164,9 +165,9 @@ export function VentesView() {
                       <TableCell className="text-right text-sm tabular-nums hidden lg:table-cell text-muted-foreground">{formatFCFA(coutRevient, false)}</TableCell>
                       <TableCell className="text-right text-sm tabular-nums font-medium">
                         {marge !== null && marge >= 0 ? (
-                          <span className="text-emerald-700 flex items-center justify-end gap-0.5"><TrendingUp className="h-3 w-3" />{formatFCFA(marge, false)}</span>
+                          <span className="text-emerald-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingUp} size={3} />{formatFCFA(marge, false)}</span>
                         ) : (
-                          <span className="text-red-700 flex items-center justify-end gap-0.5"><TrendingDown className="h-3 w-3" />{formatFCFA(marge ?? 0, false)}</span>
+                          <span className="text-red-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingDown} size={3} />{formatFCFA(marge ?? 0, false)}</span>
                         )}
                       </TableCell>
                     </TableRow>

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { ViewHeader, KpiCard } from "./_shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePesees, useCreatePese, useBovins } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { Scale, Plus } from "lucide-react";
+import { Scale, Plus } from "@/lib/icons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +34,7 @@ export function PeseesView() {
   return (
     <div className="space-y-6">
       <ViewHeader title="Pesées connectées" description="Suivi du poids par bovin — manuel ou balance connectée" icon={Scale}
-        action={<Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild><Button size="sm" className="bg-primary"><Plus className="h-4 w-4" /> Nouvelle pesée</Button></DialogTrigger>
+        action={<Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild><Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Nouvelle pesée</Button></DialogTrigger>
         <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Nouvelle pesée</DialogTitle></DialogHeader>
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="space-y-1.5"><Label className="text-xs">Bovin</Label><select name="bovinId" required className="w-full h-9 rounded-md border px-3 text-sm">{actifs.map((b) => <option key={b.id} value={b.id}>{b.identifiant} — {b.race}</option>)}</select></div>

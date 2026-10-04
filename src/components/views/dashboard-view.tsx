@@ -15,12 +15,12 @@ import { Separator } from "@/components/ui/separator";
 import { KpiCard, ViewHeader } from "./_shared";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { LazyMount } from "@/components/lazy-mount";
-import type { LucideIcon } from "lucide-react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Beef, Salad, TrendingUp, TrendingDown, Minus, Landmark, AlertTriangle,
   Clock, Scale, Wallet, ShoppingCart, PiggyBank, Activity, History,
   ArrowUpRight, Target, Percent, Coins, Gauge, BarChart3, Trophy,
-} from "lucide-react";
+} from "@/lib/icons";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart,
   Legend, Line, Pie, PieChart, PolarAngleAxis, PolarGrid, PolarRadiusAxis,
@@ -137,7 +137,7 @@ export function DashboardView() {
       <section className="grid gap-4 lg:grid-cols-2">
         <Card className="hover-lift">
           <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2"><Scale className="h-4 w-4 text-primary" />Engraissement</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Scale} size={4} className="text-primary" />Engraissement</CardTitle>
             <CardDescription className="text-xs">Cycle d'engraissement et durée moyenne</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -166,7 +166,7 @@ export function DashboardView() {
 
         <Card className="hover-lift">
           <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2"><Salad className="h-4 w-4 text-primary" />Alimentation</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Salad} size={4} className="text-primary" />Alimentation</CardTitle>
             <CardDescription className="text-xs">Coût des aliments imputés par tête</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -203,7 +203,7 @@ export function DashboardView() {
         {/* Évolution mensuelle — AIRE avec dégradés */}
         <Card className="hover-lift lg:col-span-2" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader style={{ transform: "translateZ(5px)" }}>
-            <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4 text-primary" />Évolution mensuelle — CA, coûts, marge</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Activity} size={4} className="text-primary" />Évolution mensuelle — CA, coûts, marge</CardTitle>
             <CardDescription className="text-xs">Évolution sur la période d'activité (FCFA)</CardDescription>
           </CardHeader>
           <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
@@ -238,7 +238,7 @@ export function DashboardView() {
         {/* Jauge taux de marge — RadialBar */}
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader style={{ transform: "translateZ(5px)" }}>
-            <CardTitle className="text-sm flex items-center gap-2"><Gauge className="h-4 w-4 text-primary" />Taux de marge</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Gauge} size={4} className="text-primary" />Taux de marge</CardTitle>
             <CardDescription className="text-xs">Marge / CA</CardDescription>
           </CardHeader>
           <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
@@ -329,7 +329,7 @@ export function DashboardView() {
           {/* Coûts ventilés — stacked bar */}
           <Card className="hover-lift">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" />Ventilation des coûts</CardTitle>
+              <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={BarChart3} size={4} className="text-primary" />Ventilation des coûts</CardTitle>
               <CardDescription className="text-xs">Décomposition par poste (FCFA)</CardDescription>
             </CardHeader>
             <CardContent className="h-44">
@@ -368,7 +368,7 @@ export function DashboardView() {
         {/* Radar performance globale */}
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader style={{ transform: "translateZ(5px)" }}>
-            <CardTitle className="text-sm flex items-center gap-2"><Target className="h-4 w-4 text-primary" />Profil de performance</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Target} size={4} className="text-primary" />Profil de performance</CardTitle>
             <CardDescription className="text-xs">Vision multi-critères (0-100)</CardDescription>
           </CardHeader>
           <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
@@ -429,7 +429,7 @@ export function DashboardView() {
           <CardHeader className="flex flex-row items-center justify-between gap-2" style={{ transform: "translateZ(5px)" }}>
             <div>
               <CardTitle className="text-sm flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <HugeiconsIcon icon={AlertTriangle} size={4} className="text-amber-600" />
                 Risques & alertes
               </CardTitle>
               <CardDescription className="text-xs">{alertesActives.length} alerte(s) active(s)</CardDescription>
@@ -459,7 +459,7 @@ export function DashboardView() {
         <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
           <CardHeader style={{ transform: "translateZ(5px)" }}>
             <CardTitle className="text-sm flex items-center gap-2">
-              <History className="h-4 w-4 text-muted-foreground" />
+              <HugeiconsIcon icon={History} size={4} className="text-muted-foreground" />
               Historique des opérations
             </CardTitle>
             <CardDescription className="text-xs">Journal des dernières actions</CardDescription>
@@ -476,7 +476,7 @@ export function DashboardView() {
                       <p className="text-xs text-foreground">{h.details}</p>
                       <p className="text-[0.65rem] text-muted-foreground mt-0.5">{formatDate(h.date)} · {h.user?.name ?? "Système"} · {h.action}</p>
                     </div>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />
+                    <HugeiconsIcon icon={ArrowUpRight} size={3} className=".5 .5 text-muted-foreground shrink-0 mt-1" />
                   </div>
                 ))}
                 {(!historique || historique.length === 0) && (
@@ -546,7 +546,7 @@ function DashboardHeader3D() {
               }>
               {/* Face avant */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.5)] flex items-center justify-center" style={{ transform: "translateZ(14px)" }}>
-                <Activity className="h-7 w-7 text-white" />
+                <HugeiconsIcon icon={Activity} size={7} className="text-white" />
               </div>
               {/* Face arrière */}
               <div className="absolute inset-0 rounded-xl bg-emerald-700" style={{ transform: "translateZ(-14px) rotateY(180deg)" }} />
@@ -664,7 +664,7 @@ function AlertBanner3D({ count, message }: { count: number; message: string }) {
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
             >
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(10px)" }}>
-                <AlertTriangle className="h-5 w-5 text-white" />
+                <HugeiconsIcon icon={AlertTriangle} size={5} className="text-white" />
               </div>
               <div className="absolute inset-0 rounded-lg bg-red-700" style={{ transform: "translateZ(-10px) rotateY(180deg)" }} />
               <div className="absolute inset-0 rounded-lg bg-red-500" style={{ transform: "rotateY(90deg) translateZ(10px)", width: "100%" }} />
@@ -772,7 +772,7 @@ function RentabiliteSection({
         {/* Waterfall chart (cascade de marge) */}
         <Card className="hover-lift lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" />Cascade de marge</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={BarChart3} size={4} className="text-primary" />Cascade de marge</CardTitle>
             <CardDescription className="text-xs">Du CA à la marge — décomposition (FCFA)</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
@@ -840,7 +840,7 @@ function RentabiliteSection({
         {/* Jauge taux de marge 3D + répartition */}
         <Card className="hover-lift relative overflow-hidden">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2"><Gauge className="h-4 w-4 text-primary" />Taux de marge</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Gauge} size={4} className="text-primary" />Taux de marge</CardTitle>
             <CardDescription className="text-xs">Marge nette / CA</CardDescription>
           </CardHeader>
           <CardContent>
@@ -944,7 +944,7 @@ function RentabiliteSection({
 function RentabiliteKpi({
   icon: Icon, label, value, color, pct, hint, sub,
 }: {
-  icon: LucideIcon; label: string; value: string; color: string; pct: number; hint?: string; sub?: string;
+  icon: IconSvgElement; label: string; value: string; color: string; pct: number; hint?: string; sub?: string;
 }) {
   const radius = 14;
   const circ = 2 * Math.PI * radius;
@@ -979,7 +979,7 @@ function RentabiliteKpi({
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Icon className="h-4 w-4" style={{ color }} />
+            <HugeiconsIcon icon={Icon} size={16} style={{ color }} />
           </div>
         </div>
       </div>
@@ -987,11 +987,11 @@ function RentabiliteKpi({
   );
 }
 
-function SectionTitle({ icon: Icon, title, subtitle }: { icon: LucideIcon; title: string; subtitle?: string }) {
+function SectionTitle({ icon: Icon, title, subtitle }: { icon: IconSvgElement; title: string; subtitle?: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
       <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
-        <Icon className="h-4 w-4 text-primary" />
+        <HugeiconsIcon icon={Icon} size={16} className="text-primary" />
       </div>
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       {subtitle && <span className="text-[0.7rem] text-muted-foreground hidden sm:inline">— {subtitle}</span>}
@@ -1003,7 +1003,7 @@ function SectionTitle({ icon: Icon, title, subtitle }: { icon: LucideIcon; title
 function HeroKpi({
   icon: Icon, label, value, suffix, formatter, color, trend, trendUp, hint, sparkData,
 }: {
-  icon: LucideIcon; label: string; value: number; suffix?: string;
+  icon: IconSvgElement; label: string; value: number; suffix?: string;
   formatter?: (n: number) => string; color: "emerald" | "teal" | "amber" | "red";
   trend?: string; trendUp?: boolean; hint?: string; sparkData: { v: number }[];
 }) {
@@ -1032,14 +1032,14 @@ function HeroKpi({
               </p>
               {trend && (
                 <div className="flex items-center gap-1 mt-1 text-[0.7rem] font-medium">
-                  {trendUp ? <TrendingUp className="h-3 w-3 text-emerald-600" /> : <Minus className="h-3 w-3 text-muted-foreground" />}
+                  {trendUp ? <HugeiconsIcon icon={TrendingUp} size={3} className="text-emerald-600" /> : <HugeiconsIcon icon={Minus} size={3} className="text-muted-foreground" />}
                   <span className={trendUp ? "text-emerald-700" : "text-muted-foreground"}>{trend}</span>
                 </div>
               )}
               {hint && <p className="text-[0.65rem] text-muted-foreground mt-0.5">{hint}</p>}
             </div>
             <div className="h-9 w-9 shrink-0 rounded-full bg-white/60 flex items-center justify-center">
-              <Icon className="h-4.5 w-4.5 text-primary" />
+              <HugeiconsIcon icon={Icon} size={18} className="text-primary" />
             </div>
           </div>
           {/* Sparkline */}
@@ -1063,10 +1063,10 @@ function HeroKpi({
 }
 
 // --- Mini stat avec icône ---
-function MiniStat({ label, value, suffix, icon: Icon, accent, warning }: { label: string; value: string | number; suffix?: string; icon: LucideIcon; accent?: boolean; warning?: boolean }) {
+function MiniStat({ label, value, suffix, icon: Icon, accent, warning }: { label: string; value: string | number; suffix?: string; icon: IconSvgElement; accent?: boolean; warning?: boolean }) {
   return (
     <div className={`rounded-lg p-2.5 ${accent ? (warning ? "bg-amber-50 border border-amber-200" : "bg-primary/5 border border-primary/20") : "bg-muted/50"}`}>
-      <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
+      <HugeiconsIcon icon={Icon} size={14} className={`mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
       <p className="text-base sm:text-lg font-bold text-foreground tabular-nums">{value}{suffix}</p>
       <p className="text-[0.6rem] uppercase text-muted-foreground truncate">{label}</p>
     </div>
@@ -1151,7 +1151,7 @@ function ComparaisonSection() {
               <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">{m.label}</p>
               <p className="text-xl font-bold text-foreground tabular-nums mt-1">{curVal}</p>
               <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
-                {d.pct > 0 ? <TrendingUp className="h-3 w-3" /> : d.pct < 0 ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                {d.pct > 0 ? <HugeiconsIcon icon={TrendingUp} size={3} /> : d.pct < 0 ? <HugeiconsIcon icon={TrendingDown} size={3} /> : <HugeiconsIcon icon={Minus} size={3} />}
                 <span className={good ? "text-emerald-600" : "text-red-600"}>
                   {d.pct === 0 ? "stable" : `${d.pct > 0 ? "+" : ""}${d.pct}%`}
                 </span>
@@ -1192,7 +1192,7 @@ function RacePerformanceSection() {
                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
                   <span className="text-sm font-semibold">{r.race}</span>
                 </div>
-                {i === 0 && <Trophy className="h-4 w-4 text-amber-500" />}
+                {i === 0 && <HugeiconsIcon icon={Trophy} size={4} className="text-amber-500" />}
               </div>
               <div className="flex justify-between mt-2 text-[0.7rem] text-muted-foreground">
                 <span>{r.total} bovins ({r.vendus} vendus)</span>

@@ -4,8 +4,8 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus } from "@/lib/icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
 
@@ -17,7 +17,7 @@ export function ViewHeader({
 }: {
   title: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: IconSvgElement;
   action?: React.ReactNode;
 }) {
   return (
@@ -25,7 +25,7 @@ export function ViewHeader({
       <div className="flex items-start gap-3">
         {Icon && (
           <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-            <Icon className="h-5 w-5" />
+            <HugeiconsIcon icon={Icon} size={20} />
           </div>
         )}
         <div>
@@ -49,7 +49,7 @@ export function KpiCard({
 }: {
   label: string;
   value: string | number;
-  icon?: LucideIcon;
+  icon?: IconSvgElement;
   hint?: string;
   trend?: "up" | "down" | "flat";
   trendValue?: string;
@@ -126,9 +126,9 @@ export function KpiCard({
             {hint && <p className="text-[0.7rem] text-muted-foreground mt-1">{hint}</p>}
             {trend && trendValue && (
               <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
-                {trend === "up" && <TrendingUp className="h-3 w-3 text-emerald-600" />}
-                {trend === "down" && <TrendingDown className="h-3 w-3 text-red-600" />}
-                {trend === "flat" && <Minus className="h-3 w-3 text-muted-foreground" />}
+                {trend === "up" && <HugeiconsIcon icon={TrendingUp} size={12} className="text-emerald-600" />}
+                {trend === "down" && <HugeiconsIcon icon={TrendingDown} size={12} className="text-red-600" />}
+                {trend === "flat" && <HugeiconsIcon icon={Minus} size={12} className="text-muted-foreground" />}
                 <span
                   className={cn(
                     trend === "up" && "text-emerald-700",
@@ -143,7 +143,7 @@ export function KpiCard({
           </div>
           {Icon && (
             <div className="h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10" style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}>
-              <Icon className="h-5 w-5 text-primary" style={{ transform: "translateZ(10px)" }} />
+              <HugeiconsIcon icon={Icon} size={20} className="text-primary" />
             </div>
           )}
         </div>

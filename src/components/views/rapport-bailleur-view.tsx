@@ -5,6 +5,7 @@
 // Données dynamiques via /api/rapport-bailleur (12 mois de l'exercice).
 
 import { useRapportBailleur, useFinancement } from "@/lib/api";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { RAPPORT_KPI_COLORS, COST_STRUCTURE_COLORS } from "@/lib/config";
 import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutEcheanceColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -14,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LazyMount } from "@/components/lazy-mount";
-import { FileText, Printer, Download, CheckCircle2, AlertCircle } from "lucide-react";
+import { FileText, Printer, Download, CheckCircle2, AlertCircle } from "@/lib/icons";
 import { toast } from "sonner";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
@@ -36,7 +37,7 @@ export function RapportBailleurView() {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-          <FileText className="h-5 w-5 text-primary" /> Rapport bailleur
+          <HugeiconsIcon icon={FileText} size={5} className="text-primary" /> Rapport bailleur
         </h2>
         <div className="space-y-3">{Array.from({length:5}).map((_,i)=><Skeleton key={i} className="h-16"/>)}</div>
       </div>
@@ -57,16 +58,16 @@ export function RapportBailleurView() {
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" /> Rapport bailleur
+            <HugeiconsIcon icon={FileText} size={5} className="text-primary" /> Rapport bailleur
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">Tableau de bord — modèle E2A, exercice {year}.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint}>
-            <Printer className="h-4 w-4" /> Imprimer
+            <HugeiconsIcon icon={Printer} size={4} /> Imprimer
           </Button>
           <Button size="sm" className="bg-primary" onClick={handlePrint}>
-            <Download className="h-4 w-4" /> Export PDF
+            <HugeiconsIcon icon={Download} size={4} /> Export PDF
           </Button>
         </div>
       </div>
@@ -300,7 +301,7 @@ export function RapportBailleurView() {
           {/* Alertes & faits marquants */}
           <div>
             <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-              <AlertCircle className="h-3.5 w-3.5" /> Alertes & faits marquants
+              <HugeiconsIcon icon={AlertCircle} size={3} className=".5 .5" /> Alertes & faits marquants
             </h4>
             <div className="space-y-2">
               {rap.alertes.filter((a) => !a.resolved).map((a) => (
@@ -313,7 +314,7 @@ export function RapportBailleurView() {
               ))}
               {rap.alertes.filter((a) => !a.resolved).length === 0 && (
                 <div className="flex items-center gap-2 text-xs text-emerald-700">
-                  <CheckCircle2 className="h-4 w-4" /> Aucune alerte active.
+                  <HugeiconsIcon icon={CheckCircle2} size={4} /> Aucune alerte active.
                 </div>
               )}
             </div>

@@ -3,6 +3,7 @@
 // Vue Synthèse Bailleur — page d'accueil dédiée au bailleur (investisseur).
 // Focus financier, pas opérationnel. Lecture seule, propre, professionnel.
 import { useDashboard, useFinancement, useBovins } from "@/lib/api";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatFCFAShort, formatDate, statutEcheanceColor, severiteColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -14,10 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { GaugeChart } from "@/components/charts/gauge-chart";
 import { ROLE_LABELS } from "@/lib/types";
-import {
-  Landmark, Wallet, TrendingUp, TrendingDown, AlertTriangle, FileText,
-  Banknote, Beef, Clock, CheckCircle2, ArrowRight, Info, Shield, PiggyBank,
-} from "lucide-react";
+import { Landmark, Wallet, TrendingUp, TrendingDown, AlertTriangle, FileText, Beef, Clock, CheckCircle2, ArrowRight, Info, Shield, PiggyBank } from "@/lib/icons";
+import { Banknote,  } from "lucide-react";
 
 export function BailleurSyntheseView() {
   const { data: dash, isLoading } = useDashboard();
@@ -62,7 +61,7 @@ export function BailleurSyntheseView() {
             </div>
           </div>
           <Button size="sm" className="bg-primary glow-soft shrink-0" onClick={() => setView("rapport")}>
-            <FileText className="h-4 w-4" /> Rapport mensuel
+            <HugeiconsIcon icon={FileText} size={4} /> Rapport mensuel
           </Button>
         </div>
       </div>
@@ -71,7 +70,7 @@ export function BailleurSyntheseView() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl p-5 bg-emerald-50 border border-emerald-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
-            <Landmark className="h-5 w-5 text-emerald-600" />
+            <HugeiconsIcon icon={Landmark} size={5} className="text-emerald-600" />
             <span className="text-[0.65rem] uppercase text-emerald-700 font-medium">Investi</span>
           </div>
           <p className="text-2xl font-bold text-emerald-700 tabular-nums">{formatFCFAShort(dash.financement.montantFinance)}</p>
@@ -79,7 +78,7 @@ export function BailleurSyntheseView() {
         </div>
         <div className="rounded-2xl p-5 bg-blue-50 border border-blue-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
-            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+            <HugeiconsIcon icon={CheckCircle2} size={5} className="text-blue-600" />
             <span className="text-[0.65rem] uppercase text-blue-700 font-medium">Remboursé</span>
           </div>
           <p className="text-2xl font-bold text-blue-700 tabular-nums">{formatFCFAShort(dash.financement.montantUtilise)}</p>
@@ -87,7 +86,7 @@ export function BailleurSyntheseView() {
         </div>
         <div className="rounded-2xl p-5 bg-amber-50 border border-amber-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
-            <PiggyBank className="h-5 w-5 text-amber-600" />
+            <HugeiconsIcon icon={PiggyBank} size={5} className="text-amber-600" />
             <span className="text-[0.65rem] uppercase text-amber-700 font-medium">Solde dû</span>
           </div>
           <p className="text-2xl font-bold text-amber-700 tabular-nums">{formatFCFAShort(dash.financement.solde)}</p>
@@ -95,7 +94,7 @@ export function BailleurSyntheseView() {
         </div>
         <div className="rounded-2xl p-5 bg-slate-50 border border-slate-200 glass-card hover-lift">
           <div className="flex items-center justify-between mb-2">
-            <TrendingUp className="h-5 w-5 text-slate-600" />
+            <HugeiconsIcon icon={TrendingUp} size={5} className="text-slate-600" />
             <span className="text-[0.65rem] uppercase text-slate-700 font-medium">Utilisation</span>
           </div>
           <p className="text-2xl font-bold text-slate-700 tabular-nums">{tauxUtilisation}%</p>
@@ -108,7 +107,7 @@ export function BailleurSyntheseView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <Landmark className="h-4 w-4 text-primary" /> Progression du remboursement
+              <HugeiconsIcon icon={Landmark} size={4} className="text-primary" /> Progression du remboursement
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center pb-6">
@@ -124,7 +123,7 @@ export function BailleurSyntheseView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" /> Performance de l'exploitation
+              <HugeiconsIcon icon={TrendingUp} size={4} className="text-primary" /> Performance de l'exploitation
             </CardTitle>
             <CardDescription className="text-xs">Chiffres clés de l'activité d'engraissement</CardDescription>
           </CardHeader>
@@ -153,7 +152,7 @@ export function BailleurSyntheseView() {
             </div>
             <Separator />
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Info className="h-3.5 w-3.5 shrink-0" />
+              <HugeiconsIcon icon={Info} size={3} className=".5 .5 shrink-0" />
               <span>Ces données reflètent l'activité d'engraissement financée par {fin?.bailleur ?? "SAVERDEV"}.</span>
             </div>
           </CardContent>
@@ -165,14 +164,14 @@ export function BailleurSyntheseView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600" /> Alertes
+              <HugeiconsIcon icon={AlertTriangle} size={4} className="text-amber-600" /> Alertes
             </CardTitle>
             <CardDescription className="text-xs">{alertesCritiques.length} alerte(s) critique(s) à traiter</CardDescription>
           </CardHeader>
           <CardContent>
             {alertesCritiques.length === 0 ? (
               <div className="flex items-center gap-2 text-sm text-emerald-600 py-3">
-                <CheckCircle2 className="h-5 w-5" /> Aucune alerte critique. L'exploitation est sous contrôle.
+                <HugeiconsIcon icon={CheckCircle2} size={5} /> Aucune alerte critique. L'exploitation est sous contrôle.
               </div>
             ) : (
               <div className="space-y-2 max-h-48 overflow-y-auto scroll-thin">
@@ -190,7 +189,7 @@ export function BailleurSyntheseView() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" /> Prochaines échéances
+              <HugeiconsIcon icon={Clock} size={4} className="text-primary" /> Prochaines échéances
             </CardTitle>
             <CardDescription className="text-xs">Calendrier de remboursement</CardDescription>
           </CardHeader>
@@ -223,21 +222,21 @@ export function BailleurSyntheseView() {
       <Card className="border-primary/30 bg-primary/5 glass-card glow-soft">
         <CardContent className="p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <FileText className="h-8 w-8 text-primary" />
+            <HugeiconsIcon icon={FileText} size={8} className="text-primary" />
             <div>
               <p className="text-sm font-semibold text-foreground">Rapport mensuel détaillé</p>
               <p className="text-xs text-muted-foreground">Synthèse complète, exportable en PDF, pour suivi bailleur</p>
             </div>
           </div>
           <Button className="bg-primary" onClick={() => setView("rapport")}>
-            Consulter <ArrowRight className="h-4 w-4" />
+            Consulter <HugeiconsIcon icon={ArrowRight} size={4} />
           </Button>
         </CardContent>
       </Card>
 
       {/* Mention */}
       <div className="flex items-center gap-2 text-[0.7rem] text-muted-foreground justify-center pb-4">
-        <Shield className="h-3.5 w-3.5" />
+        <HugeiconsIcon icon={Shield} size={3} className=".5 .5" />
         Accès en lecture seule — Vos données sont protégées (cahier des charges §9)
       </div>
     </div>

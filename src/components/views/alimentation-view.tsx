@@ -3,6 +3,7 @@
 // Vue Alimentation — achats d'aliments + imputation automatique par tête.
 
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useAlimentations, useCreateAlimentation } from "@/lib/api";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -37,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Salad, Plus, Receipt, PiggyBank, Beef, Package } from "lucide-react";
+import { Salad, Plus, Receipt, PiggyBank, Beef, Package } from "@/lib/icons";
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 
@@ -86,7 +87,7 @@ export function AlimentationView() {
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-primary">
-                  <Plus className="h-4 w-4" /> Nouvel achat
+                  <HugeiconsIcon icon={Plus} size={4} /> Nouvel achat
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -180,7 +181,7 @@ export function AlimentationView() {
                     <TableCell className="text-right text-sm tabular-nums">{formatFCFA(a.coutTotal, false)}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">
                       <Badge variant="outline" className="text-[0.65rem] gap-1">
-                        <Beef className="h-3 w-3" /> {a.nbBovinsConcernes}
+                        <HugeiconsIcon icon={Beef} size={3} /> {a.nbBovinsConcernes}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums text-primary font-medium">

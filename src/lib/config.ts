@@ -2,10 +2,11 @@
 // Source de vérité unique pour les couleurs, les icônes de navigation et
 // les labels utilisés dans toute l'application.
 
+import type { IconSvgElement } from "@hugeicons/react";
 import {
   Activity, Database, Package, CreditCard, TrendingUp, BarChart3,
-  Clock, FileText, Box, type LucideIcon,
-} from "lucide-react";
+  Clock, FileText, Box,
+} from "@/lib/icons";
 import type { ViewKey } from "@/lib/types";
 
 // ============================================================
@@ -95,7 +96,7 @@ export const CHEPTEL_DONUT_COLORS = {
 export interface NavItem {
   key: ViewKey;
   label: string;
-  icon: LucideIcon;
+  icon: IconSvgElement;
 }
 
 export const NAV_ITEMS: NavItem[] = [

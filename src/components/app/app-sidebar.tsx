@@ -9,7 +9,8 @@ import { ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
 import { NAV_ITEMS, ROLE_LABELS } from "@/lib/config";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Menu, Shield } from "lucide-react";
+import { ChevronRight, Menu, Shield } from "@/lib/icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,7 +45,6 @@ export function AppSidebar({ activeView, role }: Props) {
         className="flex flex-col gap-1"
       >
         {items.map((item) => {
-          const Icon = item.icon;
           const isActive =
             activeView === item.key || (item.key === "bovins" && activeView === "fiche-bovin");
           return (
@@ -72,7 +72,7 @@ export function AppSidebar({ activeView, role }: Props) {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <Icon className="h-[1.125rem] w-[1.125rem] shrink-0 relative z-10" />
+              <HugeiconsIcon icon={item.icon} size={18} className="shrink-0 relative z-10" />
               <span className="flex-1 text-left relative z-10">{item.label}</span>
               {isActive && (
                 <motion.div
@@ -80,7 +80,7 @@ export function AppSidebar({ activeView, role }: Props) {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
                 >
-                  <ChevronRight className="h-4 w-4 opacity-70" />
+                  <HugeiconsIcon icon={ChevronRight} size={16} className="opacity-70" />
                 </motion.div>
               )}
             </motion.button>

@@ -3,6 +3,7 @@
 // Vue Dépenses — soins vétérinaires, transport, main-d'œuvre, autres charges.
 
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useDepenses, useCreateDepense } from "@/lib/api";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -16,7 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Receipt, Plus, Beef, Wallet, Stethoscope, Truck, Wrench, Users, CreditCard } from "lucide-react";
+import { Receipt, Plus, Beef, Wallet, CreditCard } from "@/lib/icons";
+import { Stethoscope, Truck, Wrench, Users } from "lucide-react";
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 
@@ -70,7 +72,7 @@ export function DepensesView() {
           !readOnly && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-primary"><Plus className="h-4 w-4" /> Nouvelle dépense</Button>
+                <Button size="sm" className="bg-primary"><HugeiconsIcon icon={Plus} size={4} /> Nouvelle dépense</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -179,7 +181,7 @@ export function DepensesView() {
                       <TableCell className="text-sm">{d.libelle}</TableCell>
                       <TableCell className="text-center hidden sm:table-cell">
                         {d.nbBovinsConcernes > 0 ? (
-                          <Badge variant="outline" className="text-[0.65rem] gap-1"><Beef className="h-3 w-3" /> {d.nbBovinsConcernes}</Badge>
+                          <Badge variant="outline" className="text-[0.65rem] gap-1"><HugeiconsIcon icon={Beef} size={3} /> {d.nbBovinsConcernes}</Badge>
                         ) : <span className="text-[0.65rem] text-muted-foreground">Global</span>}
                       </TableCell>
                       <TableCell className="text-right text-sm tabular-nums font-medium">{formatFCFA(d.montant, false)}</TableCell>
