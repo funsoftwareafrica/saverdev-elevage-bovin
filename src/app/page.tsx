@@ -11,6 +11,7 @@ import { AppSidebar } from "@/components/app/app-sidebar";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { LoginView } from "@/components/views/login-view";
+import { AnimatedBackground } from "@/components/animated-background";
 import { DashboardView } from "@/components/views/dashboard-view";
 import { BovinsView } from "@/components/views/bovins-view";
 import { FicheBovinView } from "@/components/views/fiche-bovin-view";
@@ -85,7 +86,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background gradient-mesh">
+    <div className="min-h-screen flex flex-col bg-background relative">
+      <AnimatedBackground />
       <AppHeader title={VIEW_TITLES[effectiveView]} subtitle={subtitle} />
       <div className="flex flex-1 w-full">
         <AppSidebar activeView={effectiveView} role={role} />

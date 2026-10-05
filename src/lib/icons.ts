@@ -71,6 +71,10 @@ import {
   Logout01Icon as Logout,
   LockIcon as Lock,
   EyeOffIcon as EyeOff,
+  Sun01Icon as Sun,
+  Moon02Icon as Moon,
+  SparklesIcon as Sparkles,
+  BoltIcon as Bolt,
 } from "@hugeicons/core-free-icons";
 
 // Export groupé pour usage direct
@@ -87,6 +91,7 @@ export {
   Logout,
   Lock,
   EyeOff,
+  Sun, Moon, Sparkles, Bolt,
 };
 
 // Type utilitaire pour les props d'icône

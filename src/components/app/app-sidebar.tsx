@@ -9,7 +9,7 @@ import { ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
 import { NAV_ITEMS, ROLE_LABELS } from "@/lib/config";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Menu, Shield } from "@/lib/icons";
+import { ChevronRight, Menu, Logout } from "@/lib/icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ interface Props {
 
 export function AppSidebar({ activeView, role }: Props) {
   const setView = useAppStore((s) => s.setView);
+  const user = useAppStore((s) => s.user);
+  const logout = useAppStore((s) => s.logout);
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -103,11 +105,37 @@ export function AppSidebar({ activeView, role }: Props) {
   );
 
   const roleBadge = (
-    <div className="px-5 py-4 border-t border-sidebar-border mt-auto">
-      <div className="text-[0.62rem] uppercase tracking-[0.15em] text-sidebar-accent-foreground/60 mb-1">
-        Connecté en tant que
+    <div className="px-4 py-3 border-t border-sidebar-border mt-auto">
+      <div className="flex items-center gap-2.5 rounded-lg bg-sidebar-accent/50 p-2">
+        {/* Avatar avec initiales */}
+        <div className="relative shrink-0">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center text-white text-[0.7rem] font-bold">
+            {user?.name?.split(" ").map((w: string) => w[0]).join("").slice(0, 2) || role.slice(0, 2)}
+          </div>
+          {/* Indicateur en ligne */}
+          <motion.span
+            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-sidebar"
+            animate={{ scale: [1, 1.15, 1], opacity: [1, 0.7, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[0.62rem] uppercase tracking-wider text-sidebar-accent-foreground/60">Connecté</p>
+          <p className="text-sm font-semibold text-sidebar-foreground truncate">{user?.name || ROLE_LABELS[role]}</p>
+          <p className="text-[0.6rem] text-sidebar-accent-foreground/70">{ROLE_LABELS[role]}</p>
+        </div>
+        {/* Bouton déconnexion */}
+        <button
+          onClick={() => {
+            logout();
+          }}
+          className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-sidebar-foreground/60 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          aria-label="Se déconnecter"
+          title="Se déconnecter"
+        >
+          <HugeiconsIcon icon={Logout} size={14} />
+        </button>
       </div>
-      <div className="text-sm font-semibold text-sidebar-foreground">{ROLE_LABELS[role]}</div>
     </div>
   );
 

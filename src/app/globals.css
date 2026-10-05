@@ -234,6 +234,29 @@
   /* === ANIMATED GRADIENT === */
   @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   .animate-gradient { background-size: 200% 200%; animation: gradient-shift 6s ease infinite; }
+
+  /* === RIPPLE === */
+  @keyframes ripple-anim { to { transform: scale(2.5); opacity: 0; } }
+
+  /* === BORDER GRADIENT ANIMÉ === */
+  .gradient-border {
+    position: relative;
+    background-clip: padding-box;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--primary), transparent, var(--primary));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+  }
+  .gradient-border:hover::before { opacity: 0.6; }
 }
 
 /* Impression : pour le rapport bailleur PDF via navigateur */

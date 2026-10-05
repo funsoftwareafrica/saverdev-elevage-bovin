@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, User, Logout } from "@/lib/icons";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 
 interface Props {
@@ -102,6 +103,9 @@ export function AppHeader({ title, subtitle }: Props) {
             Lecture seule
           </Badge>
         )}
+
+        {/* Toggle mode sombre/clair */}
+        <ThemeToggle />
 
         {/* Bouton déconnexion */}
         <Button

@@ -446,3 +446,99 @@ prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Al
  GET / 200 in 39ms (compile: 3ms, render: 36ms)
  GET / 200 in 38ms (compile: 3ms, render: 34ms)
  GET / 200 in 41ms (compile: 3ms, render: 38ms)
+ GET / 200 in 51ms (compile: 3ms, render: 47ms)
+ GET / 200 in 55ms (compile: 5ms, render: 50ms)
+✓ Compiled in 315ms
+✓ Compiled in 149ms
+ GET / 200 in 85ms (compile: 52ms, render: 33ms)
+✓ Compiled in 601ms
+ GET / 200 in 358ms (compile: 69ms, render: 288ms)
+ GET / 200 in 252ms (compile: 4ms, render: 248ms)
+✓ Compiled in 217ms
+✓ Compiled in 229ms
+✓ Compiled in 218ms
+✓ Compiled in 379ms
+✓ Compiled in 129ms
+✓ Compiled in 336ms
+✓ Compiled in 160ms
+✓ Compiled in 288ms
+✓ Compiled in 255ms
+✓ Compiled in 226ms
+✓ Compiled in 221ms
+✓ Compiled in 142ms
+✓ Compiled in 279ms
+✓ Compiled in 234ms
+⨯ ./src/components/animated-background.tsx:7:8
+Parsing ecmascript source code failed
+[0m [90m  5 |[39m [33m-[39m[90m// S'adapte au mode sombre/clair via les variables CSS.[39m
+ [90m  6 |[39m
+[31m[1m>[22m[39m[90m  7 |[39m [36mimport[39m { motion } [36mfrom[39m [32m"framer-motion"[39m[33m;[39m
+ [90m    |[39m        [31m[1m^[22m[39m
+ [90m  8 |[39m [36mimport[39m { useMemo } [36mfrom[39m [32m"react"[39m[33m;[39m
+ [90m  9 |[39m
+ [90m 10 |[39m [36mexport[39m [36mfunction[39m [33mAnimatedBackground[39m() {[0m
+
+Import is not allowed here
+
+Import traces:
+  Client Component Browser:
+    ./src/components/animated-background.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/animated-background.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+
+./src/components/app/app-footer.tsx:6:8
+Parsing ecmascript source code failed
+[0m [90m 4 |[39m [33m-[39m[90m// Inclut : version, statut serveur, date/heure, lien support.[39m
+ [90m 5 |[39m
+[31m[1m>[22m[39m[90m 6 |[39m [36mimport[39m { [33mSaverdevLogo[39m } [36mfrom[39m [32m"@/components/saverdev-logo"[39m[33m;[39m
+ [90m   |[39m        [31m[1m^[22m[39m
+ [90m 7 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+ [90m 8 |[39m [36mimport[39m { [33mCheck[39m[33m,[39m [33mBolt[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m 9 |[39m [36mimport[39m { motion } [36mfrom[39m [32m"framer-motion"[39m[33m;[39m[0m
+
+Import is not allowed here
+
+Import traces:
+  Client Component Browser:
+    ./src/components/app/app-footer.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/app/app-footer.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 31ms (compile: 15ms, render: 16ms)
+✓ Compiled in 284ms
+ GET / 200 in 69ms (compile: 46ms, render: 23ms)
+ GET / 200 in 199ms (compile: 4ms, render: 195ms)
+ GET / 200 in 312ms (compile: 10ms, render: 302ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 49ms (compile: 20ms, proxy.ts: 5ms, render: 24ms)
+prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/historique 200 in 84ms (compile: 62ms, proxy.ts: 10ms, render: 13ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+ GET /api/stats/races 200 in 38ms (compile: 20ms, proxy.ts: 3ms, render: 15ms)
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+ GET /api/stats/comparaison 200 in 54ms (compile: 14ms, proxy.ts: 4ms, render: 37ms)
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+✓ Compiled in 165ms

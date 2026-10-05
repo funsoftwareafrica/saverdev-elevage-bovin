@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import { MotionConfig } from "framer-motion";
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <ThemeProvider>
         <QueryProvider>
           {/* reducedMotion="user" respecte automatiquement prefers-reduced-motion */}
           <MotionConfig reducedMotion="user">
@@ -42,6 +44,7 @@ export default function RootLayout({
             <SonnerToaster richColors position="top-right" />
           </MotionConfig>
         </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
