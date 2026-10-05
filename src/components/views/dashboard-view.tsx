@@ -241,7 +241,8 @@ export function DashboardView() {
             <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Gauge} size={16} className="text-primary" />Taux de marge</CardTitle>
             <CardDescription className="text-xs">Marge / CA</CardDescription>
           </CardHeader>
-          <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+          <CardContent className="h-72" style={{ transform: "translateZ(10px)", perspective: "800px" }}>
+            <motion.div className="h-full w-full" style={{ transformStyle: "preserve-3d" }} whileHover={{ rotateX: 12, transition: { duration: 0.3 } }}>
             <LazyMount height={288} fallback={<Skeleton className="h-full w-full rounded-md" />}>
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
@@ -264,6 +265,7 @@ export function DashboardView() {
               </RadialBarChart>
             </ResponsiveContainer>
             </LazyMount>
+            </motion.div>
           </CardContent>
         </Card>
       </section>
@@ -997,7 +999,7 @@ function SectionTitle({ icon: Icon, title, subtitle }: { icon: IconSvgElement; t
   );
 }
 
-// --- HERO KPI avec sparkline ---
+// --- HERO KPI avec sparkline + tilt 3D + cube 3D ---
 function HeroKpi({
   icon: Icon, label, value, suffix, formatter, color, trend, trendUp, hint, sparkData,
 }: {
@@ -1005,57 +1007,95 @@ function HeroKpi({
   formatter?: (n: number) => string; color: "emerald" | "teal" | "amber" | "red";
   trend?: string; trendUp?: boolean; hint?: string; sparkData: { v: number }[];
 }) {
-  const colors: Record<string, { bg: string; text: string; stroke: string; gradient: string }> = {
-    emerald: { bg: "from-emerald-500/10 to-emerald-500/5", text: "text-emerald-700", stroke: "#10B981", gradient: "gSparkE" },
-    teal: { bg: "from-teal-500/10 to-teal-500/5", text: "text-teal-700", stroke: "#14B8A6", gradient: "gSparkT" },
-    amber: { bg: "from-amber-500/10 to-amber-500/5", text: "text-amber-700", stroke: "#F59E0B", gradient: "gSparkA" },
-    red: { bg: "from-red-500/10 to-red-500/5", text: "text-red-700", stroke: "#EF4444", gradient: "gSparkR" },
+  const colors: Record<string, { bg: string; text: string; stroke: string; gradient: string; cube: string }> = {
+    emerald: { bg: "from-emerald-500/10 to-emerald-500/5", text: "text-emerald-700", stroke: "#10B981", gradient: "gSparkE", cube: "#10B981" },
+    teal: { bg: "from-teal-500/10 to-teal-500/5", text: "text-teal-700", stroke: "#14B8A6", gradient: "gSparkT", cube: "#14B8A6" },
+    amber: { bg: "from-amber-500/10 to-amber-500/5", text: "text-amber-700", stroke: "#F59E0B", gradient: "gSparkA", cube: "#F59E0B" },
+    red: { bg: "from-red-500/10 to-red-500/5", text: "text-red-700", stroke: "#EF4444", gradient: "gSparkR", cube: "#EF4444" },
   };
   const c = colors[color];
+
+  // Parallaxe 3D au survol
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [12, -12]), { stiffness: 200, damping: 18 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-12, 12]), { stiffness: 200, damping: 18 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
+      style={{ perspective: "800px" }}
     >
-      <Card className={`bg-gradient-to-br ${c.bg} border-border hover-lift overflow-hidden relative`}>
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
-              <p className="text-2xl sm:text-3xl font-bold mt-1 text-foreground tabular-nums">
-                <AnimatedCounter value={value} format={formatter} duration={1.4} delay={0.1} />
-                {suffix && <span className="text-base font-medium text-muted-foreground ml-1">{suffix}</span>}
-              </p>
-              {trend && (
-                <div className="flex items-center gap-1 mt-1 text-[0.7rem] font-medium">
-                  {trendUp ? <HugeiconsIcon icon={TrendingUp} size={12} className="text-emerald-600" /> : <HugeiconsIcon icon={Minus} size={12} className="text-muted-foreground" />}
-                  <span className={trendUp ? "text-emerald-700" : "text-muted-foreground"}>{trend}</span>
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      >
+        <Card className={`bg-gradient-to-br ${c.bg} border-border hover-lift overflow-hidden relative`}>
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1" style={{ transform: "translateZ(30px)" }}>
+                <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
+                <p className="text-2xl sm:text-3xl font-bold mt-1 text-foreground tabular-nums">
+                  <AnimatedCounter value={value} format={formatter} duration={1.4} delay={0.1} />
+                  {suffix && <span className="text-base font-medium text-muted-foreground ml-1">{suffix}</span>}
+                </p>
+                {trend && (
+                  <div className="flex items-center gap-1 mt-1 text-[0.7rem] font-medium">
+                    {trendUp ? <HugeiconsIcon icon={TrendingUp} size={12} className="text-emerald-600" /> : <HugeiconsIcon icon={Minus} size={12} className="text-muted-foreground" />}
+                    <span className={trendUp ? "text-emerald-700" : "text-muted-foreground"}>{trend}</span>
+                  </div>
+                )}
+                {hint && <p className="text-[0.65rem] text-muted-foreground mt-0.5">{hint}</p>}
+              </div>
+              {/* Cube 3D rotatif avec l'icône */}
+              <motion.div
+                className="relative shrink-0"
+                style={{ width: 36, height: 36, transformStyle: "preserve-3d", transform: "translateZ(50px)" }}
+                animate={{ rotateY: [0, 360] }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              >
+                {/* Face avant */}
+                <div className="absolute inset-0 rounded-lg flex items-center justify-center shadow-md" style={{ background: `linear-gradient(135deg, ${c.cube}, ${c.cube}cc)`, transform: "translateZ(8px)" }}>
+                  <HugeiconsIcon icon={Icon} size={18} className="text-white" />
                 </div>
-              )}
-              {hint && <p className="text-[0.65rem] text-muted-foreground mt-0.5">{hint}</p>}
+                {/* Face arrière */}
+                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}99`, transform: "translateZ(-8px) rotateY(180deg)" }} />
+                {/* Faces latérales */}
+                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}cc`, transform: "rotateY(90deg) translateZ(8px)" }} />
+                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}aa`, transform: "rotateY(-90deg) translateZ(8px)" }} />
+              </motion.div>
             </div>
-            <div className="h-9 w-9 shrink-0 rounded-full bg-white/60 flex items-center justify-center">
-              <HugeiconsIcon icon={Icon} size={18} className="text-primary" />
+            {/* Sparkline */}
+            <div className="h-10 mt-2 -mx-1" style={{ transform: "translateZ(15px)" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={sparkData}>
+                  <defs>
+                    <linearGradient id={c.gradient} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={c.stroke} stopOpacity={0.4} />
+                      <stop offset="100%" stopColor={c.stroke} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="v" stroke={c.stroke} strokeWidth={2} fill={`url(#${c.gradient})`} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-          {/* Sparkline */}
-          <div className="h-10 mt-2 -mx-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sparkData}>
-                <defs>
-                  <linearGradient id={c.gradient} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={c.stroke} stopOpacity={0.4} />
-                    <stop offset="100%" stopColor={c.stroke} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="v" stroke={c.stroke} strokeWidth={2} fill={`url(#${c.gradient})`} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
     </motion.div>
   );
 }
@@ -1064,7 +1104,7 @@ function HeroKpi({
 function MiniStat({ label, value, suffix, icon: Icon, accent, warning }: { label: string; value: string | number; suffix?: string; icon: IconSvgElement; accent?: boolean; warning?: boolean }) {
   return (
     <div className={`rounded-lg p-2.5 ${accent ? (warning ? "bg-amber-50 border border-amber-200" : "bg-primary/5 border border-primary/20") : "bg-muted/50"}`}>
-      <HugeiconsIcon icon={Icon} size={56} className={`mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
+      <HugeiconsIcon icon={Icon} size={14} className={`mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
       <p className="text-base sm:text-lg font-bold text-foreground tabular-nums">{value}{suffix}</p>
       <p className="text-[0.6rem] uppercase text-muted-foreground truncate">{label}</p>
     </div>

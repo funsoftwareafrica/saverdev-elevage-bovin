@@ -96,10 +96,11 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={effectiveView}
-                initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                style={{ perspective: "1200px" }}
+                initial={{ opacity: 0, rotateY: 15, x: 40 }}
+                animate={{ opacity: 1, rotateY: 0, x: 0 }}
+                exit={{ opacity: 0, rotateY: -15, x: -40 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 <ViewComponent />
               </motion.div>

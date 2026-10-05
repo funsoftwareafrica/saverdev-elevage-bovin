@@ -60,6 +60,7 @@ export function AppSidebar({ activeView, role }: Props) {
               whileHover={{ x: 4, transition: { duration: 0.15 } }}
               whileTap={{ scale: 0.97 }}
               onClick={() => handleSelect(item.key)}
+              style={{ perspective: "600px" }}
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all overflow-hidden",
                 isActive
@@ -74,7 +75,15 @@ export function AppSidebar({ activeView, role }: Props) {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <HugeiconsIcon icon={item.icon} size={18} className="shrink-0 relative z-10" />
+              {/* Icône avec effet 3D translateZ au survol */}
+              <motion.div
+                className="shrink-0 relative z-10"
+                style={{ transformStyle: "preserve-3d" }}
+                whileHover={{ rotateY: 360 }}
+                transition={{ rotateY: { duration: 0.6, ease: "easeOut" } }}
+              >
+                <HugeiconsIcon icon={item.icon} size={18} />
+              </motion.div>
               <span className="flex-1 text-left relative z-10">{item.label}</span>
               {isActive && (
                 <motion.div
@@ -94,7 +103,19 @@ export function AppSidebar({ activeView, role }: Props) {
 
   const brand = (
     <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
-      <SaverdevLogo size={42} />
+      {/* Logo avec cube 3D rotatif */}
+      <motion.div
+        style={{ perspective: "200px" }}
+        whileHover={{ scale: 1.05 }}
+      >
+        <motion.div
+          animate={{ rotateY: [0, 360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear", transformStyle: "preserve-3d" }}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <SaverdevLogo size={42} />
+        </motion.div>
+      </motion.div>
       <div className="flex flex-col leading-tight">
         <span className="font-bold text-sidebar-foreground text-[0.95rem] tracking-wide">SAVERDEV</span>
         <span className="text-[0.62rem] uppercase tracking-[0.18em] text-sidebar-accent-foreground/70">
