@@ -594,114 +594,47 @@ function DashboardHeader3D() {
 
 // --- BANDEAU ALERTE 3D : parallaxe + icône qui pulse en 3D ---
 function AlertBanner3D({ count, message }: { count: number; message: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { stiffness: 200, damping: 16 });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { stiffness: 200, damping: 16 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
-
   return (
     <motion.div
-      initial={{ opacity: 0, x: -30, rotateY: -25 }}
-      animate={{ opacity: 1, x: 0, rotateY: 0 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      ref={ref}
-      style={{ perspective: "1000px" }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="relative overflow-hidden rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/40"
     >
-      <motion.div
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="relative overflow-hidden rounded-2xl border border-red-300/70 bg-gradient-to-r from-red-50 via-red-50/80 to-red-50/30 shadow-[0_15px_40px_-10px_rgba(239,68,68,0.35),0_5px_15px_-3px_rgba(239,68,68,0.2)]"
-      >
-        {/* Coin plié 3D en haut à droite */}
-        <div className="absolute top-0 right-0 z-20" style={{ transform: "translateZ(1px)" }}>
-          <div className="relative w-0 h-0 border-l-[28px] border-l-transparent border-t-[28px] border-t-red-500" style={{ transformStyle: "preserve-3d" }}>
-            <div className="absolute top-[-28px] right-0 w-[28px] h-[28px] bg-gradient-to-bl from-red-100 to-red-200 shadow-[2px_2px_4px_rgba(0,0,0,0.1)]" style={{ transform: "rotateY(35deg)", transformOrigin: "right", clipPath: "polygon(0 0, 100% 100%, 0 100%)" }} />
-          </div>
-        </div>
+      {/* Barre rouge gauche */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />
 
-        {/* Barre rouge gauche avec pulsation 3D */}
-        <motion.div
-          className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-red-400 via-red-500 to-red-600 rounded-l-2xl"
-          style={{ transform: "translateZ(15px)" }}
-          animate={{ opacity: [1, 0.5, 1], scaleX: [1, 1.3, 1] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        {/* Halo rouge flottant */}
-        <motion.div
-          aria-hidden
-          className="absolute -right-8 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-400/25 blur-2xl"
-          animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0.55, 0.35] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <div className="relative p-4 sm:p-5 flex items-center gap-4 pl-7">
-          {/* Icône AlertTriangle 3D avec cube rouge + anneaux pulsants */}
-          <div className="relative h-14 w-14 shrink-0 flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
-            {/* Anneaux pulsants */}
-            <motion.div
-              className="absolute inset-0 rounded-full bg-red-200/60"
-              animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-red-400"
-              animate={{ scale: [1, 1.7, 1], opacity: [0.9, 0, 0.9] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-            />
-            {/* Cube rouge 3D avec rotation */}
-            <motion.div
-              className="relative"
-              style={{ width: 40, height: 40, transformStyle: "preserve-3d", transform: "translateZ(25px)" }}
-              animate={{ rotateY: [0, 360], rotateX: [0, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(10px)" }}>
-                <HugeiconsIcon icon={AlertTriangle} size={20} className="text-white" />
-              </div>
-              <div className="absolute inset-0 rounded-lg bg-red-700" style={{ transform: "translateZ(-10px) rotateY(180deg)" }} />
-              <div className="absolute inset-0 rounded-lg bg-red-500" style={{ transform: "rotateY(90deg) translateZ(10px)", width: "100%" }} />
-              <div className="absolute inset-0 rounded-lg bg-red-800" style={{ transform: "rotateY(-90deg) translateZ(10px)", width: "100%" }} />
-            </motion.div>
-          </div>
-
-          {/* Texte avec profondeur */}
-          <div className="flex-1 min-w-0" style={{ transform: "translateZ(25px)" }}>
-            <div className="flex items-center gap-2">
-              <motion.span
-                className="inline-flex items-center justify-center h-6 min-w-6 px-1.5 rounded-full bg-red-600 text-white text-[0.7rem] font-bold tabular-nums shadow-[0_2px_8px_rgba(239,68,68,0.4)]"
-                animate={{ scale: [1, 1.15, 1] }}
-                transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-              >
-                {count}
-              </motion.span>
-              <p className="text-sm font-bold text-red-900">
-                alerte{count > 1 ? "s" : ""} critique{count > 1 ? "s" : ""} à traiter
-              </p>
-            </div>
-            <p className="text-xs text-red-800/85 mt-1 font-medium">{message}</p>
-          </div>
-
-          {/* Badge URGENT 3D flottant */}
+      <div className="relative p-4 flex items-center gap-3 pl-5">
+        {/* Icône simple avec pulse subtil */}
+        <div className="relative h-9 w-9 shrink-0 flex items-center justify-center">
           <motion.div
-            className="hidden sm:flex items-center rounded-md bg-red-600 px-2.5 py-1 shadow-[0_4px_12px_rgba(239,68,68,0.35)]"
-            style={{ transform: "translateZ(35px)" }}
-            animate={{ y: [0, -3, 0], rotate: [0, -2, 2, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span className="text-[0.65rem] font-bold text-white tracking-wider">URGENT</span>
-          </motion.div>
+            className="absolute inset-0 rounded-full bg-red-100"
+            animate={{ opacity: [0.6, 0.3, 0.6] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div className="relative h-9 w-9 rounded-full bg-red-500 flex items-center justify-center">
+            <HugeiconsIcon icon={AlertTriangle} size={18} className="text-white" />
+          </div>
         </div>
-      </motion.div>
+
+        {/* Texte */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-red-600 text-white text-[0.65rem] font-bold tabular-nums">
+              {count}
+            </span>
+            <p className="text-sm font-semibold text-red-900">
+              alerte{count > 1 ? "s" : ""} critique{count > 1 ? "s" : ""} à traiter
+            </p>
+          </div>
+          <p className="text-xs text-red-800/80 mt-0.5">{message}</p>
+        </div>
+
+        {/* Badge URGENT */}
+        <div className="hidden sm:flex items-center rounded-md bg-red-600 px-2 py-0.5">
+          <span className="text-[0.6rem] font-bold text-white tracking-wider">URGENT</span>
+        </div>
+      </div>
     </motion.div>
   );
 }
