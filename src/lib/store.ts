@@ -1,12 +1,22 @@
-// Store Zustand — état global de l'app (rôle actif, vue courante, mois sélectionné, bovin sélectionné)
+// Store Zustand — état global de l'app (auth, rôle actif, vue courante, mois, bovin)
 import { create } from "zustand";
 import type { Role, ViewKey } from "./types";
 
+interface AuthUser {
+  email: string;
+  name: string;
+  role: Role;
+}
+
 interface AppState {
+  isAuthenticated: boolean;
+  user: AuthUser | null;
   role: Role;
   view: ViewKey;
   selectedBovinId: string | null;
   selectedMonth: string; // ISO "YYYY-MM"
+  login: (user: AuthUser) => void;
+  logout: () => void;
   setRole: (r: Role) => void;
   setView: (v: ViewKey) => void;
   openBovin: (id: string) => void;
@@ -19,14 +29,30 @@ const currentMonthISO = () => {
 };
 
 export const useAppStore = create<AppState>((set) => ({
+  isAuthenticated: false,
+  user: null,
   role: "GERANT",
   view: "dashboard",
   selectedBovinId: null,
   selectedMonth: currentMonthISO(),
+  login: (user) =>
+    set({
+      isAuthenticated: true,
+      user,
+      role: user.role,
+      view: "dashboard",
+    }),
+  logout: () =>
+    set({
+      isAuthenticated: false,
+      user: null,
+      role: "GERANT",
+      view: "dashboard",
+      selectedBovinId: null,
+    }),
   setRole: (role) =>
     set((s) => ({
       role,
-      // si la vue courante n'est pas accessible au nouveau rôle, fallback dashboard
       view: rolePermissions(role).includes(s.view) ? s.view : "dashboard",
     })),
   setView: (view) => set({ view }),

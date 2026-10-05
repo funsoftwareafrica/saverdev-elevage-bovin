@@ -1,6 +1,6 @@
 ▲ Next.js 16.1.3 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://21.0.9.159:3000
+- Network:       http://21.0.10.103:3000
 - Environments: .env
 
 ✓ Starting...
@@ -10,696 +10,273 @@ You can learn more, including how to opt-out if you'd not like to participate in
 https://nextjs.org/telemetry
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
-✓ Ready in 1205ms
+✓ Ready in 1143ms
 ○ Compiling / ...
- GET / 200 in 1551ms (compile: 1376ms, render: 174ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 38ms (compile: 3ms, render: 35ms)
- GET / 200 in 37ms (compile: 3ms, render: 34ms)
- GET / 200 in 79ms (compile: 4ms, render: 75ms)
- GET / 200 in 44ms (compile: 4ms, render: 40ms)
- GET / 200 in 46ms (compile: 4ms, render: 42ms)
- GET / 200 in 52ms (compile: 3ms, render: 49ms)
- GET / 200 in 48ms (compile: 4ms, render: 45ms)
- GET / 200 in 41ms (compile: 3ms, render: 37ms)
- GET / 200 in 43ms (compile: 3ms, render: 41ms)
- GET / 200 in 55ms (compile: 3ms, render: 52ms)
- GET / 200 in 51ms (compile: 3ms, render: 48ms)
- GET / 200 in 41ms (compile: 3ms, render: 37ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 44ms (compile: 3ms, render: 42ms)
- GET / 200 in 37ms (compile: 3ms, render: 35ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 63ms (compile: 4ms, render: 59ms)
- GET / 200 in 46ms (compile: 4ms, render: 42ms)
- GET / 200 in 60ms (compile: 4ms, render: 56ms)
- GET / 200 in 84ms (compile: 4ms, render: 80ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 42ms (compile: 2ms, render: 39ms)
- GET / 200 in 33ms (compile: 3ms, render: 30ms)
- GET / 200 in 31ms (compile: 3ms, render: 29ms)
- GET / 200 in 42ms (compile: 3ms, render: 39ms)
- GET / 200 in 33ms (compile: 3ms, render: 30ms)
+ GET / 200 in 1753ms (compile: 1198ms, render: 555ms)
+ GET / 200 in 12.7s (compile: 12.2s, render: 507ms)
+ GET / 200 in 86ms (compile: 4ms, render: 82ms)
+ GET / 200 in 37ms (compile: 4ms, render: 34ms)
+prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 704ms (compile: 600ms, proxy.ts: 51ms, render: 53ms)
- GET /api/historique 200 in 653ms (compile: 622ms, proxy.ts: 8ms, render: 23ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/races 200 in 157ms (compile: 138ms, proxy.ts: 10ms, render: 8ms)
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 178ms (compile: 123ms, proxy.ts: 3ms, render: 52ms)
- GET / 200 in 49ms (compile: 3ms, render: 46ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 16ms (compile: 5ms, proxy.ts: 5ms, render: 5ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+ GET /api/historique 200 in 804ms (compile: 750ms, proxy.ts: 3ms, render: 51ms)
+ GET /api/dashboard 200 in 917ms (compile: 837ms, proxy.ts: 52ms, render: 28ms)
 prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 25ms (compile: 9ms, proxy.ts: 3ms, render: 13ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 18ms (compile: 2ms, proxy.ts: 3ms, render: 13ms)
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 12ms (compile: 4ms, proxy.ts: 3ms, render: 5ms)
- GET / 200 in 46ms (compile: 4ms, render: 42ms)
- GET / 200 in 39ms (compile: 2ms, render: 36ms)
- GET / 200 in 43ms (compile: 3ms, render: 40ms)
- GET / 200 in 41ms (compile: 3ms, render: 39ms)
- GET / 200 in 51ms (compile: 3ms, render: 48ms)
- GET / 200 in 38ms (compile: 3ms, render: 36ms)
- GET / 200 in 39ms (compile: 3ms, render: 36ms)
- GET / 200 in 44ms (compile: 3ms, render: 41ms)
- GET / 200 in 41ms (compile: 3ms, render: 39ms)
- GET / 200 in 47ms (compile: 3ms, render: 44ms)
- GET / 200 in 80ms (compile: 3ms, render: 77ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 53ms (compile: 3ms, render: 50ms)
- GET / 200 in 38ms (compile: 3ms, render: 36ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 38ms (compile: 3ms, render: 36ms)
- GET / 200 in 44ms (compile: 3ms, render: 41ms)
- GET / 200 in 44ms (compile: 3ms, render: 41ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 38ms (compile: 3ms, render: 34ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 58ms (compile: 3ms, render: 55ms)
- GET / 200 in 34ms (compile: 3ms, render: 31ms)
- GET / 200 in 39ms (compile: 3ms, render: 36ms)
- GET / 200 in 35ms (compile: 3ms, render: 32ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
- GET / 200 in 34ms (compile: 3ms, render: 31ms)
- GET / 200 in 38ms (compile: 4ms, render: 34ms)
- GET / 200 in 35ms (compile: 3ms, render: 31ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
- GET /api/dashboard 200 in 36ms (compile: 7ms, proxy.ts: 11ms, render: 18ms)
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 33ms (compile: 22ms, proxy.ts: 4ms, render: 7ms)
+ GET /api/stats/races 200 in 165ms (compile: 127ms, proxy.ts: 4ms, render: 34ms)
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 17ms (compile: 4ms, proxy.ts: 3ms, render: 10ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 9ms (compile: 2ms, proxy.ts: 2ms, render: 5ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 35ms (compile: 2ms, render: 33ms)
- GET / 200 in 37ms (compile: 3ms, render: 34ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 31ms (compile: 3ms, proxy.ts: 3ms, render: 25ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 26ms (compile: 1927µs, proxy.ts: 2ms, render: 22ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 24ms (compile: 2ms, proxy.ts: 3ms, render: 18ms)
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 14ms (compile: 6ms, proxy.ts: 2ms, render: 6ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 898ms (compile: 49ms, render: 849ms)
- GET / 500 in 290ms (compile: 3ms, render: 286ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 302ms (compile: 7ms, render: 295ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 252ms (compile: 3ms, render: 249ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 312ms (compile: 3ms, render: 309ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 271ms (compile: 3ms, render: 268ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 667ms (compile: 3ms, render: 664ms)
- GET / 500 in 384ms (compile: 4ms, render: 380ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 261ms (compile: 3ms, render: 258ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 836ms (compile: 4ms, render: 833ms)
- GET / 500 in 322ms (compile: 3ms, render: 319ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 573ms (compile: 3ms, render: 570ms)
- GET / 500 in 297ms (compile: 3ms, render: 294ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 276ms (compile: 3ms, render: 273ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 546ms (compile: 3ms, render: 543ms)
- GET / 500 in 303ms (compile: 3ms, render: 300ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 540ms (compile: 3ms, render: 537ms)
- GET / 500 in 274ms (compile: 3ms, render: 271ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 258ms (compile: 3ms, render: 256ms)
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
-⨯ Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
-    at ignore-listed frames {
-  digest: '3062799484'
-}
- GET / 500 in 595ms (compile: 3ms, render: 592ms)
- GET / 500 in 337ms (compile: 5ms, render: 333ms)
- GET / 200 in 356ms (compile: 47ms, render: 309ms)
- GET / 200 in 73ms (compile: 7ms, render: 66ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 36ms (compile: 3ms, render: 33ms)
- GET / 200 in 35ms (compile: 3ms, render: 32ms)
- GET / 200 in 32ms (compile: 2ms, render: 30ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 35ms (compile: 7ms, proxy.ts: 11ms, render: 18ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
+ GET /api/stats/comparaison 200 in 148ms (compile: 134ms, proxy.ts: 3ms, render: 11ms)
+ GET / 200 in 52ms (compile: 4ms, render: 48ms)
 prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 30ms (compile: 13ms, proxy.ts: 3ms, render: 13ms)
-⚠ Cross origin request detected from preview-chat-1426fbc7-0a71-4b1d-893c-549d75d90725.space-z.ai to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- GET / 200 in 49ms (compile: 4ms, render: 46ms)
- GET / 200 in 43ms (compile: 3ms, render: 40ms)
- GET / 200 in 42ms (compile: 3ms, render: 40ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 469ms (compile: 176ms, render: 293ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 63ms (compile: 3ms, render: 60ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 53ms (compile: 5ms, render: 48ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 52ms (compile: 3ms, render: 49ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 52ms (compile: 3ms, render: 50ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 49ms (compile: 3ms, render: 46ms)
-⨯ TypeError: currentIcon is not iterable
-    at ignore-listed frames {
-  digest: '3149322087'
-}
- GET / 500 in 54ms (compile: 8ms, render: 47ms)
- GET / 200 in 536ms (compile: 251ms, render: 285ms)
- GET / 200 in 463ms (compile: 414ms, render: 50ms)
- GET / 200 in 42ms (compile: 3ms, render: 39ms)
- GET / 200 in 40ms (compile: 3ms, render: 37ms)
- GET / 200 in 44ms (compile: 3ms, render: 41ms)
- GET / 200 in 48ms (compile: 3ms, render: 45ms)
- GET / 200 in 39ms (compile: 3ms, render: 37ms)
- GET / 200 in 461ms (compile: 203ms, render: 258ms)
- GET / 200 in 403ms (compile: 101ms, render: 302ms)
-✓ Compiled in 406ms
- GET / 200 in 568ms (compile: 330ms, render: 238ms)
- GET / 200 in 309ms (compile: 7ms, render: 301ms)
-prisma:query SELECT 1
- GET /api/dashboard 200 in 68ms (compile: 8ms, proxy.ts: 9ms, render: 51ms)
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 72ms (compile: 42ms, proxy.ts: 3ms, render: 27ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/races 200 in 41ms (compile: 21ms, proxy.ts: 9ms, render: 11ms)
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 87ms (compile: 24ms, proxy.ts: 5ms, render: 58ms)
- GET / 200 in 60ms (compile: 7ms, render: 52ms)
- GET / 200 in 49ms (compile: 5ms, render: 45ms)
- GET / 200 in 48ms (compile: 5ms, render: 43ms)
- GET / 200 in 36ms (compile: 2ms, render: 34ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/historique 200 in 22ms (compile: 6ms, proxy.ts: 5ms, render: 11ms)
- GET /api/dashboard 200 in 24ms (compile: 9ms, proxy.ts: 5ms, render: 10ms)
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET / 200 in 81ms (compile: 3ms, render: 78ms)
- GET / 200 in 37ms (compile: 2ms, render: 35ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 15ms (compile: 2ms, proxy.ts: 3ms, render: 10ms)
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 20ms (compile: 4ms, proxy.ts: 4ms, render: 12ms)
 prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 15ms (compile: 5ms, proxy.ts: 6ms, render: 4ms)
- GET / 200 in 44ms (compile: 5ms, render: 39ms)
- GET / 200 in 37ms (compile: 3ms, render: 35ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 13ms (compile: 3ms, proxy.ts: 4ms, render: 7ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 18ms (compile: 6ms, proxy.ts: 3ms, render: 10ms)
- GET / 200 in 42ms (compile: 3ms, render: 39ms)
- GET / 200 in 39ms (compile: 3ms, render: 36ms)
- GET / 200 in 43ms (compile: 5ms, render: 38ms)
- GET / 200 in 38ms (compile: 3ms, render: 35ms)
- GET / 200 in 41ms (compile: 5ms, render: 36ms)
- GET / 200 in 46ms (compile: 5ms, render: 41ms)
- GET / 200 in 38ms (compile: 3ms, render: 36ms)
- GET / 200 in 40ms (compile: 5ms, render: 36ms)
- GET / 200 in 643ms (compile: 3ms, render: 640ms)
- GET / 200 in 652ms (compile: 17ms, render: 636ms)
- GET / 200 in 655ms (compile: 194ms, render: 462ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 47ms (compile: 14ms, proxy.ts: 5ms, render: 28ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 83ms (compile: 34ms, proxy.ts: 11ms, render: 39ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/races 200 in 50ms (compile: 15ms, proxy.ts: 1866µs, render: 33ms)
- GET /api/stats/comparaison 200 in 68ms (compile: 5ms, proxy.ts: 3ms, render: 61ms)
- GET / 200 in 70ms (compile: 3ms, render: 67ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 31ms (compile: 9ms, proxy.ts: 5ms, render: 17ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 30ms (compile: 17ms, proxy.ts: 6ms, render: 8ms)
- GET / 200 in 150ms (compile: 33ms, render: 117ms)
-prisma:query SELECT 1
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 71ms (compile: 11ms, proxy.ts: 36ms, render: 24ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 50ms (compile: 35ms, proxy.ts: 6ms, render: 10ms)
- GET / 200 in 58ms (compile: 4ms, render: 54ms)
- GET / 200 in 242ms (compile: 4ms, render: 238ms)
- GET / 200 in 188ms (compile: 7ms, render: 181ms)
- GET / 200 in 64ms (compile: 10ms, render: 54ms)
- GET / 200 in 176ms (compile: 15ms, render: 161ms)
- GET / 200 in 154ms (compile: 3ms, render: 151ms)
- GET / 200 in 112ms (compile: 5ms, render: 106ms)
- GET / 200 in 50ms (compile: 3ms, render: 47ms)
- GET / 200 in 112ms (compile: 12ms, render: 100ms)
-prisma:query SELECT 1
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 25ms (compile: 7ms, proxy.ts: 4ms, render: 14ms)
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 29ms (compile: 19ms, proxy.ts: 3ms, render: 6ms)
-✓ Compiled in 418ms
- GET / 200 in 1049ms (compile: 128ms, render: 921ms)
- GET / 200 in 70ms (compile: 5ms, render: 65ms)
-✓ Compiled in 189ms
- GET / 200 in 853ms (compile: 67ms, render: 785ms)
- GET / 200 in 356ms (compile: 12ms, render: 344ms)
- GET / 200 in 136ms (compile: 6ms, render: 131ms)
- GET / 200 in 71ms (compile: 6ms, render: 66ms)
- GET / 200 in 134ms (compile: 15ms, render: 119ms)
- GET / 200 in 66ms (compile: 4ms, render: 63ms)
- GET / 200 in 66ms (compile: 4ms, render: 62ms)
- GET / 200 in 77ms (compile: 3ms, render: 74ms)
- GET / 200 in 55ms (compile: 4ms, render: 51ms)
- GET / 200 in 66ms (compile: 2ms, render: 64ms)
- GET / 200 in 69ms (compile: 8ms, render: 60ms)
- GET / 200 in 1269ms (compile: 646ms, render: 623ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-✓ Compiled in 0ms
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 127ms (compile: 6ms, proxy.ts: 3ms, render: 117ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 112ms (compile: 55ms, proxy.ts: 6ms, render: 51ms)
- GET /api/dashboard 200 in 114ms (compile: 69ms, proxy.ts: 5ms, render: 41ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 110ms (compile: 92ms, proxy.ts: 2ms, render: 16ms)
-✓ Compiled in 663ms
- GET / 200 in 467ms (compile: 80ms, render: 386ms)
- GET / 200 in 86ms (compile: 3ms, render: 82ms)
- GET / 200 in 59ms (compile: 4ms, render: 55ms)
- GET / 200 in 597ms (compile: 3ms, render: 593ms)
- GET / 200 in 402ms (compile: 8ms, render: 394ms)
- GET / 200 in 136ms (compile: 3ms, render: 133ms)
- GET / 200 in 114ms (compile: 3ms, render: 111ms)
- GET / 200 in 72ms (compile: 4ms, render: 68ms)
- GET / 200 in 98ms (compile: 2ms, render: 95ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 23ms (compile: 6ms, proxy.ts: 3ms, render: 14ms)
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 39ms (compile: 9ms, proxy.ts: 16ms, render: 14ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 35ms (compile: 13ms, proxy.ts: 3ms, render: 19ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 15ms (compile: 4ms, proxy.ts: 5ms, render: 6ms)
-✓ Compiled in 616ms
-✓ Compiled in 177ms
- GET / 200 in 721ms (compile: 104ms, render: 616ms)
-prisma:query SELECT 1
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 40ms (compile: 19ms, proxy.ts: 4ms, render: 17ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 15ms (compile: 4ms, proxy.ts: 3ms, render: 8ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/races 200 in 36ms (compile: 13ms, proxy.ts: 3ms, render: 20ms)
- GET /api/stats/comparaison 200 in 56ms (compile: 4ms, proxy.ts: 3ms, render: 50ms)
-✓ Compiled in 209ms
-✓ Compiled in 665ms
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/races 200 in 57ms (compile: 40ms, proxy.ts: 2ms, render: 15ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/dashboard 200 in 69ms (compile: 18ms, proxy.ts: 24ms, render: 27ms)
- GET /api/stats/comparaison 200 in 93ms (compile: 14ms, proxy.ts: 3ms, render: 76ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 50ms (compile: 32ms, proxy.ts: 3ms, render: 15ms)
- GET / 200 in 901ms (compile: 198ms, render: 702ms)
- GET / 200 in 97ms (compile: 4ms, render: 94ms)
-prisma:query SELECT 1
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 62ms (compile: 14ms, proxy.ts: 4ms, render: 44ms)
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 60ms (compile: 38ms, proxy.ts: 8ms, render: 14ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 75ms (compile: 56ms, proxy.ts: 5ms, render: 14ms)
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 94ms (compile: 39ms, proxy.ts: 6ms, render: 49ms)
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET / 200 in 54ms (compile: 4ms, render: 51ms)
- GET / 200 in 45ms (compile: 3ms, render: 42ms)
- GET / 200 in 47ms (compile: 3ms, render: 43ms)
- GET / 200 in 39ms (compile: 3ms, render: 36ms)
-prisma:query SELECT 1
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 16ms (compile: 3ms, proxy.ts: 3ms, render: 9ms)
-prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 8ms (compile: 1810µs, proxy.ts: 2ms, render: 4ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
-prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 18ms (compile: 6ms, proxy.ts: 3ms, render: 9ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 8ms (compile: 1860µs, proxy.ts: 2ms, render: 4ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/rapport-bailleur?annee=2026 200 in 297ms (compile: 260ms, proxy.ts: 3ms, render: 33ms)
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 ORDER BY `main`.`Financement`.`dateOctroi` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/financement 200 in 284ms (compile: 266ms, proxy.ts: 2ms, render: 16ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 ORDER BY `main`.`Financement`.`dateOctroi` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/financement 200 in 11ms (compile: 2ms, proxy.ts: 3ms, render: 5ms)
+ GET /api/historique 200 in 16ms (compile: 8ms, proxy.ts: 3ms, render: 5ms)
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
  GET /api/stats/comparaison 200 in 15ms (compile: 2ms, proxy.ts: 3ms, render: 9ms)
+ GET /api/stats/races 200 in 11ms (compile: 2ms, proxy.ts: 3ms, render: 6ms)
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 15ms (compile: 3ms, proxy.ts: 6ms, render: 6ms)
+ GET / 200 in 50ms (compile: 3ms, render: 47ms)
+prisma:query SELECT 1
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 21ms (compile: 4ms, proxy.ts: 4ms, render: 13ms)
+prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
- GET /api/historique 200 in 11ms (compile: 2ms, proxy.ts: 3ms, render: 5ms)
-prisma:query SELECT 1
+ GET /api/historique 200 in 12ms (compile: 4ms, proxy.ts: 3ms, render: 4ms)
+ GET /api/stats/races 200 in 11ms (compile: 2ms, proxy.ts: 3ms, render: 6ms)
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 18ms (compile: 6ms, proxy.ts: 4ms, render: 8ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/bovins 200 in 519ms (compile: 507ms, proxy.ts: 3ms, render: 9ms)
- GET /api/paturages 404 in 864ms (compile: 749ms, proxy.ts: 4ms, render: 111ms)
- GET /api/paturages 404 in 41ms (compile: 11ms, proxy.ts: 4ms, render: 26ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 ORDER BY `main`.`Financement`.`dateOctroi` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/financement 200 in 13ms (compile: 3ms, proxy.ts: 3ms, render: 6ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/bovins 200 in 11ms (compile: 3ms, proxy.ts: 3ms, render: 5ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
- GET /api/ventes 200 in 120ms (compile: 108ms, proxy.ts: 2ms, render: 10ms)
-prisma:query SELECT 1
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 15ms (compile: 2ms, proxy.ts: 3ms, render: 9ms)
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
-prisma:query SELECT 1
- GET /api/ventes 200 in 18ms (compile: 3ms, proxy.ts: 5ms, render: 10ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/bovins 200 in 11ms (compile: 3ms, proxy.ts: 3ms, render: 5ms)
-prisma:query SELECT 1
 prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+ GET /api/stats/comparaison 200 in 15ms (compile: 2ms, proxy.ts: 2ms, render: 10ms)
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
- GET /api/stats/comparaison 200 in 15ms (compile: 2ms, proxy.ts: 3ms, render: 10ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
- GET /api/stats/races 200 in 17ms (compile: 10ms, proxy.ts: 3ms, render: 4ms)
-prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
 prisma:query SELECT 1
-prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/alimentation 200 in 130ms (compile: 117ms, proxy.ts: 4ms, render: 8ms)
+✓ Compiled in 207ms
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/alimentation 200 in 19ms (compile: 5ms, proxy.ts: 3ms, render: 10ms)
+✓ Compiled in 276ms
+✓ Compiled in 420ms
+✓ Compiled in 344ms
+✓ Compiled in 143ms
+✓ Compiled in 306ms
+✓ Compiled in 350ms
+✓ Compiled in 234ms
+⨯ ./src/components/views/login-view.tsx:17:1
+Export EyeOff doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export EyeOff was not found in module [project]/src/lib/icons.ts [app-client] (ecmascript).
+Did you mean to import Eye?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+
+./src/components/views/login-view.tsx:17:1
+Export EyeOff doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export EyeOff was not found in module [project]/src/lib/icons.ts [app-ssr] (ecmascript).
+Did you mean to import Eye?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+
+./src/components/views/login-view.tsx:17:1
+Export Lock doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export Lock was not found in module [project]/src/lib/icons.ts [app-client] (ecmascript).
+Did you mean to import Clock?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+
+./src/components/views/login-view.tsx:17:1
+Export Lock doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export Lock was not found in module [project]/src/lib/icons.ts [app-ssr] (ecmascript).
+Did you mean to import Clock?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 1367ms (compile: 1262ms, render: 105ms)
+✓ Compiled in 283ms
+⨯ ./src/components/views/login-view.tsx:17:1
+Export EyeOff doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export EyeOff was not found in module [project]/src/lib/icons.ts [app-client] (ecmascript).
+Did you mean to import Eye?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+
+./src/components/views/login-view.tsx:17:1
+Export EyeOff doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mPALETTE[39m } [36mfrom[39m [32m"@/lib/config"[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mHugeiconsIcon[39m } [36mfrom[39m [32m"@hugeicons/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mUser[39m[33m,[39m [33mShield[39m[33m,[39m [33mMenu[39m[33m,[39m [33mLock[39m[33m,[39m [33mEye[39m[33m,[39m [33mEyeOff[39m[33m,[39m [33mArrowRight[39m[33m,[39m [33mCheck[39m[33m,[39m [33mAlertTriangle[39m } [36mfrom[39m [32m"@/lib/icons"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m { toast } [36mfrom[39m [32m"sonner"[39m[33m;[39m
+ [90m 19 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+ [90m 20 |[39m[0m
+
+The export EyeOff was not found in module [project]/src/lib/icons.ts [app-ssr] (ecmascript).
+Did you mean to import Eye?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/views/login-view.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/views/login-view.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+ GET / 500 in 24ms (compile: 16ms, render: 9ms)
+✓ Compiled in 337ms
+ GET / 200 in 81ms (compile: 53ms, render: 28ms)
+ GET / 200 in 238ms (compile: 3ms, render: 235ms)
+ GET / 200 in 108ms (compile: 22ms, render: 86ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 173ms
+ GET / 200 in 456ms (compile: 69ms, render: 387ms)
+ GET / 200 in 105ms (compile: 6ms, render: 100ms)
+ GET / 200 in 74ms (compile: 5ms, render: 69ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
-prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
- GET /api/dashboard 200 in 14ms (compile: 2ms, proxy.ts: 3ms, render: 8ms)
- GET /api/historique 200 in 9ms (compile: 1954µs, proxy.ts: 3ms, render: 4ms)
+prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 59ms (compile: 29ms, proxy.ts: 9ms, render: 21ms)
 prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`User`.`id`, `main`.`User`.`name` FROM `main`.`User` WHERE `main`.`User`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/historique 200 in 67ms (compile: 29ms, proxy.ts: 24ms, render: 13ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/stats/races 200 in 53ms (compile: 22ms, proxy.ts: 7ms, render: 24ms)
+prisma:query SELECT 1
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+ GET /api/stats/comparaison 200 in 70ms (compile: 17ms, proxy.ts: 5ms, render: 48ms)

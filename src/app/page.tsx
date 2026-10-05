@@ -6,11 +6,11 @@
 
 import { useMemo } from "react";
 import { useAppStore } from "@/lib/store";
-import { ROLE_LABELS, ROLE_DESCRIPTIONS, ROLE_VIEWS, type ViewKey } from "@/lib/types";
-import { SaverdevLogo } from "@/components/saverdev-logo";
+import { ROLE_DESCRIPTIONS, ROLE_VIEWS, type ViewKey } from "@/lib/types";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
+import { LoginView } from "@/components/views/login-view";
 import { DashboardView } from "@/components/views/dashboard-view";
 import { BovinsView } from "@/components/views/bovins-view";
 import { FicheBovinView } from "@/components/views/fiche-bovin-view";
@@ -65,6 +65,7 @@ const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
 };
 
 export default function Home() {
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const role = useAppStore((s) => s.role);
   const view = useAppStore((s) => s.view);
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
@@ -77,6 +78,11 @@ export default function Home() {
     if (effectiveView === "fiche-bovin" && selectedBovinId) return selectedBovinId;
     return ROLE_DESCRIPTIONS[role];
   }, [effectiveView, selectedBovinId, role]);
+
+  // Page de connexion si non authentifié (après tous les hooks)
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background gradient-mesh">

@@ -68,6 +68,9 @@ import {
   ArrowExpand01Icon as Maximize2,
   ArrowReloadHorizontalIcon as RotateCw,
   Compass01Icon as Navigation,
+  Logout01Icon as Logout,
+  LockIcon as Lock,
+  EyeOffIcon as EyeOff,
 } from "@hugeicons/core-free-icons";
 
 // Export groupé pour usage direct
@@ -81,6 +84,9 @@ export {
   AlertCircle, LayoutGrid, Eye, Calendar, CalendarClock, HardDrive, Info,
   Map, MapPin, QrCode, Search, User,
   Layers, Maximize2, RotateCw, Navigation,
+  Logout,
+  Lock,
+  EyeOff,
 };
 
 // Type utilitaire pour les props d'icône

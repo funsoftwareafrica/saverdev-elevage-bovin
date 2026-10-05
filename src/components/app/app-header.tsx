@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/lib/icons";
-import { UserRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, User, Logout } from "@/lib/icons";
+import { toast } from "sonner";
 
 interface Props {
   title: string;
@@ -27,6 +28,8 @@ const ROLES: Role[] = ["ELEVEUR", "GERANT", "BAILLEUR", "ADMIN"];
 export function AppHeader({ title, subtitle }: Props) {
   const role = useAppStore((s) => s.role);
   const setRole = useAppStore((s) => s.setRole);
+  const user = useAppStore((s) => s.user);
+  const logout = useAppStore((s) => s.logout);
   const selectedMonth = useAppStore((s) => s.selectedMonth);
   const setSelectedMonth = useAppStore((s) => s.setSelectedMonth);
 
@@ -75,7 +78,7 @@ export function AppHeader({ title, subtitle }: Props) {
 
         {/* Sélecteur de rôle (démo) */}
         <div className="flex items-center gap-1.5">
-          <UserRound className="h-4 w-4 text-muted-foreground hidden sm:block" />
+          <HugeiconsIcon icon={User} size={16} className="text-muted-foreground hidden sm:block" />
           <Select value={role} onValueChange={(v) => setRole(v as Role)}>
             <SelectTrigger className="h-8 w-[120px] sm:w-[140px] text-xs">
               <SelectValue />
@@ -99,6 +102,21 @@ export function AppHeader({ title, subtitle }: Props) {
             Lecture seule
           </Badge>
         )}
+
+        {/* Bouton déconnexion */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+          onClick={() => {
+            logout();
+            toast.info("Déconnexion", { description: "À bientôt sur SAVERDEV" });
+          }}
+          aria-label="Se déconnecter"
+          title={user ? `${user.name}` : "Se déconnecter"}
+        >
+          <HugeiconsIcon icon={Logout} size={16} />
+        </Button>
       </div>
     </header>
   );
