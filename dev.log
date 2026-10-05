@@ -442,3 +442,5 @@ prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depens
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
  GET /api/stats/comparaison 200 in 82ms (compile: 37ms, proxy.ts: 4ms, render: 40ms)
+ GET / 200 in 46ms (compile: 4ms, render: 42ms)
+ GET / 200 in 39ms (compile: 3ms, render: 36ms)
