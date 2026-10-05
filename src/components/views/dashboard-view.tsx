@@ -776,58 +776,56 @@ function RentabiliteSection({
             <CardDescription className="text-xs">Du CA à la marge — décomposition (FCFA)</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
-            <div className="relative" style={{ height: chartH + 40 }}>
-              <svg viewBox={`0 0 100 ${chartH + 30}`} preserveAspectRatio="none" className="w-full h-full" style={{ overflow: "visible" }}>
-                {/* Ligne pointillée base 0 */}
-                <line x1="0" y1={chartH} x2="100" y2={chartH} stroke="oklch(0.85 0.02 80)" strokeWidth="0.5" strokeDasharray="1 1" />
-
-                {bars.map((b, i) => {
-                  const x = 4 + i * 23;
-                  const barW = 16;
-                  const yTop = chartH - (Math.max(b.base + b.hauteur, b.base) / maxVal) * chartH;
-                  const yBase = chartH - (Math.max(b.base, 0) / maxVal) * chartH;
-                  const barH = Math.abs(yBase - yTop);
-                  return (
-                    <g key={i}>
-                      {/* Ligne de liaison entre barres */}
-                      {i < bars.length - 1 && (
-                        <motion.line
-                          x1={x + barW} y1={yTop}
-                          x2={x + barW + 7} y2={yTop}
-                          stroke="oklch(0.65 0.02 50)" strokeWidth="0.4" strokeDasharray="0.8 0.8"
-                          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 0.8 + i * 0.2 }}
-                        />
-                      )}
-                      {/* Barre */}
-                      <motion.rect
-                        x={x} y={yTop} width={barW} height={Math.max(barH, 1)}
-                        fill={b.color} rx="1"
-                        initial={{ height: 0, y: chartH }} animate={{ height: barH, y: yTop }}
-                        transition={{ duration: 0.8, delay: 0.3 + i * 0.2, ease: "easeOut" }}
-                      />
-                      {/* Dégradé overlay */}
-                      <rect x={x} y={yTop} width={barW} height={Math.max(barH, 1)} fill="url(#wfGrad)" opacity="0.3" rx="1" />
-                      {/* Valeur au-dessus */}
-                      <text x={x + barW / 2} y={yTop - 1.5} textAnchor="middle" className="fill-foreground" style={{ fontSize: "2.2px", fontWeight: "bold" }}>
-                        {b.value >= 0 ? "+" : ""}{formatFCFAShort(b.value).replace(" FCFA", "")}
-                      </text>
-                      {/* Label en dessous */}
-                      <text x={x + barW / 2} y={chartH + 4} textAnchor="middle" className="fill-muted-foreground" style={{ fontSize: "2.4px" }}>
+            {/* Waterfall HTML/CSS — cascade CA → -coûts → marge */}
+            {(() => {
+              const containerH = 240; // px
+              return (
+                <div style={{ height: containerH + 30 }}>
+                  <div className="flex items-end justify-around gap-3 h-full pt-4 pb-2">
+                    {bars.map((b, i) => {
+                      const barH = Math.max(14, Math.round((b.hauteur / maxVal) * containerH));
+                      const spacerH = b.type === "total" ? 0 : Math.round((b.base / maxVal) * containerH);
+                      return (
+                        <div key={i} className="flex-1 max-w-[100px] h-full flex flex-col justify-end items-center">
+                          {/* Valeur au-dessus */}
+                          <div
+                            className="text-[0.7rem] font-bold tabular-nums mb-1 whitespace-nowrap"
+                            style={{ color: b.color }}
+                          >
+                            {b.value >= 0 ? "+" : ""}{formatFCFAShort(b.value).replace(" FCFA", "")}
+                          </div>
+                          {/* Espace flottant (effet waterfall) */}
+                          <div style={{ height: spacerH }} />
+                          {/* Barre */}
+                          <motion.div
+                            initial={{ height: 0 }}
+                            animate={{ height: barH }}
+                            transition={{ delay: 0.2 + i * 0.15, duration: 0.7, ease: "easeOut" }}
+                            className="w-full max-w-[56px] rounded-t-md relative"
+                            style={{
+                              background: `linear-gradient(180deg, ${b.color}, ${b.color}dd)`,
+                              minHeight: "10px",
+                            }}
+                          >
+                            <div className="absolute inset-0 rounded-t-md bg-gradient-to-b from-white/30 to-transparent" />
+                          </motion.div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Labels sous les barres */}
+                  <div className="flex justify-around gap-3">
+                    {bars.map((b, i) => (
+                      <p key={i} className="flex-1 max-w-[100px] text-[0.65rem] text-muted-foreground text-center truncate">
                         {b.label}
-                      </text>
-                    </g>
-                  );
-                })}
-                <defs>
-                  <linearGradient id="wfGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="white" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
             {/* Légende */}
-            <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.65rem]">
+            <div className="flex flex-wrap items-center gap-3 mt-3 text-[0.65rem]">
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-emerald-500" /> Revenu</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-red-500" /> Coût achat</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-amber-500" /> Coût engrais.</span>
