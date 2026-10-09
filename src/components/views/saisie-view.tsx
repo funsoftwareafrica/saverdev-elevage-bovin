@@ -333,7 +333,7 @@ export function SaisieView() {
             {activeType === "stock" && <FormStock onSave={handleSave} />}
           </CardContent></Card>
 
-          {/* Journal comptable */}
+          {/* Journal comptable — tableau en cascade */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground">{TYPE_CONFIG[activeType].label}</h3>
@@ -347,12 +347,22 @@ export function SaisieView() {
               )}
             </div>
 
+            {/* En-tête du tableau */}
+            <div className="grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 px-3 py-1.5 border-b border-border text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span>Date</span>
+              <span>N° Compte</span>
+              <span>Objet</span>
+              <span className="text-right">Montant Débit</span>
+              <span className="text-right">Montant Crédit</span>
+            </div>
+
+            {/* Lignes du journal en cascade */}
             {loading ? (
               <p className="text-center text-xs text-muted-foreground py-4">Chargement...</p>
             ) : entries.length === 0 ? (
               <p className="text-center text-xs text-muted-foreground py-4">Aucune entrée</p>
             ) : (
-              <div className="space-y-2">
+              <div className="overflow-hidden">
                 <AnimatePresence mode="popLayout">
                   {entries.map((e, i) => (
                     <motion.div
@@ -362,22 +372,13 @@ export function SaisieView() {
                       animate={{ opacity: 1, x: 0, height: "auto", marginLeft: Math.max(0, 16 - i * 3) }}
                       exit={{ opacity: 0, x: -30, height: 0 }}
                       transition={{ delay: i * 0.06, duration: 0.3 }}
-                      className={`relative overflow-hidden rounded-lg border p-3 ${e.debit > 0 ? "border-red-200 bg-red-50/20" : "border-emerald-200 bg-emerald-50/20"}`}
+                      className={`grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-2 border-b border-border/40 text-xs ${e.debit > 0 ? "bg-red-50/30" : "bg-emerald-50/30"}`}
                     >
-                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${e.debit > 0 ? "bg-red-500" : "bg-emerald-500"}`} />
-                      <div className="flex items-center justify-between gap-2 pl-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[0.6rem] font-mono font-bold bg-muted px-1.5 py-0.5 rounded">{e.numCompte}</span>
-                            <p className="text-sm font-medium text-foreground truncate">{e.libelle}</p>
-                          </div>
-                          <p className="text-[0.6rem] text-muted-foreground mt-0.5">Date : {e.date}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          {e.debit > 0 && <p className="text-sm font-bold tabular-nums text-red-600">MD : {formatFCFA(e.debit, false)}</p>}
-                          {e.credit > 0 && <p className="text-sm font-bold tabular-nums text-emerald-600">MC : {formatFCFA(e.credit, false)}</p>}
-                        </div>
-                      </div>
+                      <span className="text-muted-foreground tabular-nums">{e.date}</span>
+                      <span className="font-mono font-bold text-foreground">{e.numCompte}</span>
+                      <span className="text-foreground truncate">{e.libelle}</span>
+                      <span className="text-right tabular-nums font-medium text-red-600">{e.debit > 0 ? formatFCFA(e.debit, false) : "—"}</span>
+                      <span className="text-right tabular-nums font-medium text-emerald-600">{e.credit > 0 ? formatFCFA(e.credit, false) : "—"}</span>
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -386,14 +387,27 @@ export function SaisieView() {
 
             {/* Totaux du journal */}
             {entries.length > 0 && (
-              <div className="mt-3 flex items-center justify-between rounded-lg bg-muted/40 border border-border p-2.5">
-                <div className="flex gap-4 text-xs">
-                  <span className="text-muted-foreground">Total Débit : <span className="font-bold text-red-600 tabular-nums">{formatFCFA(totalDebit, false)}</span></span>
-                  <span className="text-muted-foreground">Total Crédit : <span className="font-bold text-emerald-600 tabular-nums">{formatFCFA(totalCredit, false)}</span></span>
+              <div className="grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-2 bg-muted/40 border border-border rounded-b-lg text-xs font-bold">
+                <span></span>
+                <span></span>
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-right tabular-nums text-red-600">{formatFCFA(totalDebit, false)}</span>
+                <span className="text-right tabular-nums text-emerald-600">{formatFCFA(totalCredit, false)}</span>
+              </div>
+            )}
+
+            {/* Conclusion */}
+            {entries.length > 0 && (
+              <div className="mt-2 flex items-center justify-between rounded-lg border border-border px-3 py-2">
+                <span className="text-xs text-muted-foreground">Solde (Débit − Crédit)</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-bold tabular-nums ${solde > 0 ? "text-red-600" : "text-emerald-600"}`}>
+                    {formatFCFA(Math.abs(solde), false)}
+                  </span>
+                  <Badge variant="outline" className={solde > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
+                    {conclusion}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className={solde > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
-                  {conclusion}
-                </Badge>
               </div>
             )}
           </div>
