@@ -102,7 +102,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { key: "dashboard", label: "Tableau de bord", icon: Activity },
   { key: "saisie", label: "Saisie", icon: Plus },
-  { key: "bovins", label: "Bovins", icon: Database },
+  { key: "bovins", label: "Cheptel", icon: Database },
   { key: "alimentation", label: "Alimentation", icon: Package },
   { key: "depenses", label: "Dépenses", icon: CreditCard },
   { key: "ventes", label: "Ventes", icon: TrendingUp },

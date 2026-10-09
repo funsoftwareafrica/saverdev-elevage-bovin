@@ -33,7 +33,8 @@ enum Role {
 // ---------- Cheptel ----------
 model Bovin {
   id                String        @id @default(cuid())
-  identifiant       String        @unique          // BOV-001
+  identifiant       String        @unique          // BOV-001, OVI-001
+  espece            String        @default("BOVIN") // BOVIN ou OVIN
   race              String        @default("Zébu")
   sexe              String        @default("Mâle")
   dateAchat         DateTime
@@ -52,6 +53,7 @@ model Bovin {
   depenses          DepenseBovin[]
 
   @@index([statut])
+  @@index([espece])
 }
 
 enum StatutBovin {

@@ -34,7 +34,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const VIEW_TITLES: Record<ViewKey, string> = {
   dashboard: "Tableau de bord",
   saisie: "Saisie des opérations",
-  bovins: "Cheptel — Bovins",
+  bovins: "Cheptel (Bovins + Ovins)",
   "fiche-bovin": "Fiche bovin",
   alimentation: "Alimentation",
   depenses: "Dépenses d'exploitation",
@@ -91,7 +91,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
-      <AnimatedBackground />
       <NetworkStatus />
       <AppHeader title={VIEW_TITLES[effectiveView]} subtitle={subtitle} />
       <div className="flex flex-1 w-full">
@@ -101,11 +100,10 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={effectiveView}
-                style={{ perspective: "1200px" }}
-                initial={{ opacity: 0, rotateY: 15, x: 40 }}
-                animate={{ opacity: 1, rotateY: 0, x: 0 }}
-                exit={{ opacity: 0, rotateY: -15, x: -40 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
               >
                 <ViewComponent />
               </motion.div>

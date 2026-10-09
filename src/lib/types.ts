@@ -10,6 +10,7 @@ export type StatutEcheance = "PAYEE" | "A_PAYER" | "EN_RETARD";
 export interface Bovin {
   id: string;
   identifiant: string;
+  espece: string;
   race: string;
   sexe: string;
   dateAchat: string; // ISO

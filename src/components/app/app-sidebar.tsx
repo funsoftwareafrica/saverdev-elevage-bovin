@@ -75,15 +75,7 @@ export function AppSidebar({ activeView, role }: Props) {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              {/* Icône avec effet 3D translateZ au survol */}
-              <motion.div
-                className="shrink-0 relative z-10"
-                style={{ transformStyle: "preserve-3d" }}
-                whileHover={{ rotateY: 360 }}
-                transition={{ rotateY: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
-              >
-                <HugeiconsIcon icon={item.icon} size={18} />
-              </motion.div>
+              <HugeiconsIcon icon={item.icon} size={18} className="shrink-0 relative z-10" />
               <span className="flex-1 text-left relative z-10">{item.label}</span>
               {isActive && (
                 <motion.div
@@ -103,19 +95,7 @@ export function AppSidebar({ activeView, role }: Props) {
 
   const brand = (
     <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
-      {/* Logo avec cube 3D rotatif */}
-      <motion.div
-        style={{ perspective: "200px" }}
-        whileHover={{ scale: 1.05 }}
-      >
-        <motion.div
-          animate={{ rotateY: [0, 360] }}
-          transition={{ duration: 20, repeat: Infinity }}
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <SaverdevLogo size={42} />
-        </motion.div>
-      </motion.div>
+      <SaverdevLogo size={42} />
       <div className="flex flex-col leading-tight">
         <span className="font-bold text-sidebar-foreground text-[0.95rem] tracking-wide">SAVERDEV</span>
         <span className="text-[0.62rem] uppercase tracking-[0.18em] text-sidebar-accent-foreground/70">

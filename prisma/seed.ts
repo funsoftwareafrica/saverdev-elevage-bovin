@@ -51,7 +51,7 @@ async function main() {
     });
     bovinIdMap.set(b.id, created.id);
   }
-  console.log(`  OK ${MOCK_BOVINS.length} bovins créés (BOV-001 à BOV-015)`);
+  console.log(`  OK ${MOCK_BOVINS.length} bovins créés (BOV-001 à BOV-015, OVI-001 à OVI-005)`);
 
   // ---- Alimentations + imputation par tête ----
   // Pour la démo, on impute aux N premiers bovins actifs/vendus

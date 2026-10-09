@@ -27,6 +27,7 @@ export function toBovin(b: PrismaBovin): Bovin {
   return {
     id: b.id,
     identifiant: b.identifiant,
+    espece: b.espece,
     race: b.race,
     sexe: b.sexe,
     dateAchat: b.dateAchat.toISOString(),
