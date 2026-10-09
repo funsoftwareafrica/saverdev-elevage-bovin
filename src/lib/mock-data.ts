@@ -25,7 +25,7 @@ const daysAgo = (n: number) => {
 export const MOCK_BOVINS: Bovin[] = [
   {
     id: "b1",
-    identifiant: "BOV-001",
+    espece: "BOVIN", identifiant: "BOV-001",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-01-15"),
@@ -40,7 +40,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b2",
-    identifiant: "BOV-002",
+    espece: "BOVIN", identifiant: "BOV-002",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-01-15"),
@@ -55,7 +55,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b3",
-    identifiant: "BOV-003",
+    espece: "BOVIN", identifiant: "BOV-003",
     race: "Zébu",
     sexe: "Mâle",
     dateAchat: iso("2025-02-03"),
@@ -70,7 +70,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b4",
-    identifiant: "BOV-004",
+    espece: "BOVIN", identifiant: "BOV-004",
     race: "Zébu Azaouak",
     sexe: "Mâle",
     dateAchat: iso("2025-03-10"),
@@ -85,7 +85,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b5",
-    identifiant: "BOV-005",
+    espece: "BOVIN", identifiant: "BOV-005",
     race: "Zébu Azaouak",
     sexe: "Mâle",
     dateAchat: iso("2025-03-10"),
@@ -100,7 +100,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b6",
-    identifiant: "BOV-006",
+    espece: "BOVIN", identifiant: "BOV-006",
     race: "Zébu",
     sexe: "Mâle",
     dateAchat: iso("2025-03-22"),
@@ -115,7 +115,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b7",
-    identifiant: "BOV-007",
+    espece: "BOVIN", identifiant: "BOV-007",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-04-01"),
@@ -130,7 +130,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b8",
-    identifiant: "BOV-008",
+    espece: "BOVIN", identifiant: "BOV-008",
     race: "Zébu",
     sexe: "Mâle",
     dateAchat: iso("2025-04-18"),
@@ -145,7 +145,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b9",
-    identifiant: "BOV-009",
+    espece: "BOVIN", identifiant: "BOV-009",
     race: "Zébu Azaouak",
     sexe: "Mâle",
     dateAchat: iso("2025-05-05"),
@@ -160,7 +160,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b10",
-    identifiant: "BOV-010",
+    espece: "BOVIN", identifiant: "BOV-010",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-05-05"),
@@ -175,7 +175,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b11",
-    identifiant: "BOV-011",
+    espece: "BOVIN", identifiant: "BOV-011",
     race: "Zébu",
     sexe: "Mâle",
     dateAchat: iso("2025-06-12"),
@@ -190,7 +190,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b12",
-    identifiant: "BOV-012",
+    espece: "BOVIN", identifiant: "BOV-012",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-06-12"),
@@ -205,7 +205,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b13",
-    identifiant: "BOV-013",
+    espece: "BOVIN", identifiant: "BOV-013",
     race: "Zébu Azaouak",
     sexe: "Mâle",
     dateAchat: iso("2025-07-01"),
@@ -220,7 +220,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b14",
-    identifiant: "BOV-014",
+    espece: "BOVIN", identifiant: "BOV-014",
     race: "Zébu",
     sexe: "Mâle",
     dateAchat: iso("2025-07-20"),
@@ -235,7 +235,7 @@ export const MOCK_BOVINS: Bovin[] = [
   },
   {
     id: "b15",
-    identifiant: "BOV-015",
+    espece: "BOVIN", identifiant: "BOV-015",
     race: "Zébu Gobra",
     sexe: "Mâle",
     dateAchat: iso("2025-02-15"),
