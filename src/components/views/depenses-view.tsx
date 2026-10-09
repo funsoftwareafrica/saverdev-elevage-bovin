@@ -31,7 +31,7 @@ const CATEGORIES = [
 
 export function DepensesView() {
   const role = useAppStore((s) => s.role);
-  const readOnly = role === "BAILLEUR";
+  const readOnly = role === "SINERGI";
   const { data: depenses, isLoading } = useDepenses();
   const createDepense = useCreateDepense();
   const [filter, setFilter] = useState<string>("TOUS");

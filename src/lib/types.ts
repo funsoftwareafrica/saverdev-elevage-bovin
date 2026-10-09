@@ -1,7 +1,7 @@
 // Types partagés de l'application Élevage Bovin (SAVERDEV)
 // Conçus pour matcher le schéma Prisma + besoins UI.
 
-export type Role = "ELEVEUR" | "GERANT" | "BAILLEUR" | "ADMIN";
+export type Role = "BENEFICIAIRE" | "SINERGI" | "E2A";
 
 export type StatutBovin = "EN_ENGRAISSEMENT" | "VENDU" | "MORT";
 
@@ -140,25 +140,22 @@ export interface Dashboard {
 // ---------- Rôles & permissions ----------
 
 export const ROLE_LABELS: Record<Role, string> = {
-  ELEVEUR: "Éleveur",
-  GERANT: "Gérant",
-  BAILLEUR: "Bailleur",
-  ADMIN: "Administrateur",
+  BENEFICIAIRE: "Bénéficiaire",
+  SINERGI: "SINERGI SA",
+  E2A: "E2A",
 };
 
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
-  ELEVEUR: "Saisie et consultation des opérations quotidiennes",
-  GERANT: "Saisie, validation, pilotage, reporting et administration",
-  BAILLEUR: "Consultation des tableaux de bord et rapports (lecture seule)",
-  ADMIN: "Administration technique et supervision",
+  BENEFICIAIRE: "Saisie, consultation, pilotage et gestion complète",
+  SINERGI: "Consultation des tableaux de bord et rapports (lecture seule)",
+  E2A: "Administration technique et supervision",
 };
 
 // Vues accessibles par rôle
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
-  ELEVEUR: ["dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "pesees"],
-  GERANT: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
-  BAILLEUR: ["bailleur-synthese", "financement", "rapport"],
-  ADMIN: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
+  BENEFICIAIRE: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
+  SINERGI: ["bailleur-synthese", "financement", "rapport"],
+  E2A: ["carte-3d","dashboard", "bovins", "fiche-bovin", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport", "tresorerie", "pesees", "parametres", "paturages"],
 };
 
 export type ViewKey =
@@ -176,7 +173,8 @@ export type ViewKey =
   | "parametres"
   | "paturages"
   | "bailleur-synthese"
-  | "carte-3d";
+  | "carte-3d"
+  | "saisie";
 
 export interface Pese { id: string; bovinId: string; identifiant: string; race: string; date: string; poids: number; methode: string; }
 export interface Parametre { id: string; cle: string; valeur: string; description: string | null; }

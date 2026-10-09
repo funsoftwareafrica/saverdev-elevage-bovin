@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils";
 
 // Comptes démo (depuis prisma/seed.ts)
 const DEMO_ACCOUNTS: { email: string; name: string; role: Role; password: string; color: string }[] = [
-  { email: "eleveur@saverdev.org", name: "Ibrahim Sawadogo", role: "ELEVEUR", password: "demo", color: PALETTE.primary },
-  { email: "gerant@saverdev.org", name: "Awa Traoré", role: "GERANT", password: "demo", color: "#1E6091" },
-  { email: "bailleur@saverdev.org", name: "Bailleur SAVERDEV", role: "BAILLEUR", password: "demo", color: "#8D6E63" },
-  { email: "admin@saverdev.org", name: "Administrateur", role: "ADMIN", password: "demo", color: "#14532A" },
+  { email: "beneficiaire@saverdev.org", name: "Ibrahim Sawadogo", role: "BENEFICIAIRE", password: "demo", color: PALETTE.primary },
+  { email: "beneficiaire@saverdev.org", name: "Awa Traoré", role: "BENEFICIAIRE", password: "demo", color: "#1E6091" },
+  { email: "sinergi@saverdev.org", name: "Bailleur SAVERDEV", role: "SINERGI", password: "demo", color: "#8D6E63" },
+  { email: "e2a@saverdev.org", name: "Administrateur", role: "E2A", password: "demo", color: "#14532A" },
 ];
 
 export function LoginView() {

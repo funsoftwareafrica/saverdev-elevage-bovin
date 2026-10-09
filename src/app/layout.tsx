@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     "Application de gestion et reporting d'élevage bovin d'engraissement : cheptel, alimentation, rentabilité, financement bailleur.",
   keywords: ["élevage bovin", "engraissement", "SAVERDEV", "Sahel", "gestion cheptel", "reporting bailleur"],
   authors: [{ name: "SAVERDEV" }],
+  manifest: "/manifest.json",
+  themeColor: "#10B981",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "SAVERDEV" },
 };
 
 export default function RootLayout({

@@ -16,7 +16,7 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
-  role      Role     @default(GERANT)
+  role      Role     @default(BENEFICIAIRE)
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -25,10 +25,9 @@ model User {
 }
 
 enum Role {
-  ELEVEUR
-  GERANT
-  BAILLEUR
-  ADMIN
+  BENEFICIAIRE
+  SINERGI
+  E2A
 }
 
 // ---------- Cheptel ----------

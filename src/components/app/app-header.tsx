@@ -24,7 +24,7 @@ interface Props {
   subtitle: string;
 }
 
-const ROLES: Role[] = ["ELEVEUR", "GERANT", "BAILLEUR", "ADMIN"];
+const ROLES: Role[] = ["BENEFICIAIRE", "SINERGI", "E2A"];
 
 export function AppHeader({ title, subtitle }: Props) {
   const role = useAppStore((s) => s.role);
@@ -95,7 +95,7 @@ export function AppHeader({ title, subtitle }: Props) {
         </div>
 
         {/* Badge lecture seule pour bailleur */}
-        {role === "BAILLEUR" && (
+        {role === "SINERGI" && (
           <Badge
             variant="outline"
             className="hidden lg:inline-flex text-[0.65rem] border-amber-300 text-amber-700 bg-amber-50"

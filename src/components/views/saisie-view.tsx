@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 // Vue Saisie — journaux comptables (partie double) + balance + financement.
 // Refonte complète avec :
@@ -119,14 +120,13 @@ export function SaisieView() {
       window.removeEventListener("online", handleOnlineChange);
       window.removeEventListener("offline", handleOnlineChange);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (activeType) {
       loadJournal(activeType);
     }
-  }, [activeType, loadJournal]);
+  }, [activeType]);
 
   const handleSave = async (type: SaisieType, data: Record<string, unknown>) => {
     if (!navigator.onLine) {

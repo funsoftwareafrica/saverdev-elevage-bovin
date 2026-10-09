@@ -2,7 +2,7 @@
 
 // Shell principal de l'application SAVERDEV Élevage Bovin.
 // Routeur de vues par état local (Zustand) — pas de routing Next.js (single page).
-// Rôles : Éleveur / Gérant / Bailleur (lecture seule) / Admin.
+// Rôles : Bénéficiaire / SINERGI SA / E2A.
 
 import { useMemo } from "react";
 import { useAppStore } from "@/lib/store";
@@ -11,7 +11,9 @@ import { AppSidebar } from "@/components/app/app-sidebar";
 import { AppHeader } from "@/components/app/app-header";
 import { AppFooter } from "@/components/app/app-footer";
 import { LoginView } from "@/components/views/login-view";
+import { SaisieView } from "@/components/views/saisie-view";
 import { AnimatedBackground } from "@/components/animated-background";
+import { NetworkStatus } from "@/components/network-status";
 import { DashboardView } from "@/components/views/dashboard-view";
 import { BovinsView } from "@/components/views/bovins-view";
 import { FicheBovinView } from "@/components/views/fiche-bovin-view";
@@ -31,6 +33,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const VIEW_TITLES: Record<ViewKey, string> = {
   dashboard: "Tableau de bord",
+  saisie: "Saisie des opérations",
   bovins: "Cheptel — Bovins",
   "fiche-bovin": "Fiche bovin",
   alimentation: "Alimentation",
@@ -49,6 +52,7 @@ const VIEW_TITLES: Record<ViewKey, string> = {
 
 const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
   dashboard: DashboardView,
+  saisie: SaisieView,
   bovins: BovinsView,
   "fiche-bovin": FicheBovinView,
   alimentation: AlimentationView,
@@ -88,6 +92,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
       <AnimatedBackground />
+      <NetworkStatus />
       <AppHeader title={VIEW_TITLES[effectiveView]} subtitle={subtitle} />
       <div className="flex flex-1 w-full">
         <AppSidebar activeView={effectiveView} role={role} />

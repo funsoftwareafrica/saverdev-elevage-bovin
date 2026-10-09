@@ -23,6 +23,7 @@ export function ParametresView() {
   const list = params ?? [];
   const backupList = backups ?? [];
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { const v: Record<string, string> = {}; list.forEach((p) => { v[p.cle] = p.valeur; }); setValues(v); }, [list]);
 
   return (

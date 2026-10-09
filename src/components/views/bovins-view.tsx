@@ -51,7 +51,7 @@ export function BovinsView() {
   const openBovin = useAppStore((s) => s.openBovin);
   
   const role = useAppStore((s) => s.role);
-  const readOnly = role === "BAILLEUR";
+  const readOnly = role === "SINERGI";
   const { data: bovins, isLoading } = useBovins();
   const createBovin = useCreateBovin();
   const [search, setSearch] = useState("");

@@ -24,7 +24,7 @@ import { toast } from "sonner";
 
 export function VentesView() {
   const role = useAppStore((s) => s.role);
-  const readOnly = role === "BAILLEUR";
+  const readOnly = role === "SINERGI";
   const [open, setOpen] = useState(false);
   const { data: vendus, isLoading } = useVentes();
   const { data: allBovins } = useBovins();

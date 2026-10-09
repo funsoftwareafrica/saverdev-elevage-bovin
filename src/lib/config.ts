@@ -116,17 +116,15 @@ export const NAV_ITEMS: NavItem[] = [
 // ============================================================
 
 export const ROLE_LABELS = {
-  ELEVEUR: "Éleveur",
-  GERANT: "Gérant",
-  BAILLEUR: "Bailleur",
-  ADMIN: "Administrateur",
+  BENEFICIAIRE: "Bénéficiaire",
+  SINERGI: "SINERGI SA",
+  E2A: "E2A",
 } as const;
 
 export const ROLE_DESCRIPTIONS = {
-  ELEVEUR: "Saisie et consultation des opérations quotidiennes",
-  GERANT: "Saisie, validation, pilotage, reporting et administration",
-  BAILLEUR: "Consultation des tableaux de bord et rapports (lecture seule)",
-  ADMIN: "Administration technique et supervision",
+  BENEFICIAIRE: "Saisie, consultation, pilotage et gestion complète",
+  SINERGI: "Consultation des tableaux de bord et rapports (lecture seule)",
+  E2A: "Administration technique et supervision",
 } as const;
 
 export const STATUT_BOVIN_LABELS = {

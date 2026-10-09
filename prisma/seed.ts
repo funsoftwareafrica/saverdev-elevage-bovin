@@ -24,10 +24,9 @@ async function main() {
 
   // ---- Users (4 rôles) ----
   const users = await Promise.all([
-    prisma.user.create({ data: { email: "eleveur@saverdev.org", name: "Moussa", role: Role.ELEVEUR, password: "demo" } }),
-    prisma.user.create({ data: { email: "gerant@saverdev.org", name: "Aïssa", role: Role.GERANT, password: "demo" } }),
-    prisma.user.create({ data: { email: "bailleur@saverdev.org", name: "SAVERDEV Finance", role: Role.BAILLEUR, password: "demo" } }),
-    prisma.user.create({ data: { email: "admin@saverdev.org", name: "Admin", role: Role.ADMIN, password: "demo" } }),
+    prisma.user.create({ data: { email: "beneficiaire@saverdev.org", name: "Bénéficiaire 1", role: Role.BENEFICIAIRE, password: "demo" } }),
+    prisma.user.create({ data: { email: "sinergi@saverdev.org", name: "SINERGI SA", role: Role.SINERGI, password: "demo" } }),
+    prisma.user.create({ data: { email: "e2a@saverdev.org", name: "E2A", role: Role.E2A, password: "demo" } }),
   ]);
   console.log(`  OK ${users.length} utilisateurs créés (4 rôles)`);
 
@@ -150,7 +149,7 @@ async function main() {
   const gerant = users[1]; // Aïssa
   const eleveur = users[0]; // Moussa
   for (const h of MOCK_HISTORIQUES) {
-    const userId = h.user?.name === "Aïssa" ? gerant.id : h.user?.name === "Moussa" ? eleveur.id : null;
+    const userId = h.user?.name === "Bénéficiaire 2" ? gerant.id : h.user?.name === "Bénéficiaire 1" ? eleveur.id : null;
     await prisma.historique.create({
       data: {
         date: new Date(h.date),
@@ -166,10 +165,10 @@ async function main() {
 
   console.log("\nSeed terminé avec succès !");
   console.log("   Comptes démo :");
-  console.log("   - eleveur@saverdev.org / demo");
-  console.log("   - gerant@saverdev.org / demo");
-  console.log("   - bailleur@saverdev.org / demo");
-  console.log("   - admin@saverdev.org / demo");
+  console.log("   - beneficiaire@saverdev.org / demo");
+  console.log("   - beneficiaire2@saverdev.org / demo");
+  console.log("   - sinergi@saverdev.org / demo");
+  console.log("   - e2a@saverdev.org / demo");
 }
 
 main()

@@ -1,0 +1,14 @@
+{
+  "name": "SAVERDEV — Gestion d'élevage bovin",
+  "short_name": "SAVERDEV",
+  "description": "Gestion et reporting d'élevage bovin d'engraissement",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F4F6",
+  "theme_color": "#10B981",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "/logo-e2a.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/logo-e2a.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

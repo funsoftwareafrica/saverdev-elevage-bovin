@@ -31,7 +31,7 @@ const currentMonthISO = () => {
 export const useAppStore = create<AppState>((set) => ({
   isAuthenticated: false,
   user: null,
-  role: "GERANT",
+  role: "BENEFICIAIRE",
   view: "dashboard",
   selectedBovinId: null,
   selectedMonth: currentMonthISO(),
@@ -46,7 +46,7 @@ export const useAppStore = create<AppState>((set) => ({
     set({
       isAuthenticated: false,
       user: null,
-      role: "GERANT",
+      role: "BENEFICIAIRE",
       view: "dashboard",
       selectedBovinId: null,
     }),
@@ -63,10 +63,9 @@ export const useAppStore = create<AppState>((set) => ({
 // helper local (évite d'importer ROLE_VIEWS partout)
 function rolePermissions(role: Role): ViewKey[] {
   const m: Record<Role, ViewKey[]> = {
-    ELEVEUR: ["dashboard", "bovins", "alimentation", "depenses", "ventes"],
-    GERANT: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
-    BAILLEUR: ["dashboard", "rentabilite", "financement", "rapport"],
-    ADMIN: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
+    BENEFICIAIRE: ["dashboard", "bovins", "alimentation", "depenses", "ventes"],
+    SINERGI: ["dashboard", "rentabilite", "financement", "rapport"],
+    E2A: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
   };
   return m[role];
 }
