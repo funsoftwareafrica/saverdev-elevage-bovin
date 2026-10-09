@@ -62,7 +62,7 @@ export function SaisieView() {
   const [conclusion, setConclusion] = useState("");
 
   // Données balance
-  const [balance, setBalance] = useState<{ numCompte: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }[]>([]);
+  const [balance, setBalance] = useState<{ numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }[]>([]);
   const [showBalance, setShowBalance] = useState(false);
 
   // Données financement
