@@ -223,21 +223,64 @@ export function SaisieView() {
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
-                <thead><tr className="border-b border-border text-left">
-                  <th className="p-2">N° Compte</th><th className="p-2 text-right">Total Débit</th><th className="p-2 text-right">Total Crédit</th><th className="p-2 text-right">Solde</th><th className="p-2">Conclusion</th>
-                </tr></thead>
+                <thead>
+                  <tr className="border-b-2 border-border text-left">
+                    <th className="p-2" rowSpan={2}>Compte</th>
+                    <th className="p-2" rowSpan={2}>Libellé</th>
+                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N-1</th>
+                    <th className="p-2 text-center border-l border-border" colSpan={2}>Mouvements N</th>
+                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N</th>
+                  </tr>
+                  <tr className="border-b border-border text-left text-[0.6rem]">
+                    <th className="p-2 text-right border-l border-border">Débit</th>
+                    <th className="p-2 text-right">Crédit</th>
+                    <th className="p-2 text-right border-l border-border">Débit</th>
+                    <th className="p-2 text-right">Crédit</th>
+                    <th className="p-2 text-right border-l border-border">Débit</th>
+                    <th className="p-2 text-right">Crédit</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {balance.map((c, i) => (
-                    <tr key={i} className="border-b border-border/50">
-                      <td className="p-2 font-mono font-bold">{c.numCompte}</td>
-                      <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(c.totalDebit, false)}</td>
-                      <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(c.totalCredit, false)}</td>
-                      <td className="p-2 text-right tabular-nums font-bold">{formatFCFA(Math.abs(c.solde), false)}</td>
-                      <td className="p-2"><Badge variant="outline" className={c.solde > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>{c.conclusion}</Badge></td>
-                    </tr>
-                  ))}
+                  {balance.map((c, i) => {
+                    const soldeDebit = c.solde > 0 ? Math.abs(c.solde) : 0;
+                    const soldeCredit = c.solde < 0 ? Math.abs(c.solde) : 0;
+                    return (
+                      <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+                        <td className="p-2 font-mono font-bold">{c.numCompte}</td>
+                        <td className="p-2 text-foreground">{c.libelle}</td>
+                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+                        <td className="p-2 text-right tabular-nums text-red-600">{c.totalDebit > 0 ? formatFCFA(c.totalDebit, false) : ""}</td>
+                        <td className="p-2 text-right tabular-nums text-emerald-600">{c.totalCredit > 0 ? formatFCFA(c.totalCredit, false) : ""}</td>
+                        <td className="p-2 text-right tabular-nums font-bold text-red-600">{soldeDebit > 0 ? formatFCFA(soldeDebit, false) : ""}</td>
+                        <td className="p-2 text-right tabular-nums font-bold text-emerald-600">{soldeCredit > 0 ? formatFCFA(soldeCredit, false) : ""}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-border font-bold bg-muted/30">
+                    <td className="p-2" colSpan={2}>Total général</td>
+                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(balance.reduce((s, c) => s + c.totalDebit, 0), false)}</td>
+                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(balance.reduce((s, c) => s + c.totalCredit, 0), false)}</td>
+                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(Math.max(0, balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
+                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(Math.max(0, -balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
+                  </tr>
+                </tfoot>
               </table>
+            </div>
+            <div className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2">
+              <span className="text-xs text-muted-foreground">Solde général (Débit − Crédit)</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-bold tabular-nums ${balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-600" : "text-emerald-600"}`}>
+                  {formatFCFA(Math.abs(balance.reduce((s, c) => s + c.solde, 0)), false)}
+                </span>
+                <Badge variant="outline" className={balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
+                  {balance.reduce((s, c) => s + c.solde, 0) > 0 ? "Solde débitaire" : "Solde créditaire"}
+                </Badge>
+              </div>
             </div>
             <button onClick={() => setShowBalance(false)} className="mt-3 text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
           </CardContent>
@@ -351,7 +394,7 @@ export function SaisieView() {
             <div className="grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 px-3 py-1.5 border-b border-border text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
               <span>Date</span>
               <span>N° Compte</span>
-              <span>Objet</span>
+              <span>Libellé</span>
               <span className="text-right">Montant Débit</span>
               <span className="text-right">Montant Crédit</span>
             </div>
@@ -368,17 +411,17 @@ export function SaisieView() {
                     <motion.div
                       key={e.id}
                       layout
-                      initial={{ opacity: 0, x: -30, height: 0 }}
-                      animate={{ opacity: 1, x: 0, height: "auto", marginLeft: Math.max(0, 16 - i * 3) }}
-                      exit={{ opacity: 0, x: -30, height: 0 }}
-                      transition={{ delay: i * 0.06, duration: 0.3 }}
-                      className={`grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-2 border-b border-border/40 text-xs ${e.debit > 0 ? "bg-red-50/30" : "bg-emerald-50/30"}`}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.2 }}
+                      className={`grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-1.5 border-b border-border/40 text-xs ${e.debit > 0 ? "bg-red-50/30" : "bg-emerald-50/30"}`}
                     >
                       <span className="text-muted-foreground tabular-nums">{e.date}</span>
                       <span className="font-mono font-bold text-foreground">{e.numCompte}</span>
                       <span className="text-foreground truncate">{e.libelle}</span>
-                      <span className="text-right tabular-nums font-medium text-red-600">{e.debit > 0 ? formatFCFA(e.debit, false) : "—"}</span>
-                      <span className="text-right tabular-nums font-medium text-emerald-600">{e.credit > 0 ? formatFCFA(e.credit, false) : "—"}</span>
+                      <span className="text-right tabular-nums font-medium text-red-600">{e.debit > 0 ? formatFCFA(e.debit, false) : ""}</span>
+                      <span className="text-right tabular-nums font-medium text-emerald-600">{e.credit > 0 ? formatFCFA(e.credit, false) : ""}</span>
                     </motion.div>
                   ))}
                 </AnimatePresence>

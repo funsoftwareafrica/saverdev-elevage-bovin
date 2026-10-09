@@ -159,11 +159,24 @@ export async function GET(req: NextRequest) {
   if (type === "balance") {
     const [achats, ventes, depenses] = await Promise.all([getAchats(), getVentes(), getDepenses()]);
     const allEntries = [...achats, ...ventes, ...depenses];
+    // Libellés des comptes
+    const LIBELLES: Record<string, string> = {
+      "23": "Immobilisations",
+      "4111": "Clients",
+      "5711": "Caisse / Banque",
+      "6011": "Achats de bétail",
+      "6012": "Achats d'aliments",
+      "615": "Vétérinaire",
+      "624": "Transport",
+      "661": "Salariat",
+      "68": "Autres charges",
+      "7011": "Ventes de bétail",
+    };
     // Regrouper par numéro de compte
-    const parCompte: Record<string, { numCompte: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }> = {};
+    const parCompte: Record<string, { numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }> = {};
     for (const e of allEntries) {
       if (!parCompte[e.numCompte]) {
-        parCompte[e.numCompte] = { numCompte: e.numCompte, totalDebit: 0, totalCredit: 0, solde: 0, conclusion: "" };
+        parCompte[e.numCompte] = { numCompte: e.numCompte, libelle: LIBELLES[e.numCompte] ?? e.libelle.split(" — ")[0] ?? "", totalDebit: 0, totalCredit: 0, solde: 0, conclusion: "" };
       }
       parCompte[e.numCompte].totalDebit += e.debit;
       parCompte[e.numCompte].totalCredit += e.credit;
