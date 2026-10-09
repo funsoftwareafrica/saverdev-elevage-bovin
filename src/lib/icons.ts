@@ -75,6 +75,9 @@ import {
   Moon02Icon as Moon,
   SparklesIcon as Sparkles,
   BoltIcon as Bolt,
+  Wifi01Icon as Wifi,
+  ChevronDownIcon as ChevronDown,
+  ChevronUpIcon as ChevronUp,
 } from "@hugeicons/core-free-icons";
 
 // Export groupé pour usage direct
@@ -92,6 +95,7 @@ export {
   Lock,
   EyeOff,
   Sun, Moon, Sparkles, Bolt,
+  Wifi, ChevronDown, ChevronUp,
 };
 
 // Type utilitaire pour les props d'icône

@@ -80,7 +80,7 @@ export function AppSidebar({ activeView, role }: Props) {
                 className="shrink-0 relative z-10"
                 style={{ transformStyle: "preserve-3d" }}
                 whileHover={{ rotateY: 360 }}
-                transition={{ rotateY: { duration: 0.6, ease: "easeOut" } }}
+                transition={{ rotateY: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
               >
                 <HugeiconsIcon icon={item.icon} size={18} />
               </motion.div>
@@ -110,7 +110,7 @@ export function AppSidebar({ activeView, role }: Props) {
       >
         <motion.div
           animate={{ rotateY: [0, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear", transformStyle: "preserve-3d" }}
+          transition={{ duration: 20, repeat: Infinity }}
           style={{ transformStyle: "preserve-3d" }}
         >
           <SaverdevLogo size={42} />

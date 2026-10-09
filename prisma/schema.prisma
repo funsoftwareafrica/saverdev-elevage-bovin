@@ -215,3 +215,18 @@ model Validation {
   @@index([statut])
   @@index([entiteType])
 }
+
+// ---------- Gestion de stock (aliment bétail) ----------
+model StockMouvement {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  typeAliment   String
+  entree        Int      @default(0)
+  sortie        Int      @default(0)
+  prixParSac    Float    @default(0)
+  observations  String?
+  createdAt      DateTime @default(now())
+
+  @@index([date])
+  @@index([typeAliment])
+}

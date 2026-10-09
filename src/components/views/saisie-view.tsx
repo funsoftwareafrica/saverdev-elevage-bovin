@@ -164,7 +164,7 @@ export function SaisieView() {
           <button onClick={() => setShowAlerts((v) => !v)} className="w-full flex items-center gap-2 p-3">
             <HugeiconsIcon icon={AlertTriangle} size={16} className="text-amber-600" />
             <span className="text-xs font-semibold text-amber-900 flex-1 text-left">Zone d'alertes ({alertes.length})</span>
-            {showAlerts ? <ChevronUp size={16} className="text-amber-600" /> : <ChevronDown size={16} className="text-amber-600" />}
+            {showAlerts ? <HugeiconsIcon icon={ChevronUp} size={16} className="text-amber-600" /> : <HugeiconsIcon icon={ChevronDown} size={16} className="text-amber-600" />}
           </button>
           {showAlerts && (
             <div className="px-3 pb-3 space-y-1.5">
@@ -312,7 +312,7 @@ export function SaisieView() {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <button onClick={() => { setActiveType(null); setEntries([]); }} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              <ChevronDown size={14} className="rotate-90" /> Retour
+              <HugeiconsIcon icon={ChevronDown} size={14} className="rotate-90" /> Retour
             </button>
             <div className="flex items-center gap-2 flex-1">
               <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: TYPE_CONFIG[activeType].color + "15" }}>
@@ -321,7 +321,7 @@ export function SaisieView() {
               <h2 className="text-base font-bold text-foreground">{TYPE_CONFIG[activeType].label}</h2>
             </div>
             <div className={`flex items-center gap-1 text-[0.6rem] ${isOnline ? "text-emerald-600" : "text-amber-600"}`}>
-              <Wifi size={12} />{isOnline ? "En ligne" : "Hors ligne"}
+              <HugeiconsIcon icon={Wifi} size={12} />{isOnline ? "En ligne" : "Hors ligne"}
             </div>
           </div>
 
