@@ -1,0 +1,357 @@
+     1→# Worklog — Application Élevage Bovin (SAVERDEV)
+     2→
+     3→Projet : application de gestion et reporting d'élevage bovin d'engraissement.
+     4→Stack : Next.js 16 + shadcn/ui + Tailwind v4 + Prisma (SQLite) + TanStack Query.
+     5→Palette : SAVERDEV (vert forêt #2E8B57, marron terre #4A3728, vert clair #7CC576, bleu ciel #87CEEB, fond blanc).
+     6→4 profils : Éleveur, Gérant, Bailleur (lecture seule), Admin.
+     7→
+     8→---
+     9→Task ID: 1
+    10→Agent: main
+    11→Task: Fondation + shell + 9 vues complètes avec mock-data (palette SAVERDEV)
+    12→
+    13→Work Log:
+    14→- Lecture des 3 docx (cahier des charges, guidelines, support KPI) et du logo SAVERDEV via VLM
+    15→- Palette SAVERDEV dans globals.css (vert forêt primary, marron terre sidebar/secondary, vert clair accent, bleu ciel chart-4)
+    16→- Schema Prisma : User, Bovin, Alimentation, AlimentationBovin, Depense, DepenseBovin, Financement, Echeance, Alerte, Historique
+    17→- lib/types.ts (interfaces TypeScript + ROLE_VIEWS pour RBAC)
+    18→- lib/mock-data.ts (15 bovins, 8 alimentations, 13 dépenses, financement 5M FCFA + 10 échéances, 5 alertes, 6 historiques)
+    19→- lib/format.ts (formatFCFA, formatDate, moisLabel, statutBovinColor, CHART_COLORS hex)
+    20→- lib/store.ts (Zustand : rôle actif, vue courante, mois sélectionné, bovin sélectionné)
+    21→- Shell page.tsx : sidebar marron + header sticky (logo + sélecteur mois + sélecteur rôle + badge lecture seule bailleur) + footer sticky
+    22→- Composants app/ : app-sidebar (nav filtrée par rôle, mobile via Sheet), app-header, app-footer
+    23→- 9 vues complètes :
+    24→  - dashboard-view : 6 blocs KPI (Cheptel/Engraissement/Alimentation/Rentabilité/Financement/Alertes) + 3 graphiques (Line évolution, Pie répartition, Bar ventes) + historique
+    25→  - bovins-view : table filtrable (recherche + tabs statut) + clic → fiche
+    26→  - fiche-bovin-view : identification + coûts & marge + progress
+    27→  - alimentation-view : KPI + table + dialog d'ajout
+    28→  - depenses-view : 4 cards par catégorie + table filtrable + dialog d'ajout
+    29→  - ventes-view : KPI CA/marge + table + dialog d'ajout
+    30→  - rentabilite-view : KPI + pie ventilation coûts + bar marges par bovin + table détaillée
+    31→  - financement-view : KPI + carte taux utilisation (progress) + prochaines échéances + table amortissement
+    32→  - rapport-bailleur-view : rapport imprimable 2 pages (synthèse + annexes) + boutons Imprimer/Export PDF (window.print)
+    33→- Logo SAVERDEV en SVG (cercle marron + arbre vert + courbes sol/eau)
+    34→
+    35→Stage Summary:
+    36→- Application complète et navigable
+    37→- 4 rôles fonctionnels avec nav restreinte (Bailleur = 4 vues, Gérant/Admin = 8 vues, Éleveur = 5 vues)
+    38→- Tous les montants en FCFA avec formatage fr-FR
+    39→- Graphiques Recharts avec couleurs hex SAVERDEV (var(--chart-X) ne fonctionne pas en attributs SVG stroke/fill)
+    40→- Layout responsive : sidebar → Sheet sur mobile
+    41→- Sticky footer en bas de page
+    42→
+    43→---
+    44→Task ID: 2
+    45→Agent: main
+    46→Task: Vérification end-to-end avec Agent Browser
+    47→
+    48→Work Log:
+    49→- Démarrage dev server (port 3000, Turbopack)
+    50→- Vérification lint : 0 erreur après fix useMemo (financement-view) et import manquant (statutEcheanceColor dans rapport)
+    51→- Inspection DOM des graphiques : les 3 rendent des paths SVG valides (Line=3 courbes, Pie=3 secteurs, Bar=3 barres)
+    52→- Capture + analyse VLM après scroll aux graphiques : les 3 graphiques visibles (courbes vert/marron/vert clair, donut 3 segments, barres vertes)
+    53→- Test navigation : Dashboard → Bovins (table avec BOV-001..015) → clic ligne BOV-001 → Fiche bovin
+    54→- Test RBAC : switch rôle Gérant → Bailleur : nav passe de 8 à 4 items (Dashboard, Rentabilité, Financement, Rapport)
+    55→- Test toutes les vues : Alimentation, Dépenses, Ventes, Rentabilité, Financement — toutes rendent leur heading + contenu
+    56→- Test Export PDF : bouton déclenche window.print() + toast "Préparation du PDF..."
+    57→
+    58→Stage Summary:
+    59→- Frontend 100% fonctionnel et vérifié dans le navigateur
+    60→- Aucune erreur runtime/compile/hydratation
+    61→- Palette SAVERDEV correctement appliquée (sidebar marron, accents vert, fond blanc, alertes rouge/jaune)
+    62→- Prêt pour présentation utilisateur
+    63→
+    64→Note : Les vues utilisent actuellement des données mockées (lib/mock-data.ts).
+    65→Le schéma Prisma est poussé en DB (db:push OK). L'ajout d'API routes + seed + branchement
+    66→TanStack Query est l'étape suivante pour persister les données réelles.
+    67→
+    68→---
+    69→Task ID: 3
+    70→Agent: main
+    71→Task: Backend React — API routes + Prisma seed + TanStack Query (remplacement des imports mock)
+    72→
+    73→Work Log:
+    74→- prisma/seed.ts : peuplement SQLite depuis mock-data (4 users, 15 bovins, 8 alimentations + imputation, 13 dépenses, 1 financement + 10 échéances, 5 alertes, 6 historiques)
+    75→- package.json : ajout scripts db:seed, db:studio + config prisma.seed
+    76→- Schema : renommé prixachat → prixAchat (cohérence camelCase) + db:push
+    77→- src/lib/calculations.ts : calculs purs (computeBovinMarge, computeDashboardFromData) réutilisables serveur + client
+    78→- src/lib/server-mappers.ts : conversion Prisma (Date) → TS (ISO string)
+    79→- 9 API routes :
+    80→  - GET /api/dashboard (agrégation serveur via computeDashboardFromData)
+    81→  - GET+POST /api/bovins, GET /api/bovins/[id]
+    82→  - GET+POST /api/alimentation (imputation auto + update coutsEngraissement)
+    83→  - GET+POST /api/depenses (imputation auto + update autresCouts)
+    84→  - GET+POST /api/ventes (fige coût + calcule marge)
+    85→  - GET /api/financement, /api/alertes, /api/historique
+    86→- src/components/query-provider.tsx : QueryClientProvider (staleTime 30s)
+    87→- src/app/layout.tsx : wrap app dans QueryProvider
+    88→- src/lib/api.ts : hooks TanStack Query (useBovins, useBovin, useDashboard, useAlimentations, useDepenses, useVentes, useFinancement, useAlertes, useHistorique + mutations useCreateBovin/Alimentation/Depense/Vente avec invalidation)
+    89→- 9 vues branchées sur les hooks (remplacement des imports MOCK_*) + états de chargement (Skeleton)
+    90→- Formulaires Alimentation/Dépenses/Ventes : FormData → mutation → API → DB → invalidate → refetch
+    91→
+    92→Stage Summary:
+    93→- Vérification Agent Browser :
+    94→  - GET /api/bovins → 15 bovins (BOV-001 first)
+    95→  - GET /api/dashboard → cheptel.bovinsActifs=10, rentabilite.margeTotale=402500
+    96→  - POST /api/alimentation → 201 + coutParTete calculé (60000/3=20000)
+    97→  - Imputation vérifiée : BOV-004 coutsEngraissement passé de 28000 à 48000 après POST
+    98→  - Dashboard rend avec données dynamiques (KPI + 3 graphiques + alertes + historique)
+    99→- Lint clean (0 erreur)
+   100→- Cycle React complet : saisie → API → SQLite → invalidation → re-fetch → UI à jour
+   101→- Les mutations créent aussi des entrées dans l'historique (traçabilité)
+   102→
+   103→Note technique : les données mockées (lib/mock-data.ts) restent utilisées par
+   104→le script de seed mais ne sont plus importées par les vues. Toutes les vues
+   105→fetchent maintenant via TanStack Query. Le seed peut être relancé avec
+   106→`bun run db:seed` pour réinitialiser les données démo.
+   107→
+   108→---
+   109→Task ID: 4
+   110→Agent: main
+   111→Task: Alignement des icônes sur le set cattly.io (Lucide outline)
+   112→
+   113→Work Log:
+   114→- Lecture de cattly.io via page_reader (Cloudflare blockait le screenshot direct)
+   115→- Extraction des 21 SVGs uniques du HTML, identification des icônes Lucide utilisées par cattly.io :
+   116→  Database, Users, FileText, Map, Droplet, TrendingUp, Activity, Package, Clock, CreditCard, BarChart3 (+ X, Expand pour UI)
+   117→- Analyse du contexte texte autour de chaque <span class="icon"> pour comprendre le mapping icône → feature cattly
+   118→- Remapping de la navigation (app-sidebar.tsx NAV_ITEMS) sur le set cattly :
+   119→  - Tableau de bord : LayoutDashboard → Activity (cattly = métriques/data)
+   120→  - Bovins : Beef → Database (cattly = records d'élevage)
+   121→  - Alimentation : Salad → Package (cattly = inventaire/supplements)
+   122→  - Dépenses : Receipt → CreditCard (cattly = billing)
+   123→  - Ventes : ShoppingCart → TrendingUp (cattly = croissance)
+   124→  - Rentabilité : TrendingUp → BarChart3 (cattly = charts)
+   125→  - Financement : Landmark → Clock (cattly = reminders/échéances)
+   126→  - Rapport bailleur : FileText (déjà aligné)
+   127→- Alignement des ViewHeader de chaque vue sur la même icône que la nav (cohérence sidebar ↔ en-tête)
+   128→- Les KPI cards gardent des icônes domain-spécifiques (Beef pour bovins, Salad pour alimentation, etc.) car plus expressives
+   129→
+   130→Stage Summary:
+   131→- Vérification VLM Agent Browser : les 8 icônes de nav confirmées (Activity, Database, Package, CreditCard, TrendingUp, BarChart3, Clock, FileText)
+   132→- Vérification VLM ViewHeader Bovins : icône cylindre (Database) confirmée
+   133→- Lint clean
+   134→- Style préservé : Lucide outline stroke-width=2 viewBox 24×24 round caps (identique à cattly.io)
+   135→
+   136→---
+   137→Task ID: 5
+   138→Agent: main
+   139→Task: Redesign visuel cattly.io (tout en gardant les features des documents Word)
+   140→
+   141→Work Log:
+   142→- Extraction des captures d'écran du logiciel cattly via curl (herd-valuation, homepage-expenses, homepage-feed)
+   143→- Analyse VLM pixel-perfect : palette crème #FFFBF5 sur fond #FAFBFC, texte slate (#1E293B/#64748B/#94A3B8),
+   144→  accents vert #059669 / rouge #DC2626 / violet #7C3AED, cellules métriques pastel
+   145→  (bleu #E8F4FD, rose #FDF2F2, menthe #ECFDF5, orange #FFF7ED, lavande #FAF5FF),
+   146→  police Inter, radius 16-20px, ombres douces
+   147→- globals.css refait sur la palette cattly (--background, --card, --primary emerald, --destructive red,
+   148→  cellules pastel --cell-blue/pink/mint/orange/lavender, sidebar CLAIR blanc au lieu de marron)
+   149→- layout.tsx : police Inter (remplace Geist)
+   150→- Card component : rounded-2xl + ombre douce cattly (0 1px 3px + 0 4px 12px)
+   151→- _shared.tsx KpiCard redessiné : cellule pastel colorée par variant + valeur slate-800 700 + icône discrète
+   152→- format.ts CHART_COLORS : emerald/red/violet/orange/cyan (palette cattly) + alias rétro-compatibles
+   153→- Sidebar : passé du marron foncé au blanc cattly (logo SAVERDEV variante light conservé)
+   154→- Header : blanc épuré + border-bottom (au lieu de cream backdrop)
+   155→- Footer : blanc + border-top (au lieu de marron)
+   156→- Role badge sidebar : point vert + label (au lieu de uppercase tracking lourd)
+   157→
+   158→Stage Summary:
+   159→- Vérification VLM Agent Browser : 7/7 éléments cattly confirmés
+   160→  1. Sidebar blanc + logo SAVERDEV + nav cattly (Activity, Database, Package, CreditCard, TrendingUp, BarChart3, Clock, FileText) ✓
+   161→  2. Header blanc épuré + sélecteurs mois/rôle ✓
+   162→  3. Cartes crème #FFFBF5 + ombres douces + radius généreux ✓
+   163→  4. KPI cards cellules pastel (bleu/menthe/rose/orange) ✓
+   164→  5. Graphiques palette cattly (vert/rouge/violet/orange) ✓
+   165→  6. Section alertes visible ✓
+   166→  7. Footer blanc + logo SAVERDEV ✓
+   167→- Lint clean
+   168→- Features des documents PRESERVÉES : 4 profils RBAC, 6 blocs KPI, imputation par tête,
+   169→  rapport bailleur PDF, historique, calculs automatiques (coût revient, marge, taux utilisation)
+   170→- Logo SAVERDEV conservé dans sidebar + header mobile + footer (branding org)
+   171→
+   172→---
+   173→Task ID: 5-a
+   174→Agent: general-purpose
+   175→Task: Build 5 Expo screens (Bovins, Fiche bovin, Alimentation, Depenses, Ventes)
+   176→
+   177→Work Log:
+   178→- Lecture du worklog + index.tsx (dashboard pattern) + lib/{types,api,format,calculations} + components/{KpiCard,Card,Badge,Button,Section,Skeleton,SaverdevLogo} + constants/{theme,config} + app/_layout et (tabs)/_layout pour comprendre les conventions cattly et l'infrastructure existante (useBovins/useBovin/useAlimentations/useCreateAlimentation/useDepenses/useCreateDepense/useVentes/useCreateVente + computeBovinMarge + statutBovinColor + formatFCFA/formatFCFAShort/formatDate/joursEntre).
+   179→- Création de 5 écrans Expo Router v4 (tous TypeScript strict clean, 0 erreur tsc — `npx tsc --noEmit` retourne EXIT=0) :
+   180→  1. `app/(tabs)/bovins.tsx` — Cheptel : header + SaverdevLogo, 3 KpiCards (Bovins actifs/primary, Bovins vendus/success, Valeur cheptel via formatFCFAShort), barre de recherche (TextInput + icône Search + bouton X pour reset), 3 tabs filtres (TOUS / EN_ENGRAISSEMENT / VENDU) avec compteurs, liste de BovinRow pressable (Pressable → router.push({ pathname: "/bovin/[id]", params: { id } })). Chaque row : identifiant primary bold, statut Badge (statutBovinColor), race + date achat + jours (joursEntre), prix achat + coût revient + marge (computeBovinMarge, colorée success/danger). État skeleton pendant isLoading, RefreshControl tintColor=primary.
+   181→  2. `app/bovin/[id].tsx` — Fiche détail : useLocalSearchParams → useBovin(id). Bouton retour inline (router.back) en plus du header natif. Hero card primaryFaint avec identifiant 26px primary + race + Badge statut + 3 stats (poids achat, sexe, durée cycle). Card "Identification" (User icon) avec race/sexe/poids/date achat/durée cycle + (si VENDU) date vente + client. Card "Coûts & marge" (Wallet icon) : prix achat + coûts engrais + autres coûts, séparateur, coût de revient mis en avant (primary 17px bold), si VENDU : prix vente + bloc marge coloré (successFaint/dangerFaint) + barre de progression marge%. Si EN_ENGRAISSEMENT : infoBox amber "Marge sera calculée à la vente". Bouton "Enregistrer une vente" qui route vers /(tabs)/ventes.
+   182→  3. `app/(tabs)/alimentation.tsx` — 3 KpiCards (Quantités=sacs/primary, Coût total/wallet, Coût moy./tête/warning PiggyBank). Bouton "Nouvel achat" → Modal slide transparent avec backdrop Pressable + sheet surface. Form fields : produit (TextInput), quantité (numeric) + unité (Pressable buttons sac/kg/botte/quintal), cout (numeric), nb (numeric), commentaire (multiline). Validation canSubmit (produit+quantite+cout+nb non vides). handleSubmit parse floats, appelle useCreateAlimentation().mutate, onSuccess → Alert.alert("Succès", ...) + resetForm + closeModal. Liste rows : date + produit + quantité+unité + cout total + Badge nb têtes + cout/tête primary.
+   183→  4. `app/(tabs)/depenses.tsx` — Grid 2x2 (width 48%) de 4 catégories (Stethoscope vert, Truck bleu sky, Users amber, Wrench slate) avec somme par catégorie (totalsByCat useMemo) + compte. Bouton "Nouvelle dépense" → Modal form : catégorie picker (Pressable buttons avec icône + label colorés), libellé, montant, nb bovins (optionnel, 0=global), date (optionnelle). Liste rows : icône catégorie + libelle + montant + date + catégorie + Badge "N têtes" ou "Global" italic.
+   184→  5. `app/(tabs)/ventes.tsx` — 3 KpiCards (Bovins vendus/primary, CA/success, Marge totale/success ou /danger selon signe via margeTotale useMemo). Bouton "Enregistrer une vente" → Modal form : picker bovin (liste verticale scrollable maxHeight 240 des bovins EN_ENGRAISSEMENT non déjà vendus, chaque item affiche identifiant + race + coût de revient, sélection avec Check primaryFg). Fields : prix vente (numeric), date (optionnelle), client (optionnel). Liste rows : identifiant primary + Badge "Vendu" success + date vente + race + client + 3 stat boxes (Prix vente, Coût revient, Marge colorée successFaint/dangerFaint).
+   185→- Fix collateral : 4 erreurs TypeScript pré-existantes dans les fichiers foundation (pas introduites par les nouveaux écrans) — résolues pour laisser le projet en état compilable clean :
+   186→  · `components/Card.tsx` L34 : `theme.fontWeight.semibold as const` → `theme.fontWeight.semibold` (TS1355 sur property access)
+   187→  · `components/KpiCard.tsx` L62,L63 : idem pour `medium` et `bold`
+   188→  · `lib/format.ts` L53 : `parseInt(m[1], 10)` → guard `if (m && m[1] !== undefined)` (TS2345 due à noUncheckedIndexedAccess)
+   189→- Convention respectée : `StyleSheet.create` avec tokens `theme.*`, ScrollView avec `paddingTop: 16 + insets.top` + `paddingBottom: 100`, RefreshControl `tintColor={theme.colors.primary}`, Skeletons en isLoading, Alert.alert natif pour feedback (pas de lib toast), Modal RN avec `animationType="slide"`, KeyboardAvoidingView pour les forms, lucide-react-native pour toutes les icônes.
+   190→- Vérification `npx tsc --noEmit` sur `/home/z/my-project/mobile` : EXIT=0 (0 erreur) après fix collateral.
+   191→
+   192→Stage Summary:
+   193→- 5 écrans Expo Router créés et compilables (TypeScript strict clean).
+   194→- Pattern dashboard respecté : KpiCard grid, Card crème, SectionTitle, Skeleton loading, RefreshControl primary.
+   195→- Navigation : `router.push({ pathname: "/bovin/[id]", params: { id } })` depuis la liste Bovins → fiche détail. Bouton retour inline dans la fiche via `router.back()`.
+   196→- Forms : 3 modales (Alimentation, Dépenses, Ventes) avec validation, Alert.alert succès/erreur, reset du formulaire après submit, mutation React Query avec invalidation auto (bovins + dashboard + collection concernée).
+   197→- Bovins picker dans Ventes : filtre EN_ENGRAISSEMENT - déjà vendus, affiche identifiant + race + coût de revient calculé (computeBovinMarge).
+   198→- Couleurs cattly : successFaint/dangerFaint pour marges, primaryFaint pour accents, cellules pastel via KpiCard variant.
+   199→- Icônes Lucide : Database, ShoppingCart, Wallet, PiggyBank, Package, Stethoscope, Truck, Users, Wrench, TrendingUp, Plus, X, Check, ArrowLeft, ChevronRight, Search, Calendar, User, Scale, Info — toutes importées depuis `lucide-react-native`.
+   200→- Pas de lib ajoutée (Modal + Alert + TextInput + Pressable natifs RN uniquement).
+   201→- Prochaines étapes possibles : rentabilite.tsx (vue tableau de bord rentabilité), financement.tsx (déjà présente dans app/(tabs) ?), rapport.tsx (rapport bailleur imprimable) — non inclus dans ce task.
+   202→
+   203→---
+   204→Task ID: 5-b
+   205→Agent: general-purpose
+   206→Task: Build 3 Expo screens (Rentabilite, Financement, Rapport bailleur)
+   207→
+   208→Work Log:
+   209→- Lecture du worklog (tâches 1→5) + lecture des fichiers infrastructure (theme, format, types, api, calculations, store, components/*, charts/*, dashboard index.tsx comme pattern de référence)
+   210→- Installation des node_modules manquants via `bun install` (849 packages) — la sandbox n'avait pas encore installé les deps du dossier mobile/
+   211→- Création de app/(tabs)/rentabilite.tsx :
+   212→  - Header "Rentabilité" + subtitle "Marges, ventilation des coûts, tendances"
+   213→  - 4 KpiCards row (CA success, Coût achat default, Engrais. default, Marge totale success/danger) avec icônes ShoppingCart/Database/Package/TrendingUp
+   214→  - Card "Synthèse marge/tête" : grille 2×2 (Marge moyenne, Taux marge %, Prix vente moyen, Coût revient moyen) — dérivés de dash.rentabilite + count
+   215→  - Card "Ventilation des coûts" : DonutChart 3 secteurs (Achat bovins red, Alimentation violet, Autres cyan) + légende + total coûts
+   216→  - Card "Marges par bovin vendu" : BarChart avec computeBovinMarge(b).marge par bovin, couleur primary (positif) / destructive (négatif)
+   217→  - Card "Détail des ventes" : table-like layout (Bovin | Date | PV | CR | Marge | %) — 6 colonnes flex, header uppercase + lignes data
+   218→- Création de app/(tabs)/financement.tsx :
+   219→  - Header "Financement & Bailleur" + subtitle "Suivi SAVERDEV, échéances"
+   220→  - useFinancement() avec guard null (écran "Aucun financement enregistré")
+   221→  - 4 KpiCards (Financé primary, Utilisé default, Solde success, En retard danger-if>0)
+   222→  - Card "Utilisation du financement" : taux % (montantUtilise/montantFinance), progress bar primary, 3 sub-stats (Payées/A payer/En retard), puis 3 lignes (Montant financé, Capital remboursé, Solde à utiliser)
+   223→  - Card "Prochaines échéances" : filter (A_PAYER + EN_RETARD) → sort datePrevue asc → take 3 ; chaque échéance = carte individuelle avec numero, date prévue, montant (cellule gris), Badge statut (statutEcheanceColor), date payée si présente
+   224→  - Card "Tableau d'amortissement" : table-like layout 5 colonnes (#, Date prévue, Date payée, Montant, Statut Badge) pour tous les echeances
+   225→  - Sous-composant EcheanceCard pour la liste des prochaines
+   226→- Création de app/(tabs)/rapport.tsx :
+   227→  - Header "Rapport bailleur" + subtitle "Synthèse mensuelle"
+   228→  - useDashboard() + useBovins() + useFinancement() (les 3 hooks)
+   229→  - État local selectedMonth (YYYY-MM), picker 12 mois (prev/next Pressable + label "Période" + moisLabelFull)
+   230→  - Fonction buildLast12Months() : génère les 12 derniers mois ordre ancien→récent, moisIdx1=1-12 pour indexer moisLabel(monthIdx1-1)
+   231→  - Bouton "Exporter" (variant primary, icône Download) → Alert.alert("Export", "Le rapport PDF est disponible depuis la version web…")
+   232→  - 10 cartes : (1) En-tête rapport (logo + "Rapport mensuel" + mois + activité + divider + bandeau confidentiel), (2) Synthèse 4 boxes, (3) Situation du cheptel (8 StatCell : actifs, vendus, mortalité, valeur, durée moy, poids moy, coût alim/tête, quantités cum.), (4) Rentabilité (6 StatCell : CA, coût achat, coûts engrais, marge/tête, marge totale, taux marge), (5) Financement (taux + progress + 4 StatCell), (6) Alertes (liste avec severiteColor), (7) Commentaire de gestion (texte auto-généré résumant mois+bovins+valeur+CA+marge+taux+financement+alertes), (8) Annexe Ventes (table 6 col avec statut Badge), (9) Annexe Bovins actifs (table 5 col), (10) Annexe Échéances (table 5 col avec statut Badge)
+   233→  - Footer "Document généré le [date] · SAVERDEV — Sahel Vert pour un Développement Durable · Confidentiel"
+   234→  - Sous-composant StatCell pour les grilles de stats (label uppercase + value, color optionnelle)
+   235→- Nettoyage imports inutilisés (CardHeader, Bovin/Alerte/Financement types)
+   236→- Vérification : `npx tsc --noEmit` → exit_code=0, 0 erreur TypeScript sur les 3 nouveaux écrans (et sur l'ensemble du projet mobile — les 4 erreurs pré-existantes sur Card.tsx/KpiCard.tsx/format.ts `as const` et string|undefined ont disparu une fois node_modules installé)
+   237→- Vérification des exports lucide-react-native : BarChart3, TrendingUp, ShoppingCart, Database, Package, Landmark, Wallet, PiggyBank, AlertTriangle, FileText, Download, ChevronLeft, ChevronRight, Clock — tous présents dans le d.ts
+   238→
+   239→Stage Summary:
+   240→- 3 nouveaux écrans livrés sous app/(tabs)/ : rentabilite.tsx (232 lignes), financement.tsx (255 lignes), rapport.tsx (430 lignes)
+   241→- Pattern cattly.io respecté : ScrollView + insets.top + background #FAFBFC, cards crème #FFFBF5 + ombres + radius 16, SectionTitle avec icône, KpiCard cellules pastel par variant, RefreshControl tintColor=primary
+   242→- Données dynamiques via hooks TanStack Query (useDashboard, useBovins, useFinancement) + computeBovinMarge pour marges individuelles
+   243→- Charts utilisés : DonutChart (ventilation coûts), BarChart (marges par bovin vendu)
+   244→- Table-like layouts via View flexDirection:row + flex columns, header uppercase + borderBottom
+   245→- Rapport : 10 cartes complètes + picker mois cyclable (12 mois) + commentaire de gestion auto-généré contextuel (mortalité, financement, alertes mentionnés conditionnellement)
+   246→- Export button : variant primary + Download icon → Alert "version web"
+   247→- TypeScript strict OK (0 erreur), pas de lib hors package.json
+   248→- Les 3 écrans complètent la bottom-nav cattly déjà existante (dashboard, bovins, financement, rapport + tab "Plus" pour alimentation/depenses/ventes/rentabilite)
+   249→
+   250→---
+   251→Task ID: 6
+   252→Agent: main
+   253→Task: App mobile Expo + TypeScript (qualité production) — design cattly + features docs
+   254→
+   255→Work Log:
+   256→- Scaffold projet Expo SDK 52 + Expo Router v4 + TypeScript strict dans /mobile
+   257→- Config : package.json, tsconfig.json (strict, noUncheckedIndexedAccess), app.json, babel.config.js, metro.config.js, .env
+   258→- Thème cattly typé : constants/theme.ts (colors, radius, spacing, fontSize, shadows, cellules pastel)
+   259→- Couche lib (réutilisable web+mobile) :
+   260→  - lib/types.ts (interfaces + ROLE_VIEWS + PRIMARY_TABS)
+   261→  - lib/format.ts (formatFCFA, statutBovinColor → {bg,fg,border})
+   262→  - lib/calculations.ts (computeBovinMarge, computeDashboardFromData — purs)
+   263→  - lib/store.ts (Zustand + persist AsyncStorage pour rôle)
+   264→  - lib/api.ts (hooks React Query vers API Next.js :3000)
+   265→- Composants core cattly :
+   266→  - SaverdevLogo (SVG via react-native-svg)
+   267→  - Card / CardHeader (crème #FFFBF5, radius 16, ombre douce)
+   268→  - KpiCard (cellule pastel par variant : blue/mint/pink/orange)
+   269→  - Badge, Button, SectionTitle, Skeleton
+   270→  - Charts custom SVG : DonutChart, BarChart, LineChart (sans lib externe, légers)
+   271→  - QueryProvider (TanStack Query)
+   272→- Navigation :
+   273→  - app/_layout.tsx (root : SafeAreaProvider + StatusBar + QueryProvider + Stack)
+   274→  - app/(tabs)/_layout.tsx (bottom tabs filtrées par rôle — 5 tabs : Tableau, Bovins, Finance, Rapport, Plus)
+   275→  - app/profile.tsx (sélecteur de rôle + branding SAVERDEV)
+   276→  - app/(tabs)/plus.tsx (menu vues secondaires selon rôle + accès profil)
+   277→- 9 écrans complets (dispatchés à 2 sous-agents parallèles 5-a + 5-b) :
+   278→  - index.tsx (Dashboard : 6 blocs KPI + LineChart + DonutChart + BarChart + alertes + historique)
+   279→  - bovins.tsx (liste filtrable + recherche → fiche)
+   280→  - bovin/[id].tsx (fiche détaillée + coûts + marge + progress)
+   281→  - alimentation.tsx (KPI + Modal form + liste)
+   282→  - depenses.tsx (4 catégories + Modal form + liste)
+   283→  - ventes.tsx (KPI + Modal form avec picker bovin + liste)
+   284→  - rentabilite.tsx (KPI + DonutChart ventilation + BarChart marges + table)
+   285→  - financement.tsx (KPI + progress + prochaines échéances + amortissement)
+   286→  - rapport.tsx (10 cartes rapport bailleur + month picker + bouton export)
+   287→- CORS middleware ajouté côté Next.js (src/middleware.ts) pour autoriser l'Expo web (:8081) à appeler l'API (:3000)
+   288→- Installation deps : bun install (849 packages) + query-string (dépendance expo-router manquante)
+   289→- Fix navigation : mapping fichier→vue (index = dashboard) + création plus.tsx (tab "Plus" réel)
+   290→- tsc --noEmit : 0 erreur sur tout le projet mobile
+   291→- Démarrage Expo web sur port 8081 (Metro bundler)
+   292→
+   293→Stage Summary:
+   294→- Vérification VLM Agent Browser (viewport mobile 390x844) :
+   295→  ✅ Cartes crème cattly + bottom tab bar (Tableau/Bovins/Finance/Rapport/Plus)
+   296→  ✅ Logo SAVERDEV + icônes Lucide (Activity, Database, Clock, FileText, LayoutGrid)
+   297→  ✅ Données dynamiques chargées depuis API Next.js :3000 (10 actifs, 4 vendus, 4.7M FCFA, 127j, 286kg, 410 sacs, 2.3M CA, alerte 525k retard 12j)
+   298→  ✅ Alertes avec couleurs sémantiques (rouge critique)
+   299→  ✅ Sections Cheptel/Engraissement/Alimentation/Rentabilité/Financement/Alertes/Historique
+   300→- Features des documents PRESERVÉES : 4 profils RBAC (nav filtrée), 6 blocs KPI, imputation par tête, rapport bailleur, historique
+   301→- Architecture senior : TypeScript strict, thème typé, calculs purs réutilisables, composants réutilisables, charts custom légers, RBAC, loading states, error handling
+   302→- 2 apps complètes : web (Next.js :3000) + mobile (Expo :8081) partageant la même API SQLite + le même design cattly
+   303→
+   304→---
+   305→Task ID: 7
+   306→Agent: main
+   307→Task: Repalette ÉMERAUDE FRAIS (moderne, vert léger + blanc, aucun marron) + icônes adaptées + AreaChart
+   308→
+   309→Work Log:
+   310→- Refus du marron/bronze par l'utilisateur → pivot vers palette ÉMERAUDE FRAIS moderne
+   311→- Web globals.css refait : blanc pur #FFFFFF + émeraude #10B981 (primary) + teal #14B8A6 (secondary) + ambre #F59E0B (accent) + slate-900 #0F172A (texte très lisible), sidebar BLANCHE avec accents verts (style Linear/Supabase), cellules KPI pastel vert/ambre/rouge très claires
+   312→- CHART_COLORS (web) refait : emerald/teal/ambre/emeraldClair/rouge (+ alias rétro-compatibles)
+   313→- Icônes adaptées au métier (Lucide) :
+   314→  - Tableau de bord : Activity → LayoutDashboard
+   315→  - Bovins : Database → Beef (icône bovin spécifique)
+   316→  - Alimentation : Salad/Package → Wheat (icône fourrage/céréale)
+   317→  - Dépenses : CreditCard → Receipt (ticket de dépense)
+   318→  - Ventes : ShoppingCart → Banknote (argent de vente)
+   319→  - Rentabilité : BarChart3 → TrendingUp (croissance)
+   320→  - Financement : Clock → Landmark (banque/finance)
+   321→  - Rapport : FileText (inchangé)
+   322→- Chart upgrade web : LineChart → AreaChart avec dégradés translucides (linearGradient defs), tooltips blancs, bordures slate
+   323→- Mobile constants/theme.ts refait : même palette émeraude + blanc + alias violet→teal/orange→amber pour rétro-compat
+   324→- Mobile (tabs)/_layout.tsx : icônes adaptées (LayoutDashboard, Beef, Landmark, FileText, LayoutGrid)
+   325→- Mobile (tabs)/index.tsx : remplacement icônes KpiCards/SectionTitle (Database→Beef, Package→Wheat, ShoppingCart→Banknote, Financement SectionTitle Clock→Landmark), coûts color teal (pas rouge), tsc 0 erreur
+   326→- Footer + header web : blanc pur (suppression du bronze SAVERDEV)
+   327→
+   328→Stage Summary:
+   329→- Vérification VLM Agent Browser :
+   330→  WEB ✅ : sidebar blanche accents verts, KPI blanc/vert clair (pas crème/beige), AreaChart dégradés translucides, icônes adaptées, AUCUN marron
+   331→  MOBILE ✅ : palette moderne vert léger + blanc, KPI cells vert/ambre/rouge pastel, bottom tab bar blanche (LayoutDashboard/Beef/Landmark/FileText/LayoutGrid), données chargées (10 actifs, 4 vendus, 4.7M, 127j, 286kg, 410 sacs, 5.0M, 2.3M CA, 1.7M, alerte 525k)
+   332→- tsc mobile : 0 erreur
+   333→- Design moderne, lisible, fidèle au cahier des charges (aucun marron comme demandé)
+   334→
+   335→---
+   336→Task ID: 8
+   337→Agent: main
+   338→Task: Upgrades "fait tout" — jauge + sparklines + carte user + AreaChart + stats colorées
+   339→
+   340→Work Log:
+   341→- Composant GaugeChart (web) : jauge semi-circulaire SVG avec arc coloré + valeur centrale, transition animée
+   342→- Composant Sparkline (web) : mini courbe de tendance avec aire dégradée, point final, léger
+   343→- KpiCard (web _shared.tsx) : ajout prop optionnelle `sparkline` + `sparkColor` (rend une Sparkline en bas du card)
+   344→- Dashboard web section Financement : Progress bar remplacée par GaugeChart (42%) centré + stats échéances en blocs colorés (emerald/amber/red) + montants alignés
+   345→- Dashboard web KPI Rentabilité : sparklines ajoutées sur CA (évolution ca), Coût achat (évolution couts), Marge totale (évolution marge)
+   346→- Sidebar web : roleBadge transformé en carte utilisateur (cercle vert primary + initiale rôle + label + point vert "En ligne")
+   347→- Fix imports : Salad → Wheat dans dashboard (3 usages), ShoppingCart ré-ajouté (KpiCards vendus/CA)
+   348→- Composant GaugeChart (mobile) : jauge semi-circulaire SVG via react-native-svg avec dégradé teal→emerald
+   349→- Dashboard mobile section Financement : progress bar remplacée par GaugeChart (220px, 42%)
+   350→- tsc mobile : 0 erreur
+   351→
+   352→Stage Summary:
+   353→- Vérification VLM Agent Browser :
+   354→  WEB ✅ : jauge 42% confirmée + stats (4 Payées vert / 0 À payer jaune / 6 En retard rouge) + montants (Solde 2.9M / Utilisé 2.1M / Financé 5M) + sparklines sur KPI CA/Marge + carte utilisateur sidebar (cercle vert + initiale + "En ligne")
+   355→  MOBILE ✅ : jauge 42% confirmée + blocs Payées/À payer/En retard + montants Solde/Utilisé/Financé, palette moderne vert+blanc
+   356→- Design désormais premium : jauge visuelle, sparklines trend, carte user, AreaChart dégradés, icônes métier adaptées
+   357→
