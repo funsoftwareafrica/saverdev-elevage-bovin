@@ -467,6 +467,7 @@ export function SaisieView() {
 function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [espece, setEspece] = useState("BOVIN");
+  const [gestionnaire, setGestionnaire] = useState("SAVERDEV");
   const [race, setRace] = useState("Zébu");
   const [nbSujets, setNbSujets] = useState("1");
   const [prixUnitaire, setPrixUnitaire] = useState("");
@@ -478,22 +479,33 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const submit = async () => {
     if (!prixUnitaire) { toast.error("Prix requis"); return; }
     setSaving(true);
-    await onSave("achat", { date, espece, race, nbSujets, prixUnitaire, poids, observations });
+    await onSave("achat", { date, espece, gestionnaire, race, nbSujets, prixUnitaire, poids, observations });
     setSaving(false);
     setPrixUnitaire(""); setPoids(""); setObservations("");
   };
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+        <div>
+          <Label className="text-xs">Gestionnaire</Label>
+          <Select value={gestionnaire} onValueChange={setGestionnaire}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SAVERDEV" className="text-sm">SAVERDEV (Souleymane Z.)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs">Espèce</Label>
           <Select value={espece} onValueChange={(v) => { setEspece(v); setRace(v === "BOVIN" ? "Zébu" : "Mouton Sokoto"); }}>
             <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="BOVIN" className="text-sm">Bovin</SelectItem>
-              <SelectItem value="OVIN" className="text-sm">Ovin</SelectItem>
+              <SelectItem value="BOVIN" className="text-sm">Bovin (BOE)</SelectItem>
+              <SelectItem value="OVIN" className="text-sm">Ovin (OVN)</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -11,6 +11,7 @@ export interface Bovin {
   id: string;
   identifiant: string;
   espece: string;
+  gestionnaire: string;
   race: string;
   sexe: string;
   dateAchat: string; // ISO

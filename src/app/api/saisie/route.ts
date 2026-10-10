@@ -260,12 +260,14 @@ export async function POST(req: NextRequest) {
 
   if (type === "achat") {
     const especeVal = (data.espece as string) || "BOVIN";
-    const prefix = especeVal === "OVIN" ? "OVI" : "BOV";
+    const prefix = especeVal === "OVIN" ? "OVN" : "BOE";
+    const gestionnaire = (data.gestionnaire as string) || "SAVERDEV";
     const countEspece = await db.bovin.count({ where: { espece: especeVal } });
     const bovin = await db.bovin.create({
       data: {
         identifiant: `${prefix}-${String(countEspece + 1).padStart(3, "0")}`,
         espece: especeVal,
+        gestionnaire,
         race: data.race ?? "Zébu", sexe: data.sexe ?? "Mâle",
         dateAchat: new Date(data.date),
         prixAchat: Number(data.prixUnitaire) * Number(data.nbSujets ?? 1),
