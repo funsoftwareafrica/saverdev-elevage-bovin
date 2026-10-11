@@ -301,13 +301,54 @@ export async function POST(req: NextRequest) {
   }
 
   if (type === "vente") {
-    const bovin = await db.bovin.findFirst({ where: { statut: "EN_ENGRAISSEMENT" }, orderBy: { dateAchat: "asc" } });
-    if (!bovin) return NextResponse.json({ ok: false, error: "Aucun bovin disponible" }, { status: 400 });
+    // Résolution du bovin à vendre :
+    //  1) Si `bovinId` fourni → on vend l'animal précis sélectionné par l'utilisateur.
+    //  2) Sinon, si `espece` ("BOVIN" | "OVIN") fournie → on prend le 1er animal
+    //     en engraissement de cette espèce (ordre chronologique d'achat).
+    //  3) Sinon (fallback) → on prend le 1er animal en engraissement sans filtre.
+    let bovin = null;
+    const bovinId = data.bovinId ? String(data.bovinId) : null;
+    const especeVal = data.espece ? String(data.espece) : null;
+
+    if (bovinId) {
+      bovin = await db.bovin.findUnique({ where: { id: bovinId } });
+    } else if (especeVal === "BOVIN" || especeVal === "OVIN") {
+      bovin = await db.bovin.findFirst({
+        where: { statut: "EN_ENGRAISSEMENT", espece: especeVal },
+        orderBy: { dateAchat: "asc" },
+      });
+    } else {
+      bovin = await db.bovin.findFirst({
+        where: { statut: "EN_ENGRAISSEMENT" },
+        orderBy: { dateAchat: "asc" },
+      });
+    }
+
+    if (!bovin) {
+      const label = especeVal === "OVIN" ? "ovin" : especeVal === "BOVIN" ? "bovin" : "animal";
+      return NextResponse.json(
+        { ok: false, error: `Aucun ${label} disponible à la vente` },
+        { status: 400 }
+      );
+    }
+    // Sécurité : ne vendre que les animaux réellement en engraissement.
+    if (bovin.statut !== "EN_ENGRAISSEMENT") {
+      return NextResponse.json(
+        { ok: false, error: `Cet animal n'est pas en engraissement (statut: ${bovin.statut})` },
+        { status: 400 }
+      );
+    }
+
     const updated = await db.bovin.update({
       where: { id: bovin.id },
-      data: { statut: "VENDU", dateVente: new Date(data.date), prixVente: Number(data.prixUnitaire) * Number(data.nbSujets ?? 1), clientVente: data.acheteur ?? "Client" },
+      data: {
+        statut: "VENDU",
+        dateVente: new Date(data.date),
+        prixVente: Number(data.prixUnitaire) * Number(data.nbSujets ?? 1),
+        clientVente: data.acheteur ?? "Client",
+      },
     });
-    return NextResponse.json({ ok: true, id: updated.id, identifiant: updated.identifiant });
+    return NextResponse.json({ ok: true, id: updated.id, identifiant: updated.identifiant, espece: updated.espece });
   }
 
   if (type === "depense") {

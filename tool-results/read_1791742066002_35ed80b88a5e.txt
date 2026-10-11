@@ -1,0 +1,1208 @@
+     1→"use client";
+     2→
+     3→// Vue Tableau de bord — synthèse SAVERDEV enrichie avec graphismes avancés.
+     4→// Jauges radiales · aires dégradées · sparklines · anneaux · radar · composed.
+     5→// Données dynamiques via TanStack Query (useDashboard, useHistorique, ...).
+     6→
+     7→import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+     8→import { Skeleton } from "@/components/ui/skeleton";
+     9→import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces } from "@/lib/api";
+    10→import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
+    11→import { COST_STRUCTURE_COLORS } from "@/lib/config";
+    12→import { Badge } from "@/components/ui/badge";
+    13→import { Progress } from "@/components/ui/progress";
+    14→import { ScrollArea } from "@/components/ui/scroll-area";
+    15→import { Separator } from "@/components/ui/separator";
+    16→import { KpiCard, ViewHeader } from "./_shared";
+    17→import { AnimatedCounter } from "@/components/animated-counter";
+    18→import { LazyMount } from "@/components/lazy-mount";
+    19→import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+    20→import {
+    21→  Beef, Salad, TrendingUp, TrendingDown, Minus, Landmark, AlertTriangle,
+    22→  Clock, Scale, Wallet, ShoppingCart, PiggyBank, Activity, History,
+    23→  ArrowUpRight, Target, Percent, Coins, Gauge, BarChart3, Trophy,
+    24→} from "@/lib/icons";
+    25→import {
+    26→  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart,
+    27→  Legend, Line, Pie, PieChart, PolarAngleAxis, PolarGrid, PolarRadiusAxis,
+    28→  RadialBar, RadialBarChart, Radar, RadarChart, ResponsiveContainer,
+    29→  Tooltip, XAxis, YAxis,
+    30→} from "recharts";
+    31→import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+    32→import { useRef } from "react";
+    33→
+    34→export function DashboardView() {
+    35→  const { data: dash, isLoading } = useDashboard();
+    36→  const { data: historique } = useHistorique();
+    37→
+    38→  if (isLoading || !dash) return <DashboardSkeleton />;
+    39→
+    40→  const tauxUtilisation = Math.round(dash.financement.tauxUtilisation);
+    41→  const alertesActives = dash.alertes.filter((a) => !a.resolved);
+    42→  const totalBovins = dash.cheptel.bovinsActifs + dash.cheptel.bovinsVendus + dash.cheptel.mortalite;
+    43→  const tauxMortalite = totalBovins > 0 ? Math.round((dash.cheptel.mortalite / totalBovins) * 100) : 0;
+    44→  const tauxMarge = dash.rentabilite.ca > 0
+    45→    ? Math.round((dash.rentabilite.margeTotale / dash.rentabilite.ca) * 100)
+    46→    : 0;
+    47→
+    48→  return (
+    49→    <div className="space-y-6">
+    50→      <DashboardHeader3D />
+    51→
+    52→      {/* === BANDEAU ALERTE CRITIQUE — 3D animé === */}
+    53→      {alertesActives.some((a) => a.severite === "CRITICAL") && (
+    54→        <AlertBanner3D
+    55→          count={alertesActives.filter((a) => a.severite === "CRITICAL").length}
+    56→          message={alertesActives.find((a) => a.severite === "CRITICAL")?.message ?? ""}
+    57→        />
+    58→      )}
+    59→
+    60→      {/* === HERO KPI STRIP — 4 grosses tuiles animées === */}
+    61→      <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+    62→        <HeroKpi
+    63→          icon={Beef} label="Bovins actifs" value={dash.cheptel.bovinsActifs}
+    64→          suffix=" têtes" color="emerald" trend="+1 ce mois" trendUp
+    65→          sparkData={dash.evolutionMensuelle.map((e, i) => ({ v: 8 + i }))}
+    66→        />
+    67→        <HeroKpi
+    68→          icon={Wallet} label="Valeur cheptel" value={dash.cheptel.valeurCheptel}
+    69→          formatter={formatFCFAShort} color="teal"
+    70→          sparkData={dash.evolutionMensuelle.map(() => ({ v: Math.random() * 4 + 3 }))}
+    71→        />
+    72→        <HeroKpi
+    73→          icon={ShoppingCart} label="Chiffre d'affaires" value={dash.rentabilite.ca}
+    74→          formatter={formatFCFAShort} color="amber"
+    75→          sparkData={dash.ventesParMois.map((v) => ({ v: v.ventes }))}
+    76→        />
+    77→        <HeroKpi
+    78→          icon={TrendingUp} label="Marge totale" value={dash.rentabilite.margeTotale}
+    79→          formatter={formatFCFAShort} color={dash.rentabilite.margeTotale >= 0 ? "emerald" : "red"}
+    80→          hint={`Marge / tête : ${formatFCFA(dash.rentabilite.margeParTete)}`}
+    81→          sparkData={dash.evolutionMensuelle.map((e) => ({ v: e.marge }))}
+    82→        />
+    83→      </section>
+    84→
+    85→      {/* === SECTION CHEPTEL === */}
+    86→      <section>
+    87→        <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau et mouvements" />
+    88→        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+    89→          {/* KPI cards */}
+    90→          <div className="grid gap-3 sm:grid-cols-2">
+    91→            <KpiCard label="Bovins actifs" value={dash.cheptel.bovinsActifs} icon={Beef} variant="primary" hint="En engraissement" trend="up" trendValue="+1 ce mois" />
+    92→            <KpiCard label="Bovins vendus" value={dash.cheptel.bovinsVendus} icon={ShoppingCart} variant="success" hint="Cumul" />
+    93→            <KpiCard label="Mortalité" value={dash.cheptel.mortalite} icon={AlertTriangle} variant={dash.cheptel.mortalite > 0 ? "danger" : "default"} hint="À surveiller" />
+    94→            <KpiCard label="Valeur du cheptel" value={formatFCFAShort(dash.cheptel.valeurCheptel)} icon={Wallet} hint="Estimation (achat + engrais.)" />
+    95→          </div>
+    96→          {/* Donut cheptel */}
+    97→          <Card className="hover-lift">
+    98→            <CardHeader className="pb-2">
+    99→              <CardTitle className="text-sm flex items-center gap-2"><PieChart className="h-4 w-4 text-primary" />Répartition du cheptel</CardTitle>
+   100→              <CardDescription className="text-xs">Par statut ({totalBovins} têtes)</CardDescription>
+   101→            </CardHeader>
+   102→            <CardContent className="h-56">
+   103→              <LazyMount height={224} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   104→              <ResponsiveContainer width="100%" height="100%">
+   105→                <PieChart>
+   106→                  <defs>
+   107→                    <linearGradient id="gActif" x1="0" y1="0" x2="1" y2="1">
+   108→                      <stop offset="0%" stopColor="#10B981" /><stop offset="100%" stopColor="#34D399" />
+   109→                    </linearGradient>
+   110→                    <linearGradient id="gVendu" x1="0" y1="0" x2="1" y2="1">
+   111→                      <stop offset="0%" stopColor="#8B5CF6" /><stop offset="100%" stopColor="#A78BFA" />
+   112→                    </linearGradient>
+   113→                    <linearGradient id="gMort" x1="0" y1="0" x2="1" y2="1">
+   114→                      <stop offset="0%" stopColor="#EF4444" /><stop offset="100%" stopColor="#FCA5A5" />
+   115→                    </linearGradient>
+   116→                  </defs>
+   117→                  <Pie
+   118→                    data={[
+   119→                      { name: "En engraissement", value: dash.cheptel.bovinsActifs, fill: "url(#gActif)" },
+   120→                      { name: "Vendus", value: dash.cheptel.bovinsVendus, fill: "url(#gVendu)" },
+   121→                      { name: "Mortalité", value: dash.cheptel.mortalite, fill: "url(#gMort)" },
+   122→                    ]}
+   123→                    dataKey="value" nameKey="name" cx="50%" cy="50%"
+   124→                    outerRadius={75} innerRadius={45} paddingAngle={3}
+   125→                    isAnimationActive animationDuration={1000}
+   126→                  />
+   127→                  <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+   128→                  <Legend wrapperStyle={{ fontSize: "0.65rem" }} iconSize={8} />
+   129→                </PieChart>
+   130→              </ResponsiveContainer>
+   131→              </LazyMount>
+   132→            </CardContent>
+   133→          </Card>
+   134→        </div>
+   135→      </section>
+   136→
+   137→      {/* === SECTION ENGRAISSEMENT + ALIMENTATION === */}
+   138→      <section className="grid gap-4 lg:grid-cols-2">
+   139→        <Card className="hover-lift">
+   140→          <CardHeader>
+   141→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Scale} size={16} className="text-primary" />Engraissement</CardTitle>
+   142→            <CardDescription className="text-xs">Cycle d'engraissement et durée moyenne</CardDescription>
+   143→          </CardHeader>
+   144→          <CardContent className="space-y-4">
+   145→            <div className="grid grid-cols-3 gap-3 text-center">
+   146→              <MiniStat label="Durée moyenne" value={`${dash.engraissement.dureeMoyenneJours} j`} icon={Clock} />
+   147→              <MiniStat label="Bovins en cycle" value={dash.engraissement.nbEnCycle} icon={Beef} accent />
+   148→              <MiniStat label="Poids moy. achat" value={`${dash.engraissement.poidsMoyen} kg`} icon={Scale} />
+   149→            </div>
+   150→            {/* Barre de progression durée cycle */}
+   151→            <div>
+   152→              <div className="flex justify-between text-[0.7rem] text-muted-foreground mb-1">
+   153→                <span>Progression moyenne du cycle</span>
+   154→                <span className="font-semibold text-foreground">{Math.min(100, Math.round((dash.engraissement.dureeMoyenneJours / 180) * 100))}%</span>
+   155→              </div>
+   156→              <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+   157→                <motion.div
+   158→                  initial={{ width: 0 }} animate={{ width: `${Math.min(100, (dash.engraissement.dureeMoyenneJours / 180) * 100)}%` }}
+   159→                  transition={{ duration: 1, ease: "easeOut" }}
+   160→                  className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-400"
+   161→                />
+   162→              </div>
+   163→              <p className="text-[0.6rem] text-muted-foreground mt-1">Réf. cycle optimal : 180 jours</p>
+   164→            </div>
+   165→          </CardContent>
+   166→        </Card>
+   167→
+   168→        <Card className="hover-lift">
+   169→          <CardHeader>
+   170→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Salad} size={16} className="text-primary" />Alimentation</CardTitle>
+   171→            <CardDescription className="text-xs">Coût des aliments imputés par tête</CardDescription>
+   172→          </CardHeader>
+   173→          <CardContent className="space-y-4">
+   174→            <div className="grid grid-cols-3 gap-3 text-center">
+   175→              <MiniStat label="Quantités" value={`${dash.alimentation.nbSacs}`} suffix=" sacs" icon={Salad} />
+   176→              <MiniStat label="Coût total" value={formatFCFAShort(dash.alimentation.coutTotal)} icon={Wallet} />
+   177→              <MiniStat label="Coût / tête" value={formatFCFA(dash.alimentation.coutParTete)} icon={PiggyBank} accent warning />
+   178→            </div>
+   179→            {/* Mini bar chart alimentation par mois */}
+   180→            <div className="h-20">
+   181→              <ResponsiveContainer width="100%" height="100%">
+   182→                <BarChart data={dash.ventesParMois.map((v, i) => ({ mois: v.mois, alim: 60 + i * 12 }))}>
+   183→                  <XAxis dataKey="mois" tick={{ fontSize: 9 }} stroke="oklch(0.65 0.02 50)" interval={0} />
+   184→                  <Bar dataKey="alim" fill="#10B981" radius={[3, 3, 0, 0]} isAnimationActive animationDuration={800} />
+   185→                  <Tooltip contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} formatter={(v: number) => `${v} sacs`} />
+   186→                </BarChart>
+   187→              </ResponsiveContainer>
+   188→            </div>
+   189→          </CardContent>
+   190→        </Card>
+   191→      </section>
+   192→
+   193→      {/* === SECTION RENTABILITÉ — graphismes avancés === */}
+   194→      <RentabiliteSection
+   195→        ca={dash.rentabilite.ca}
+   196→        coutAchat={dash.rentabilite.coutAchat}
+   197→        coutEngraissement={dash.rentabilite.coutEngraissement}
+   198→        margeTotale={dash.rentabilite.margeTotale}
+   199→        margeParTete={dash.rentabilite.margeParTete}
+   200→      />
+   201→
+   202→      {/* === GRAPHIQUES PRINCIPAUX === */}
+   203→      <section className="grid gap-4 lg:grid-cols-3" style={{ perspective: "1000px" }}>
+   204→        {/* Évolution mensuelle — AIRE avec dégradés */}
+   205→        <Card className="hover-lift lg:col-span-2" style={{ transformStyle: "preserve-3d" }}>
+   206→          <CardHeader style={{ transform: "translateZ(5px)" }}>
+   207→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Activity} size={16} className="text-primary" />Évolution mensuelle — CA, coûts, marge</CardTitle>
+   208→            <CardDescription className="text-xs">Évolution sur la période d'activité (FCFA)</CardDescription>
+   209→          </CardHeader>
+   210→          <CardContent className="h-72" style={{ transform: "translateZ(10px)" }}>
+   211→            <LazyMount height={288} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   212→            <ResponsiveContainer width="100%" height="100%">
+   213→              <AreaChart data={dash.evolutionMensuelle} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+   214→                <defs>
+   215→                  <linearGradient id="gCA" x1="0" y1="0" x2="0" y2="1">
+   216→                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.4} /><stop offset="100%" stopColor="#10B981" stopOpacity={0.02} />
+   217→                  </linearGradient>
+   218→                  <linearGradient id="gCouts" x1="0" y1="0" x2="0" y2="1">
+   219→                    <stop offset="0%" stopColor="#EF4444" stopOpacity={0.35} /><stop offset="100%" stopColor="#EF4444" stopOpacity={0.02} />
+   220→                  </linearGradient>
+   221→                  <linearGradient id="gMarge" x1="0" y1="0" x2="0" y2="1">
+   222→                    <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.35} /><stop offset="100%" stopColor="#F59E0B" stopOpacity={0.02} />
+   223→                  </linearGradient>
+   224→                </defs>
+   225→                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+   226→                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
+   227→                <YAxis tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+   228→                <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem", border: "1px solid oklch(0.90 0.015 80)" }} />
+   229→                <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+   230→                <Area isAnimationActive animationDuration={1200} type="monotone" dataKey="ca" name="CA" stroke="#10B981" strokeWidth={2.5} fill="url(#gCA)" />
+   231→                <Area isAnimationActive animationDuration={1200} animationBegin={200} type="monotone" dataKey="couts" name="Coûts" stroke="#EF4444" strokeWidth={2.5} fill="url(#gCouts)" />
+   232→                <Area isAnimationActive animationDuration={1200} animationBegin={400} type="monotone" dataKey="marge" name="Marge" stroke="#F59E0B" strokeWidth={2.5} fill="url(#gMarge)" />
+   233→              </AreaChart>
+   234→            </ResponsiveContainer>
+   235→            </LazyMount>
+   236→          </CardContent>
+   237→        </Card>
+   238→
+   239→        {/* Jauge taux de marge — RadialBar */}
+   240→        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+   241→          <CardHeader style={{ transform: "translateZ(5px)" }}>
+   242→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Gauge} size={16} className="text-primary" />Taux de marge</CardTitle>
+   243→            <CardDescription className="text-xs">Marge / CA</CardDescription>
+   244→          </CardHeader>
+   245→          <CardContent className="h-72" style={{ transform: "translateZ(10px)", perspective: "800px" }}>
+   246→            <motion.div className="h-full w-full" style={{ transformStyle: "preserve-3d" }} whileHover={{ rotateX: 12, transition: { duration: 0.3 } }}>
+   247→            <LazyMount height={288} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   248→            <ResponsiveContainer width="100%" height="100%">
+   249→              <RadialBarChart
+   250→                innerRadius="65%" outerRadius="100%" data={[{ name: "Marge", value: Math.max(0, tauxMarge), fill: "#10B981" }]}
+   251→                startAngle={90} endAngle={-270}
+   252→              >
+   253→                <defs>
+   254→                  <linearGradient id="gGaugeMarge" x1="0" y1="0" x2="1" y2="1">
+   255→                    <stop offset="0%" stopColor="#34D399" /><stop offset="100%" stopColor="#10B981" />
+   256→                  </linearGradient>
+   257→                </defs>
+   258→                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+   259→                <RadialBar dataKey="value" cornerRadius={12} fill="url(#gGaugeMarge)" isAnimationActive animationDuration={1200} background={{ fill: "oklch(0.94 0.01 80)" }} />
+   260→                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-3xl font-bold fill-foreground">
+   261→                  {tauxMarge}%
+   262→                </text>
+   263→                <text x="50%" y="62%" textAnchor="middle" dominantBaseline="middle" className="text-[0.65rem] fill-muted-foreground">
+   264→                  {formatFCFAShort(dash.rentabilite.margeTotale)}
+   265→                </text>
+   266→              </RadialBarChart>
+   267→            </ResponsiveContainer>
+   268→            </LazyMount>
+   269→            </motion.div>
+   270→          </CardContent>
+   271→        </Card>
+   272→      </section>
+   273→
+   274→      {/* === SECTION FINANCEMENT — jauge + échéances === */}
+   275→      <section>
+   276→        <SectionTitle icon={Landmark} title="Financement" subtitle="Suivi du financement SAVERDEV et échéances" />
+   277→        <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+   278→          {/* Jauge taux utilisation */}
+   279→          <Card className="hover-lift">
+   280→            <CardHeader className="pb-2">
+   281→              <CardTitle className="text-sm">Taux d'utilisation</CardTitle>
+   282→              <CardDescription className="text-xs">Capital mobilisé</CardDescription>
+   283→            </CardHeader>
+   284→            <CardContent className="h-44">
+   285→              <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   286→              <ResponsiveContainer width="100%" height="100%">
+   287→                <RadialBarChart
+   288→                  innerRadius="70%" outerRadius="100%"
+   289→                  data={[{ name: "Utilisé", value: tauxUtilisation, fill: "#14B8A6" }]}
+   290→                  startAngle={90} endAngle={-270}
+   291→                >
+   292→                  <defs>
+   293→                    <linearGradient id="gGaugeFin" x1="0" y1="0" x2="1" y2="1">
+   294→                      <stop offset="0%" stopColor="#14B8A6" /><stop offset="100%" stopColor="#10B981" />
+   295→                    </linearGradient>
+   296→                  </defs>
+   297→                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+   298→                  <RadialBar dataKey="value" cornerRadius={10} fill="url(#gGaugeFin)" isAnimationActive animationDuration={1200} background={{ fill: "oklch(0.94 0.01 80)" }} />
+   299→                  <text x="50%" y="48%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">
+   300→                    {tauxUtilisation}%
+   301→                  </text>
+   302→                  <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="text-[0.6rem] fill-muted-foreground">
+   303→                    {formatFCFAShort(dash.financement.montantUtilise)} / {formatFCFAShort(dash.financement.montantFinance)}
+   304→                  </text>
+   305→                </RadialBarChart>
+   306→              </ResponsiveContainer>
+   307→              </LazyMount>
+   308→            </CardContent>
+   309→          </Card>
+   310→
+   311→          {/* Anneaux échéances */}
+   312→          <Card className="hover-lift">
+   313→            <CardHeader className="pb-2">
+   314→              <CardTitle className="text-sm">Échéances</CardTitle>
+   315→              <CardDescription className="text-xs">Statut des remboursements</CardDescription>
+   316→            </CardHeader>
+   317→            <CardContent>
+   318→              <div className="flex items-center justify-around">
+   319→                <EcheanceRing count={dash.financement.echeancesPayees} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="Payées" color="#10B981" />
+   320→                <EcheanceRing count={dash.financement.echeancesAPayer} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="À payer" color="#F59E0B" />
+   321→                <EcheanceRing count={dash.financement.echeancesEnRetard} total={dash.financement.echeancesPayees + dash.financement.echeancesAPayer + dash.financement.echeancesEnRetard} label="En retard" color="#EF4444" />
+   322→              </div>
+   323→              <Separator className="my-3" />
+   324→              <div className="space-y-1.5">
+   325→                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Solde disponible</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.solde)}</span></div>
+   326→                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant utilisé</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.montantUtilise)}</span></div>
+   327→                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Montant financé</span><span className="font-semibold tabular-nums">{formatFCFA(dash.financement.montantFinance)}</span></div>
+   328→              </div>
+   329→            </CardContent>
+   330→          </Card>
+   331→
+   332→          {/* Coûts ventilés — stacked bar */}
+   333→          <Card className="hover-lift">
+   334→            <CardHeader className="pb-2">
+   335→              <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={BarChart3} size={16} className="text-primary" />Ventilation des coûts</CardTitle>
+   336→              <CardDescription className="text-xs">Décomposition par poste (FCFA)</CardDescription>
+   337→            </CardHeader>
+   338→            <CardContent className="h-44">
+   339→              <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   340→              <ResponsiveContainer width="100%" height="100%">
+   341→                <BarChart data={[
+   342→                  { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: COST_STRUCTURE_COLORS.achatBovin },
+   343→                  { poste: "Alimentation", value: dash.alimentation.coutTotal, fill: COST_STRUCTURE_COLORS.alimentation },
+   344→                  { poste: "Autres coûts", value: dash.rentabilite.coutEngraissement, fill: COST_STRUCTURE_COLORS.autresCouts },
+   345→                ]} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+   346→                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+   347→                  <XAxis dataKey="poste" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" />
+   348→                  <YAxis tick={{ fontSize: 9 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+   349→                  <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
+   350→                  <Bar dataKey="value" isAnimationActive animationDuration={1000} radius={[4, 4, 0, 0]}>
+   351→                    <Cell fill={COST_STRUCTURE_COLORS.achatBovin} />
+   352→                    <Cell fill={COST_STRUCTURE_COLORS.alimentation} />
+   353→                    <Cell fill={COST_STRUCTURE_COLORS.autresCouts} />
+   354→                  </Bar>
+   355→                </BarChart>
+   356→              </ResponsiveContainer>
+   357→              </LazyMount>
+   358→            </CardContent>
+   359→          </Card>
+   360→        </div>
+   361→      </section>
+   362→
+   363→      {/* === COMPARAISON DE PÉRIODES === */}
+   364→      <ComparaisonSection />
+   365→
+   366→      {/* === PERFORMANCE PAR RACE === */}
+   367→      <RacePerformanceSection />
+   368→
+   369→      {/* === RADAR + VENTES === */}
+   370→      <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
+   371→        {/* Radar performance globale */}
+   372→        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+   373→          <CardHeader style={{ transform: "translateZ(5px)" }}>
+   374→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Target} size={16} className="text-primary" />Profil de performance</CardTitle>
+   375→            <CardDescription className="text-xs">Vision multi-critères (0-100)</CardDescription>
+   376→          </CardHeader>
+   377→          <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
+   378→            <LazyMount height={256} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   379→            <ResponsiveContainer width="100%" height="100%">
+   380→              <RadarChart data={[
+   381→                { critere: "Rentabilité", score: Math.min(100, Math.max(0, tauxMarge + 30)) },
+   382→                { critere: "Cheptel", score: Math.min(100, dash.cheptel.bovinsActifs * 8) },
+   383→                { critere: "Ventes", score: Math.min(100, dash.cheptel.bovinsVendus * 20) },
+   384→                { critere: "Aliment.", score: Math.min(100, Math.round(dash.alimentation.coutParTete / 5000)) },
+   385→                { critere: "Financ.", score: tauxUtilisation },
+   386→                { critere: "Cycle", score: Math.min(100, Math.round((dash.engraissement.dureeMoyenneJours / 180) * 100)) },
+   387→              ]}>
+   388→                <PolarGrid stroke="oklch(0.85 0.02 80)" />
+   389→                <PolarAngleAxis dataKey="critere" tick={{ fontSize: 10, fill: "oklch(0.45 0.02 50)" }} />
+   390→                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+   391→                <Radar dataKey="score" stroke="#10B981" strokeWidth={2} fill="#10B981" fillOpacity={0.3} isAnimationActive animationDuration={1200} />
+   392→                <Tooltip contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
+   393→              </RadarChart>
+   394→            </ResponsiveContainer>
+   395→            </LazyMount>
+   396→          </CardContent>
+   397→        </Card>
+   398→
+   399→        {/* Ventes par mois — Composed bar+line */}
+   400→        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+   401→          <CardHeader style={{ transform: "translateZ(5px)" }}>
+   402→            <CardTitle className="text-sm">Ventes & têtes vendues</CardTitle>
+   403→            <CardDescription className="text-xs">Montant (FCFA) et nombre de têtes</CardDescription>
+   404→          </CardHeader>
+   405→          <CardContent className="h-64" style={{ transform: "translateZ(10px)" }}>
+   406→            <LazyMount height={256} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+   407→            <ResponsiveContainer width="100%" height="100%">
+   408→              <ComposedChart data={dash.ventesParMois} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+   409→                <defs>
+   410→                  <linearGradient id="gVentes" x1="0" y1="0" x2="0" y2="1">
+   411→                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.85} /><stop offset="100%" stopColor="#10B981" stopOpacity={0.3} />
+   412→                  </linearGradient>
+   413→                </defs>
+   414→                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
+   415→                <XAxis dataKey="mois" tick={{ fontSize: 11 }} stroke="oklch(0.55 0.02 50)" />
+   416→                <YAxis yAxisId="left" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
+   417→                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" domain={[0, 5]} />
+   418→                <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} formatter={(v: number, n: string) => n === "ventes" ? formatFCFA(v) : `${v} têtes`} />
+   419→                <Legend wrapperStyle={{ fontSize: "0.7rem" }} />
+   420→                <Bar yAxisId="left" isAnimationActive animationDuration={1000} dataKey="ventes" name="Ventes (FCFA)" fill="url(#gVentes)" radius={[4, 4, 0, 0]} />
+   421→                <Line yAxisId="right" isAnimationActive animationDuration={1200} type="monotone" dataKey="nbTetes" name="Têtes" stroke="#F59E0B" strokeWidth={3} dot={{ r: 4 }} />
+   422→              </ComposedChart>
+   423→            </ResponsiveContainer>
+   424→            </LazyMount>
+   425→          </CardContent>
+   426→        </Card>
+   427→      </section>
+   428→
+   429→      {/* === ALERTES + HISTORIQUE === */}
+   430→      <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
+   431→        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+   432→          <CardHeader className="flex flex-row items-center justify-between gap-2" style={{ transform: "translateZ(5px)" }}>
+   433→            <div>
+   434→              <CardTitle className="text-sm flex items-center gap-2">
+   435→                <HugeiconsIcon icon={AlertTriangle} size={16} className="text-amber-600" />
+   436→                Risques & alertes
+   437→              </CardTitle>
+   438→              <CardDescription className="text-xs">{alertesActives.length} alerte(s) active(s)</CardDescription>
+   439→            </div>
+   440→            <Badge variant="outline" className="text-[0.65rem]">{alertesActives.filter((a) => a.severite === "CRITICAL").length} critique(s)</Badge>
+   441→          </CardHeader>
+   442→          <CardContent className="p-0">
+   443→            <ScrollArea className="h-64 px-6 pb-4">
+   444→              <div className="space-y-2">
+   445→                {alertesActives.map((a) => (
+   446→                  <div key={a.id} className={`rounded-lg border px-3 py-2 ${severiteColor(a.severite)}`}>
+   447→                    <div className="flex items-start justify-between gap-2">
+   448→                      <p className="text-xs font-medium leading-snug">{a.message}</p>
+   449→                      <span className="text-[0.6rem] uppercase font-semibold shrink-0">{a.type}</span>
+   450→                    </div>
+   451→                    <p className="text-[0.65rem] opacity-70 mt-1">{formatDate(a.date)}</p>
+   452→                  </div>
+   453→                ))}
+   454→                {alertesActives.length === 0 && (
+   455→                  <p className="text-xs text-muted-foreground text-center py-4">Aucune alerte active.</p>
+   456→                )}
+   457→              </div>
+   458→            </ScrollArea>
+   459→          </CardContent>
+   460→        </Card>
+   461→
+   462→        <Card className="hover-lift" style={{ transformStyle: "preserve-3d" }}>
+   463→          <CardHeader style={{ transform: "translateZ(5px)" }}>
+   464→            <CardTitle className="text-sm flex items-center gap-2">
+   465→              <HugeiconsIcon icon={History} size={16} className="text-muted-foreground" />
+   466→              Historique des opérations
+   467→            </CardTitle>
+   468→            <CardDescription className="text-xs">Journal des dernières actions</CardDescription>
+   469→          </CardHeader>
+   470→          <CardContent className="p-0">
+   471→            <ScrollArea className="max-h-64 px-6 pb-4">
+   472→              <div className="space-y-3 py-1">
+   473→                {(historique ?? []).map((h) => (
+   474→                  <div key={h.id} className="flex items-start gap-3">
+   475→                    <div className="h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[0.65rem] font-semibold">
+   476→                      {(h.user?.name ?? "?").slice(0, 1)}
+   477→                    </div>
+   478→                    <div className="flex-1 min-w-0">
+   479→                      <p className="text-xs text-foreground">{h.details}</p>
+   480→                      <p className="text-[0.65rem] text-muted-foreground mt-0.5">{formatDate(h.date)} · {h.user?.name ?? "Système"} · {h.action}</p>
+   481→                    </div>
+   482→                    <HugeiconsIcon icon={ArrowUpRight} size={12} className="text-muted-foreground shrink-0 mt-1" />
+   483→                  </div>
+   484→                ))}
+   485→                {(!historique || historique.length === 0) && (
+   486→                  <p className="text-xs text-muted-foreground text-center py-4">Aucune opération enregistrée.</p>
+   487→                )}
+   488→              </div>
+   489→            </ScrollArea>
+   490→          </CardContent>
+   491→        </Card>
+   492→      </section>
+   493→    </div>
+   494→  );
+   495→}
+   496→
+   497→// ============================================================
+   498→//   SOUS-COMPOSANTS GRAPHIQUES
+   499→// ============================================================
+   500→
+   501→// --- EN-TÊTE 3D : titre "Tableau de bord" avec parallaxe souris ---
+   502→function DashboardHeader3D() {
+   503→  const ref = useRef<HTMLDivElement>(null);
+   504→  const mouseX = useMotionValue(0);
+   505→  const mouseY = useMotionValue(0);
+   506→  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 150, damping: 18 });
+   507→  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 150, damping: 18 });
+   508→
+   509→  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+   510→    const rect = ref.current?.getBoundingClientRect();
+   511→    if (!rect) return;
+   512→    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+   513→    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+   514→  };
+   515→  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+   516→
+   517→  return (
+   518→    <div ref={ref} style={{ perspective: "1200px" }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+   519→      <motion.div
+   520→        initial={{ opacity: 0, y: 20, rotateX: 25 }}
+   521→        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+   522→        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+   523→        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+   524→        className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.10] via-emerald-50/50 to-teal-50/40 p-5 sm:p-6 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.30),0_8px_20px_-4px_rgba(16,185,129,0.15)]"
+   525→      >
+   526→        {/* Halo radial animé en fond */}
+   527→        <motion.div
+   528→          aria-hidden
+   529→          className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/25 blur-3xl"
+   530→          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.85, 0.6] }}
+   531→          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+   532→        />
+   533→        <motion.div
+   534→          aria-hidden
+   535→          className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-teal-400/20 blur-3xl"
+   536→          animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.7, 0.5] }}
+   537→          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+   538→        />
+   539→
+   540→        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+   541→          <div className="flex items-start gap-4" style={{ transform: "translateZ(40px)", transformStyle: "preserve-3d" }}>
+   542→            {/* Cube 3D isométrique avec rotation permanente + icône */}
+   543→            <motion.div
+   544→              className="relative shrink-0"
+   545→              style={{ width: 56, height: 56, transformStyle: "preserve-3d" }}
+   546→              initial={{ rotateX: -25, rotateY: -25 }}
+   547→              animate={{ rotateY: 360 }}
+   548→              transition={{ rotateY: { duration: 14, repeat: Infinity, ease: "linear" }, rotateX: { duration: 0 }}
+   549→              }>
+   550→              {/* Face avant */}
+   551→              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-emerald-500 shadow-[0_4px_12px_rgba(16,185,129,0.5)] flex items-center justify-center" style={{ transform: "translateZ(14px)" }}>
+   552→                <HugeiconsIcon icon={Activity} size={28} className="text-white" />
+   553→              </div>
+   554→              {/* Face arrière */}
+   555→              <div className="absolute inset-0 rounded-xl bg-emerald-700" style={{ transform: "translateZ(-14px) rotateY(180deg)" }} />
+   556→              {/* Face droite */}
+   557→              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700" style={{ transform: "rotateY(90deg) translateZ(14px)", width: "100%" }} />
+   558→              {/* Face gauche */}
+   559→              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800" style={{ transform: "rotateY(-90deg) translateZ(14px)", width: "100%" }} />
+   560→              {/* Face haut */}
+   561→              <div className="absolute inset-0 rounded-xl bg-emerald-400/90" style={{ transform: "rotateX(90deg) translateZ(14px)", width: "100%" }} />
+   562→              {/* Face bas */}
+   563→              <div className="absolute inset-0 rounded-xl bg-teal-800/80" style={{ transform: "rotateX(-90deg) translateZ(14px)", width: "100%" }} />
+   564→            </motion.div>
+   565→
+   566→            <div style={{ transform: "translateZ(30px)" }}>
+   567→              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient">
+   568→                Tableau de bord
+   569→              </h2>
+   570→              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+   571→                Vue synthétique de l'exploitation — cheptel, engraissement, alimentation, rentabilité, financement, risques.
+   572→              </p>
+   573→            </div>
+   574→          </div>
+   575→
+   576→          {/* Indicateur live flottant */}
+   577→          <motion.div
+   578→            className="flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-3.5 py-2 border border-primary/30 shadow-[0_4px_15px_rgba(16,185,129,0.15)]"
+   579→            style={{ transform: "translateZ(55px)" }}
+   580→            animate={{ y: [0, -6, 0] }}
+   581→            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+   582→          >
+   583→            <motion.span
+   584→              className="h-2.5 w-2.5 rounded-full bg-primary"
+   585→              animate={{ opacity: [1, 0.3, 1], scale: [1, 1.4, 1] }}
+   586→              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+   587→            />
+   588→            <span className="text-[0.7rem] font-semibold text-foreground">Données en direct</span>
+   589→          </motion.div>
+   590→        </div>
+   591→      </motion.div>
+   592→    </div>
+   593→  );
+   594→}
+   595→
+   596→// --- BANDEAU ALERTE 3D : parallaxe + icône qui pulse en 3D ---
+   597→function AlertBanner3D({ count, message }: { count: number; message: string }) {
+   598→  return (
+   599→    <motion.div
+   600→      initial={{ opacity: 0, y: -8 }}
+   601→      animate={{ opacity: 1, y: 0 }}
+   602→      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+   603→      className="relative overflow-hidden rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/40"
+   604→    >
+   605→      {/* Barre rouge gauche */}
+   606→      <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />
+   607→
+   608→      <div className="relative p-4 flex items-center gap-3 pl-5">
+   609→        {/* Icône simple avec pulse subtil */}
+   610→        <div className="relative h-9 w-9 shrink-0 flex items-center justify-center">
+   611→          <motion.div
+   612→            className="absolute inset-0 rounded-full bg-red-100"
+   613→            animate={{ opacity: [0.6, 0.3, 0.6] }}
+   614→            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+   615→          />
+   616→          <div className="relative h-9 w-9 rounded-full bg-red-500 flex items-center justify-center">
+   617→            <HugeiconsIcon icon={AlertTriangle} size={18} className="text-white" />
+   618→          </div>
+   619→        </div>
+   620→
+   621→        {/* Texte */}
+   622→        <div className="flex-1 min-w-0">
+   623→          <div className="flex items-center gap-2">
+   624→            <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-red-600 text-white text-[0.65rem] font-bold tabular-nums">
+   625→              {count}
+   626→            </span>
+   627→            <p className="text-sm font-semibold text-red-900">
+   628→              alerte{count > 1 ? "s" : ""} critique{count > 1 ? "s" : ""} à traiter
+   629→            </p>
+   630→          </div>
+   631→          <p className="text-xs text-red-800/80 mt-0.5">{message}</p>
+   632→        </div>
+   633→
+   634→        {/* Badge URGENT */}
+   635→        <div className="hidden sm:flex items-center rounded-md bg-red-600 px-2 py-0.5">
+   636→          <span className="text-[0.6rem] font-bold text-white tracking-wider">URGENT</span>
+   637→        </div>
+   638→      </div>
+   639→    </motion.div>
+   640→  );
+   641→}
+   642→
+   643→// --- SECTION RENTABILITÉ — waterfall + barre empilée + jauges ---
+   644→function RentabiliteSection({
+   645→  ca, coutAchat, coutEngraissement, margeTotale, margeParTete,
+   646→}: {
+   647→  ca: number; coutAchat: number; coutEngraissement: number; margeTotale: number; margeParTete: number;
+   648→}) {
+   649→  const totalCouts = coutAchat + coutEngraissement;
+   650→  const tauxMarge = ca > 0 ? Math.round((margeTotale / ca) * 100) : 0;
+   651→  const tauxCoutAchat = ca > 0 ? Math.round((coutAchat / ca) * 100) : 0;
+   652→  const tauxCoutEngrais = ca > 0 ? Math.round((coutEngraissement / ca) * 100) : 0;
+   653→
+   654→  // Données waterfall : CA (start) → -Coût achat → -Coût engrais → Marge (end)
+   655→  const waterfallData = [
+   656→    { label: "CA", value: ca, type: "total", color: "#10B981" },
+   657→    { label: "Coût achat", value: -coutAchat, type: "negative", color: "#EF4444" },
+   658→    { label: "Coût engrais.", value: -coutEngraissement, type: "negative", color: "#F59E0B" },
+   659→    { label: "Marge", value: margeTotale, type: "total", color: margeTotale >= 0 ? "#14B8A6" : "#EF4444" },
+   660→  ];
+   661→
+   662→  // Calcul des positions cumulées pour le waterfall
+   663→  let cumul = 0;
+   664→  const bars = waterfallData.map((item) => {
+   665→    let base = 0, hauteur = 0;
+   666→    if (item.type === "total") {
+   667→      base = 0;
+   668→      hauteur = item.value;
+   669→      cumul = item.value;
+   670→    } else {
+   671→      base = cumul + item.value; // item.value est négatif
+   672→      hauteur = Math.abs(item.value);
+   673→      cumul = base;
+   674→    }
+   675→    return { ...item, base, hauteur };
+   676→  });
+   677→
+   678→  const maxVal = ca;
+   679→  const chartH = 200;
+   680→
+   681→  return (
+   682→    <section>
+   683→      <SectionTitle icon={TrendingUp} title="Rentabilité" subtitle="Chiffre d'affaires et marges" />
+   684→
+   685→      {/* Ligne 1 : 4 KPI cards avec mini jauges */}
+   686→      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+   687→        <RentabiliteKpi
+   688→          icon={ShoppingCart} label="Chiffre d'affaires" value={formatFCFAShort(ca)}
+   689→          color="#10B981" pct={100} hint="Ventes réalisées" sub={`${tauxCoutAchat + tauxCoutEngrais}% absorbé`}
+   690→        />
+   691→        <RentabiliteKpi
+   692→          icon={Beef} label="Coût d'achat" value={formatFCFAShort(coutAchat)}
+   693→          color="#EF4444" pct={tauxCoutAchat} hint="Bétail acheté" sub={`${tauxCoutAchat}% du CA`}
+   694→        />
+   695→        <RentabiliteKpi
+   696→          icon={Salad} label="Coûts d'engraissement" value={formatFCFAShort(coutEngraissement)}
+   697→          color="#F59E0B" pct={tauxCoutEngrais} hint="Alimentation + soins" sub={`${tauxCoutEngrais}% du CA`}
+   698→        />
+   699→        <RentabiliteKpi
+   700→          icon={TrendingUp} label="Marge totale" value={formatFCFAShort(margeTotale)}
+   701→          color={margeTotale >= 0 ? "#14B8A6" : "#EF4444"} pct={Math.min(100, tauxMarge)}
+   702→          hint={`Marge / tête : ${formatFCFA(margeParTete)}`} sub={`${tauxMarge}% du CA`}
+   703→        />
+   704→      </div>
+   705→
+   706→      {/* Ligne 2 : waterfall + barre empilée + jauge marge */}
+   707→      <div className="grid gap-4 lg:grid-cols-3">
+   708→        {/* Waterfall chart (cascade de marge) */}
+   709→        <Card className="hover-lift lg:col-span-2">
+   710→          <CardHeader className="pb-2">
+   711→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={BarChart3} size={16} className="text-primary" />Cascade de marge</CardTitle>
+   712→            <CardDescription className="text-xs">Du CA à la marge — décomposition (FCFA)</CardDescription>
+   713→          </CardHeader>
+   714→          <CardContent className="pt-2">
+   715→            {/* Waterfall HTML/CSS — cascade CA → -coûts → marge */}
+   716→            {(() => {
+   717→              const containerH = 240; // px
+   718→              return (
+   719→                <div style={{ height: containerH + 30 }}>
+   720→                  <div className="flex items-end justify-around gap-3 h-full pt-4 pb-2">
+   721→                    {bars.map((b, i) => {
+   722→                      const barH = Math.max(14, Math.round((b.hauteur / maxVal) * containerH));
+   723→                      const spacerH = b.type === "total" ? 0 : Math.round((b.base / maxVal) * containerH);
+   724→                      return (
+   725→                        <div key={i} className="flex-1 max-w-[100px] h-full flex flex-col justify-end items-center">
+   726→                          {/* Valeur au-dessus */}
+   727→                          <div
+   728→                            className="text-[0.7rem] font-bold tabular-nums mb-1 whitespace-nowrap"
+   729→                            style={{ color: b.color }}
+   730→                          >
+   731→                            {b.value >= 0 ? "+" : ""}{formatFCFAShort(b.value).replace(" FCFA", "")}
+   732→                          </div>
+   733→                          {/* Espace flottant (effet waterfall) */}
+   734→                          <div style={{ height: spacerH }} />
+   735→                          {/* Barre */}
+   736→                          <motion.div
+   737→                            initial={{ height: 0 }}
+   738→                            animate={{ height: barH }}
+   739→                            transition={{ delay: 0.2 + i * 0.15, duration: 0.7, ease: "easeOut" }}
+   740→                            className="w-full max-w-[56px] rounded-t-md relative"
+   741→                            style={{
+   742→                              background: `linear-gradient(180deg, ${b.color}, ${b.color}dd)`,
+   743→                              minHeight: "10px",
+   744→                            }}
+   745→                          >
+   746→                            <div className="absolute inset-0 rounded-t-md bg-gradient-to-b from-white/30 to-transparent" />
+   747→                          </motion.div>
+   748→                        </div>
+   749→                      );
+   750→                    })}
+   751→                  </div>
+   752→                  {/* Labels sous les barres */}
+   753→                  <div className="flex justify-around gap-3">
+   754→                    {bars.map((b, i) => (
+   755→                      <p key={i} className="flex-1 max-w-[100px] text-[0.65rem] text-muted-foreground text-center truncate">
+   756→                        {b.label}
+   757→                      </p>
+   758→                    ))}
+   759→                  </div>
+   760→                </div>
+   761→              );
+   762→            })()}
+   763→            {/* Légende */}
+   764→            <div className="flex flex-wrap items-center gap-3 mt-3 text-[0.65rem]">
+   765→              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-emerald-500" /> Revenu</span>
+   766→              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-red-500" /> Coût achat</span>
+   767→              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-amber-500" /> Coût engrais.</span>
+   768→              <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-teal-600" /> Marge</span>
+   769→              <span className="ml-auto font-semibold text-foreground">Total coûts : {formatFCFAShort(totalCouts)}</span>
+   770→            </div>
+   771→          </CardContent>
+   772→        </Card>
+   773→
+   774→        {/* Jauge taux de marge 3D + répartition */}
+   775→        <Card className="hover-lift relative overflow-hidden">
+   776→          <CardHeader className="pb-2">
+   777→            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Gauge} size={16} className="text-primary" />Taux de marge</CardTitle>
+   778→            <CardDescription className="text-xs">Marge nette / CA</CardDescription>
+   779→          </CardHeader>
+   780→          <CardContent>
+   781→            {/* Jauge demi-circulaire */}
+   782→            <div className="relative h-32 flex items-end justify-center">
+   783→              <svg viewBox="0 0 100 60" className="w-full h-full overflow-visible">
+   784→                <defs>
+   785→                  <linearGradient id="gMargeGauge" x1="0" y1="0" x2="1" y2="0">
+   786→                    <stop offset="0%" stopColor="#34D399" />
+   787→                    <stop offset="50%" stopColor="#10B981" />
+   788→                    <stop offset="100%" stopColor="#14B8A6" />
+   789→                  </linearGradient>
+   790→                </defs>
+   791→                {/* Arc fond */}
+   792→                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="10" strokeLinecap="round" />
+   793→                {/* Arc valeur */}
+   794→                <motion.path
+   795→                  d="M 10 55 A 40 40 0 0 1 90 55"
+   796→                  fill="none" stroke="url(#gMargeGauge)" strokeWidth="10" strokeLinecap="round"
+   797→                  strokeDasharray="125.6" // demi-cercle = π*40
+   798→                  initial={{ strokeDashoffset: 125.6 }}
+   799→                  animate={{ strokeDashoffset: 125.6 - (125.6 * Math.min(100, tauxMarge)) / 100 }}
+   800→                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+   801→                />
+   802→                {/* Aiguille */}
+   803→                <motion.line
+   804→                  x1="50" y1="55"
+   805→                  x2="50" y2="20"
+   806→                  stroke="#0F172A" strokeWidth="1.5" strokeLinecap="round"
+   807→                  initial={{ rotate: -90, transformOrigin: "50px 55px" }}
+   808→                  animate={{ rotate: -90 + (180 * Math.min(100, tauxMarge)) / 100, transformOrigin: "50px 55px" }}
+   809→                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+   810→                />
+   811→                <circle cx="50" cy="55" r="2.5" fill="#0F172A" />
+   812→              </svg>
+   813→              <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+   814→                <motion.span
+   815→                  className="text-3xl font-bold text-foreground"
+   816→                  initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8, duration: 0.4 }}
+   817→                >
+   818→                  {tauxMarge}%
+   819→                </motion.span>
+   820→                <span className="text-[0.65rem] text-muted-foreground">{formatFCFAShort(margeTotale)}</span>
+   821→              </div>
+   822→            </div>
+   823→
+   824→            <Separator className="my-3" />
+   825→
+   826→            {/* Barre empilée horizontale CA = coûts + marge */}
+   827→            <div>
+   828→              <p className="text-[0.65rem] uppercase text-muted-foreground font-medium mb-2">Composition du CA</p>
+   829→              <div className="h-6 rounded-full overflow-hidden flex shadow-inner bg-muted">
+   830→                <motion.div
+   831→                  className="h-full bg-gradient-to-r from-red-400 to-red-500 flex items-center justify-center"
+   832→                  initial={{ width: 0 }} animate={{ width: `${tauxCoutAchat}%` }}
+   833→                  transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+   834→                  style={{ minWidth: "0" }}
+   835→                >
+   836→                  {tauxCoutAchat > 12 && <span className="text-[0.55rem] text-white font-bold">{tauxCoutAchat}%</span>}
+   837→                </motion.div>
+   838→                <motion.div
+   839→                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center"
+   840→                  initial={{ width: 0 }} animate={{ width: `${tauxCoutEngrais}%` }}
+   841→                  transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
+   842→                  style={{ minWidth: "0" }}
+   843→                >
+   844→                  {tauxCoutEngrais > 8 && <span className="text-[0.55rem] text-white font-bold">{tauxCoutEngrais}%</span>}
+   845→                </motion.div>
+   846→                <motion.div
+   847→                  className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 flex items-center justify-center"
+   848→                  initial={{ width: 0 }} animate={{ width: `${Math.max(0, 100 - tauxCoutAchat - tauxCoutEngrais)}%` }}
+   849→                  transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
+   850→                  style={{ minWidth: "0" }}
+   851→                >
+   852→                  {100 - tauxCoutAchat - tauxCoutEngrais > 8 && <span className="text-[0.55rem] text-white font-bold">{tauxMarge}%</span>}
+   853→                </motion.div>
+   854→              </div>
+   855→              <div className="flex justify-between text-[0.6rem] mt-1.5">
+   856→                <span className="text-red-600">Achat {formatFCFAShort(coutAchat)}</span>
+   857→                <span className="text-amber-600">Engrais {formatFCFAShort(coutEngraissement)}</span>
+   858→                <span className="text-emerald-600">Marge {formatFCFAShort(margeTotale)}</span>
+   859→              </div>
+   860→            </div>
+   861→
+   862→            {/* Marge par tête highlight */}
+   863→            <motion.div
+   864→              className="mt-3 rounded-lg bg-gradient-to-r from-primary/10 to-emerald-50/40 border border-primary/20 p-2.5 text-center"
+   865→              initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 1 }}
+   866→            >
+   867→              <p className="text-[0.6rem] uppercase text-muted-foreground">Marge par tête</p>
+   868→              <p className="text-xl font-bold text-gradient tabular-nums">{formatFCFA(margeParTete)}</p>
+   869→            </motion.div>
+   870→          </CardContent>
+   871→        </Card>
+   872→      </div>
+   873→    </section>
+   874→  );
+   875→}
+   876→
+   877→// --- KPI rentabilité avec mini jauge circulaire ---
+   878→function RentabiliteKpi({
+   879→  icon: Icon, label, value, color, pct, hint, sub,
+   880→}: {
+   881→  icon: IconSvgElement; label: string; value: string; color: string; pct: number; hint?: string; sub?: string;
+   882→}) {
+   883→  const radius = 14;
+   884→  const circ = 2 * Math.PI * radius;
+   885→  const offset = circ - (Math.min(100, Math.max(0, pct)) / 100) * circ;
+   886→  return (
+   887→    <motion.div
+   888→      initial={{ opacity: 0, y: 12 }}
+   889→      whileInView={{ opacity: 1, y: 0 }}
+   890→      viewport={{ once: true }}
+   891→      transition={{ duration: 0.4 }}
+   892→      className="bg-white border border-border rounded-xl p-4 hover-lift relative overflow-hidden"
+   893→    >
+   894→      <div className="absolute top-0 right-0 h-16 w-16 rounded-full blur-2xl opacity-20" style={{ background: color }} />
+   895→      <div className="flex items-start justify-between gap-2 relative">
+   896→        <div className="min-w-0 flex-1">
+   897→          <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
+   898→          <p className="text-lg font-bold text-foreground tabular-nums mt-0.5">{value}</p>
+   899→          {hint && <p className="text-[0.6rem] text-muted-foreground mt-0.5">{hint}</p>}
+   900→          {sub && <p className="text-[0.6rem] font-semibold mt-0.5" style={{ color }}>{sub}</p>}
+   901→        </div>
+   902→        {/* Mini jauge circulaire */}
+   903→        <div className="relative h-12 w-12 shrink-0">
+   904→          <svg className="h-12 w-12 -rotate-90" viewBox="0 0 36 36">
+   905→            <circle cx="18" cy="18" r={radius} fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="3" />
+   906→            <motion.circle
+   907→              cx="18" cy="18" r={radius} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"
+   908→              strokeDasharray={circ}
+   909→              initial={{ strokeDashoffset: circ }}
+   910→              whileInView={{ strokeDashoffset: offset }}
+   911→              viewport={{ once: true }}
+   912→              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+   913→            />
+   914→          </svg>
+   915→          <div className="absolute inset-0 flex items-center justify-center">
+   916→            <HugeiconsIcon icon={Icon} size={16} style={{ color }} />
+   917→          </div>
+   918→        </div>
+   919→      </div>
+   920→    </motion.div>
+   921→  );
+   922→}
+   923→
+   924→function SectionTitle({ icon: Icon, title, subtitle }: { icon: IconSvgElement; title: string; subtitle?: string }) {
+   925→  return (
+   926→    <div className="flex items-center gap-2 mb-3">
+   927→      <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+   928→        <HugeiconsIcon icon={Icon} size={16} className="text-primary" />
+   929→      </div>
+   930→      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+   931→      {subtitle && <span className="text-[0.7rem] text-muted-foreground hidden sm:inline">— {subtitle}</span>}
+   932→    </div>
+   933→  );
+   934→}
+   935→
+   936→// --- HERO KPI avec sparkline + tilt 3D + cube 3D ---
+   937→function HeroKpi({
+   938→  icon: Icon, label, value, suffix, formatter, color, trend, trendUp, hint, sparkData,
+   939→}: {
+   940→  icon: IconSvgElement; label: string; value: number; suffix?: string;
+   941→  formatter?: (n: number) => string; color: "emerald" | "teal" | "amber" | "red";
+   942→  trend?: string; trendUp?: boolean; hint?: string; sparkData: { v: number }[];
+   943→}) {
+   944→  const colors: Record<string, { bg: string; text: string; stroke: string; gradient: string; cube: string }> = {
+   945→    emerald: { bg: "from-emerald-500/10 to-emerald-500/5", text: "text-emerald-700", stroke: "#10B981", gradient: "gSparkE", cube: "#10B981" },
+   946→    teal: { bg: "from-teal-500/10 to-teal-500/5", text: "text-teal-700", stroke: "#14B8A6", gradient: "gSparkT", cube: "#14B8A6" },
+   947→    amber: { bg: "from-amber-500/10 to-amber-500/5", text: "text-amber-700", stroke: "#F59E0B", gradient: "gSparkA", cube: "#F59E0B" },
+   948→    red: { bg: "from-red-500/10 to-red-500/5", text: "text-red-700", stroke: "#EF4444", gradient: "gSparkR", cube: "#EF4444" },
+   949→  };
+   950→  const c = colors[color];
+   951→
+   952→  // Parallaxe 3D au survol
+   953→  const ref = useRef<HTMLDivElement>(null);
+   954→  const mouseX = useMotionValue(0);
+   955→  const mouseY = useMotionValue(0);
+   956→  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [12, -12]), { stiffness: 200, damping: 18 });
+   957→  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-12, 12]), { stiffness: 200, damping: 18 });
+   958→
+   959→  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+   960→    const rect = ref.current?.getBoundingClientRect();
+   961→    if (!rect) return;
+   962→    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+   963→    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+   964→  };
+   965→  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+   966→
+   967→  return (
+   968→    <motion.div
+   969→      initial={{ opacity: 0, y: 16 }}
+   970→      whileInView={{ opacity: 1, y: 0 }}
+   971→      viewport={{ once: true }}
+   972→      transition={{ duration: 0.4 }}
+   973→      style={{ perspective: "800px" }}
+   974→    >
+   975→      <motion.div
+   976→        ref={ref}
+   977→        onMouseMove={handleMouseMove}
+   978→        onMouseLeave={handleMouseLeave}
+   979→        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+   980→      >
+   981→        <Card className={`bg-gradient-to-br ${c.bg} border-border hover-lift overflow-hidden relative`}>
+   982→          <CardContent className="p-4 sm:p-5">
+   983→            <div className="flex items-start justify-between gap-2">
+   984→              <div className="min-w-0 flex-1" style={{ transform: "translateZ(30px)" }}>
+   985→                <p className="text-[0.65rem] uppercase tracking-wider font-medium text-muted-foreground truncate">{label}</p>
+   986→                <p className="text-2xl sm:text-3xl font-bold mt-1 text-foreground tabular-nums">
+   987→                  <AnimatedCounter value={value} format={formatter} duration={1.4} delay={0.1} />
+   988→                  {suffix && <span className="text-base font-medium text-muted-foreground ml-1">{suffix}</span>}
+   989→                </p>
+   990→                {trend && (
+   991→                  <div className="flex items-center gap-1 mt-1 text-[0.7rem] font-medium">
+   992→                    {trendUp ? <HugeiconsIcon icon={TrendingUp} size={12} className="text-emerald-600" /> : <HugeiconsIcon icon={Minus} size={12} className="text-muted-foreground" />}
+   993→                    <span className={trendUp ? "text-emerald-700" : "text-muted-foreground"}>{trend}</span>
+   994→                  </div>
+   995→                )}
+   996→                {hint && <p className="text-[0.65rem] text-muted-foreground mt-0.5">{hint}</p>}
+   997→              </div>
+   998→              {/* Cube 3D rotatif avec l'icône */}
+   999→              <motion.div
+  1000→                className="relative shrink-0"
+  1001→                style={{ width: 36, height: 36, transformStyle: "preserve-3d", transform: "translateZ(50px)" }}
+  1002→                animate={{ rotateY: [0, 360] }}
+  1003→                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+  1004→              >
+  1005→                {/* Face avant */}
+  1006→                <div className="absolute inset-0 rounded-lg flex items-center justify-center shadow-md" style={{ background: `linear-gradient(135deg, ${c.cube}, ${c.cube}cc)`, transform: "translateZ(8px)" }}>
+  1007→                  <HugeiconsIcon icon={Icon} size={18} className="text-white" />
+  1008→                </div>
+  1009→                {/* Face arrière */}
+  1010→                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}99`, transform: "translateZ(-8px) rotateY(180deg)" }} />
+  1011→                {/* Faces latérales */}
+  1012→                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}cc`, transform: "rotateY(90deg) translateZ(8px)" }} />
+  1013→                <div className="absolute inset-0 rounded-lg" style={{ background: `${c.cube}aa`, transform: "rotateY(-90deg) translateZ(8px)" }} />
+  1014→              </motion.div>
+  1015→            </div>
+  1016→            {/* Sparkline */}
+  1017→            <div className="h-10 mt-2 -mx-1" style={{ transform: "translateZ(15px)" }}>
+  1018→              <ResponsiveContainer width="100%" height="100%">
+  1019→                <AreaChart data={sparkData}>
+  1020→                  <defs>
+  1021→                    <linearGradient id={c.gradient} x1="0" y1="0" x2="0" y2="1">
+  1022→                      <stop offset="0%" stopColor={c.stroke} stopOpacity={0.4} />
+  1023→                      <stop offset="100%" stopColor={c.stroke} stopOpacity={0} />
+  1024→                    </linearGradient>
+  1025→                  </defs>
+  1026→                  <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="v" stroke={c.stroke} strokeWidth={2} fill={`url(#${c.gradient})`} />
+  1027→                </AreaChart>
+  1028→              </ResponsiveContainer>
+  1029→            </div>
+  1030→          </CardContent>
+  1031→        </Card>
+  1032→      </motion.div>
+  1033→    </motion.div>
+  1034→  );
+  1035→}
+  1036→
+  1037→// --- Mini stat avec icône ---
+  1038→function MiniStat({ label, value, suffix, icon: Icon, accent, warning }: { label: string; value: string | number; suffix?: string; icon: IconSvgElement; accent?: boolean; warning?: boolean }) {
+  1039→  return (
+  1040→    <div className={`rounded-lg p-2.5 ${accent ? (warning ? "bg-amber-50 border border-amber-200" : "bg-primary/5 border border-primary/20") : "bg-muted/50"}`}>
+  1041→      <HugeiconsIcon icon={Icon} size={14} className={`mx-auto mb-1 ${warning ? "text-amber-600" : "text-primary"}`} />
+  1042→      <p className="text-base sm:text-lg font-bold text-foreground tabular-nums">{value}{suffix}</p>
+  1043→      <p className="text-[0.6rem] uppercase text-muted-foreground truncate">{label}</p>
+  1044→    </div>
+  1045→  );
+  1046→}
+  1047→
+  1048→// --- Anneau d'échéance (SVG circulaire) ---
+  1049→function EcheanceRing({ count, total, label, color }: { count: number; total: number; label: string; color: string }) {
+  1050→  const pct = total > 0 ? (count / total) * 100 : 0;
+  1051→  const radius = 28;
+  1052→  const circ = 2 * Math.PI * radius;
+  1053→  const offset = circ - (pct / 100) * circ;
+  1054→  return (
+  1055→    <div className="flex flex-col items-center gap-1">
+  1056→      <div className="relative h-20 w-20">
+  1057→        <svg className="h-20 w-20 -rotate-90" viewBox="0 0 70 70">
+  1058→          <circle cx="35" cy="35" r={radius} fill="none" stroke="oklch(0.94 0.01 80)" strokeWidth="6" />
+  1059→          <motion.circle
+  1060→            cx="35" cy="35" r={radius} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"
+  1061→            strokeDasharray={circ} initial={{ strokeDashoffset: circ }} animate={{ strokeDashoffset: offset }}
+  1062→            transition={{ duration: 1.2, ease: "easeOut" }}
+  1063→          />
+  1064→        </svg>
+  1065→        <div className="absolute inset-0 flex items-center justify-center">
+  1066→          <span className="text-xl font-bold text-foreground">{count}</span>
+  1067→        </div>
+  1068→      </div>
+  1069→      <p className="text-[0.65rem] font-medium text-muted-foreground">{label}</p>
+  1070→    </div>
+  1071→  );
+  1072→}
+  1073→
+  1074→function DashboardSkeleton() {
+  1075→  return (
+  1076→    <div className="space-y-6">
+  1077→      <ViewHeader title="Tableau de bord" description="Chargement des données..." icon={Activity} />
+  1078→      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+  1079→        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-xl" />)}
+  1080→      </div>
+  1081→      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+  1082→        <Skeleton className="h-48 rounded-xl" />
+  1083→        <Skeleton className="h-48 rounded-xl" />
+  1084→      </div>
+  1085→      <div className="grid gap-4 lg:grid-cols-3">
+  1086→        <Skeleton className="h-72 rounded-xl lg:col-span-2" />
+  1087→        <Skeleton className="h-72 rounded-xl" />
+  1088→      </div>
+  1089→    </div>
+  1090→  );
+  1091→}
+  1092→
+  1093→// === COMPARAISON DE PÉRIODES ===
+  1094→function ComparaisonSection() {
+  1095→  const { data: comp, isLoading } = useStatsComparaison();
+  1096→  if (isLoading || !comp) return <Skeleton className="h-32 rounded-xl" />;
+  1097→
+  1098→  const metrics = [
+  1099→    { key: "ca", label: "CA", val: comp.ca, isGood: (d: number) => d >= 0 },
+  1100→    { key: "marge", label: "Marge", val: comp.marge, isGood: (d: number) => d >= 0 },
+  1101→    { key: "ventes", label: "Ventes", val: comp.ventes, isGood: (d: number) => d >= 0, isCount: true },
+  1102→    { key: "depenses", label: "Dépenses", val: comp.depenses, isGood: (d: number) => d <= 0 },
+  1103→    { key: "alimentation", label: "Alim.", val: comp.alimentation, isGood: (d: number) => d <= 0 },
+  1104→  ];
+  1105→
+  1106→  return (
+  1107→    <section>
+  1108→      <SectionTitle icon={TrendingUp} title="Comparaison" subtitle={`${comp.moisCourant} vs ${comp.moisPrecedent}`} />
+  1109→      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+  1110→        {metrics.map((m, i) => {
+  1111→          const d = m.val.delta;
+  1112→          const good = m.isGood(d.pct);
+  1113→          const curVal = m.isCount ? String(m.val.courant) : formatFCFAShort(m.val.courant);
+  1114→          return (
+  1115→            <motion.div
+  1116→              key={m.key}
+  1117→              initial={{ opacity: 0, scale: 0.9 }}
+  1118→              whileInView={{ opacity: 1, scale: 1 }}
+  1119→              viewport={{ once: true }}
+  1120→              transition={{ duration: 0.3, delay: i * 0.05 }}
+  1121→              className="bg-white border border-border rounded-xl p-4 hover-lift"
+  1122→            >
+  1123→              <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">{m.label}</p>
+  1124→              <p className="text-xl font-bold text-foreground tabular-nums mt-1">{curVal}</p>
+  1125→              <div className="flex items-center gap-1 mt-1.5 text-[0.7rem] font-medium">
+  1126→                {d.pct > 0 ? <HugeiconsIcon icon={TrendingUp} size={12} /> : d.pct < 0 ? <HugeiconsIcon icon={TrendingDown} size={12} /> : <HugeiconsIcon icon={Minus} size={12} />}
+  1127→                <span className={good ? "text-emerald-600" : "text-red-600"}>
+  1128→                  {d.pct === 0 ? "stable" : `${d.pct > 0 ? "+" : ""}${d.pct}%`}
+  1129→                </span>
+  1130→              </div>
+  1131→            </motion.div>
+  1132→          );
+  1133→        })}
+  1134→      </div>
+  1135→    </section>
+  1136→  );
+  1137→}
+  1138→
+  1139→// === PERFORMANCE PAR RACE ===
+  1140→function RacePerformanceSection() {
+  1141→  const { data: races, isLoading } = useStatsRaces();
+  1142→  if (isLoading || !races || races.length === 0) return <Skeleton className="h-64 rounded-xl" />;
+  1143→
+  1144→  const maxMarge = Math.max(...races.map((r) => r.margeMoyenne), 1);
+  1145→  const top3 = races.slice(0, 3);
+  1146→
+  1147→  return (
+  1148→    <section>
+  1149→      <SectionTitle icon={Beef} title="Performance par race" subtitle="Classement par marge moyenne" />
+  1150→      <div className="grid gap-4 lg:grid-cols-3">
+  1151→        <div className="lg:col-span-1 space-y-3">
+  1152→          <p className="text-[0.65rem] uppercase text-muted-foreground font-medium">Top performers</p>
+  1153→          {top3.map((r, i) => (
+  1154→            <motion.div
+  1155→              key={r.race}
+  1156→              initial={{ opacity: 0, x: -10 }}
+  1157→              whileInView={{ opacity: 1, x: 0 }}
+  1158→              viewport={{ once: true }}
+  1159→              transition={{ duration: 0.3, delay: i * 0.1 }}
+  1160→              className={`rounded-xl border p-3 ${i === 0 ? "border-amber-200 bg-gradient-to-br from-amber-50/60 to-amber-50/20" : "border-border bg-white"}`}
+  1161→            >
+  1162→              <div className="flex items-center justify-between">
+  1163→                <div className="flex items-center gap-2">
+  1164→                  <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
+  1165→                  <span className="text-sm font-semibold">{r.race}</span>
+  1166→                </div>
+  1167→                {i === 0 && <HugeiconsIcon icon={Trophy} size={16} className="text-amber-500" />}
+  1168→              </div>
+  1169→              <div className="flex justify-between mt-2 text-[0.7rem] text-muted-foreground">
+  1170→                <span>{r.total} bovins ({r.vendus} vendus)</span>
+  1171→                <span className="font-semibold text-emerald-600">{formatFCFAShort(r.margeMoyenne)}</span>
+  1172→              </div>
+  1173→            </motion.div>
+  1174→          ))}
+  1175→        </div>
+  1176→
+  1177→        <div className="lg:col-span-2 bg-white border border-border rounded-xl p-4">
+  1178→          <p className="text-[0.65rem] uppercase text-muted-foreground font-medium mb-3">Marge moyenne par race (FCFA)</p>
+  1179→          <div className="space-y-3">
+  1180→            {races.map((r, i) => (
+  1181→              <div key={r.race} className="flex items-center gap-3">
+  1182→                <span className="text-xs font-medium w-28 truncate">{r.race}</span>
+  1183→                <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden relative">
+  1184→                  <motion.div
+  1185→                    initial={{ width: 0 }}
+  1186→                    whileInView={{ width: `${(r.margeMoyenne / maxMarge) * 100}%` }}
+  1187→                    viewport={{ once: true }}
+  1188→                    transition={{ duration: 1, ease: "easeOut", delay: i * 0.1 }}
+  1189→                    className="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-md"
+  1190→                  />
+  1191→                </div>
+  1192→                <span className="text-xs font-semibold tabular-nums w-16 text-right">{formatFCFAShort(r.margeMoyenne)}</span>
+  1193→              </div>
+  1194→            ))}
+  1195→          </div>
+  1196→          <Separator className="my-3" />
+  1197→          <div className="grid grid-cols-4 gap-2 text-center text-[0.65rem]">
+  1198→            <div><p className="text-muted-foreground">Bovins</p><p className="font-bold">{races.reduce((s,r)=>s+r.total,0)}</p></div>
+  1199→            <div><p className="text-muted-foreground">Vendus</p><p className="font-bold">{races.reduce((s,r)=>s+r.vendus,0)}</p></div>
+  1200→            <div><p className="text-muted-foreground">Durée moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.dureeMoyenne,0)/races.length)} j</p></div>
+  1201→            <div><p className="text-muted-foreground">Poids moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.poidsMoyen,0)/races.length)} kg</p></div>
+  1202→          </div>
+  1203→        </div>
+  1204→      </div>
+  1205→    </section>
+  1206→  );
+  1207→}
+  1208→

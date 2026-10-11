@@ -77,7 +77,7 @@ export function DepensesView() {
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Enregistrer une dépense</DialogTitle>
-                  <DialogDescription className="text-xs">Si des bovins sont concernés, le montant sera imputé à chacun.</DialogDescription>
+                  <DialogDescription className="text-xs">Si des animaux sont concernés, le montant sera imputé à chacun.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={onSubmit} className="space-y-3">
                   <div className="space-y-1.5">
@@ -99,7 +99,7 @@ export function DepensesView() {
                       <Input id="montant" name="montant" type="number" placeholder="35000" required />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="nb" className="text-xs">Nb bovins concernés</Label>
+                      <Label htmlFor="nb" className="text-xs">Nb animaux concernés</Label>
                       <Input id="nb" name="nb" type="number" placeholder="0 = charge globale" />
                     </div>
                   </div>
@@ -161,7 +161,7 @@ export function DepensesView() {
                   <TableHead>Date</TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Libellé</TableHead>
-                  <TableHead className="text-center hidden sm:table-cell">Bovins</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">Animaux</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
                 </TableRow>
               </TableHeader>

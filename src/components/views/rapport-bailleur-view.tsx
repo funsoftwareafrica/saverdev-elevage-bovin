@@ -92,7 +92,7 @@ export function RapportBailleurView() {
         <CardContent className="p-5 space-y-5">
           {/* === 6 KPI colorés (modèle Excel E2A) === */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <RapportKpiCard label="Bovins actifs (fin)" value={String(rap.kpis.bovinsActifs)} color={KPI_COLORS.bovinsActifs} />
+            <RapportKpiCard label="Animaux actifs (fin)" value={String(rap.kpis.bovinsActifs)} color={KPI_COLORS.bovinsActifs} />
             <RapportKpiCard label="Chiffre d'affaires cumulé" value={formatFCFAShort(rap.kpis.caCumul)} color={KPI_COLORS.ca} />
             <RapportKpiCard label="Marge totale cumulée" value={formatFCFAShort(rap.kpis.margeTotale)} color={KPI_COLORS.marge} />
             <RapportKpiCard label="Marge moyenne / tête" value={formatFCFA(rap.kpis.margeParTete)} color={KPI_COLORS.margeParTete} />
@@ -103,7 +103,7 @@ export function RapportBailleurView() {
           {/* === GRAPHIQUES (modèle Excel E2A — 6 charts) === */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* 1. AreaChart — Évolution du cheptel */}
-            <RapportChartCard title="Évolution du cheptel (bovins actifs)" height={220}>
+            <RapportChartCard title="Évolution du cheptel (animaux actifs)" height={220}>
               <LazyMount className="h-full" fallback={<Skeleton className="h-full w-full rounded-md" />}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={rap.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
@@ -117,7 +117,7 @@ export function RapportBailleurView() {
                     <XAxis dataKey="mois" tick={{ fontSize: 10 }} stroke="#6B7280" />
                     <YAxis tick={{ fontSize: 10 }} stroke="#6B7280" />
                     <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
-                    <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="bovinsActifs" name="Bovins actifs" stroke={KPI_COLORS.bovinsActifs} strokeWidth={2.5} fill="url(#rCheptel)" />
+                    <Area isAnimationActive animationDuration={1000} type="monotone" dataKey="bovinsActifs" name="Animaux actifs" stroke={KPI_COLORS.bovinsActifs} strokeWidth={2.5} fill="url(#rCheptel)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </LazyMount>
@@ -221,7 +221,7 @@ export function RapportBailleurView() {
       {/* ============ PAGE 2 : Annexes détaillées ============ */}
       <Card className="print-page border-border shadow-sm">
         <CardHeader className="bg-secondary/5 border-b border-border">
-          <CardTitle className="text-sm">Annexe — Détail des ventes, bovins actifs et échéances</CardTitle>
+          <CardTitle className="text-sm">Annexe — Détail des ventes, animaux actifs et échéances</CardTitle>
         </CardHeader>
         <CardContent className="p-5 space-y-5">
           {/* Tableau mensuel récapitulatif */}

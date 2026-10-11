@@ -4,406 +4,111 @@
 - Environments: .env
 
 ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
-✓ Ready in 1072ms
- GET /api/guide-pdf 200 in 562ms (compile: 421ms, proxy.ts: 103ms, render: 38ms)
- HEAD /api/guide-pdf 200 in 10ms (compile: 3ms, proxy.ts: 4ms, render: 3ms)
+✓ Ready in 779ms
 ○ Compiling / ...
- GET /api/guide-pdf 200 in 18ms (compile: 5ms, proxy.ts: 6ms, render: 7ms)
- HEAD /api/guide-pdf 200 in 14ms (compile: 4ms, proxy.ts: 5ms, render: 6ms)
- GET / 200 in 558ms (compile: 159ms, render: 399ms)
- GET / 200 in 49ms (compile: 5ms, render: 44ms)
- GET / 200 in 41ms (compile: 3ms, render: 38ms)
+ GET / 200 in 6.2s (compile: 5.9s, render: 331ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
+ GET /api/saisie?type=vente 200 in 517ms (compile: 240ms, proxy.ts: 78ms, render: 199ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
+ POST /api/saisie 400 in 30ms (compile: 7ms, proxy.ts: 7ms, render: 16ms)
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Bovin`.`id` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`espece` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query INSERT INTO `main`.`Bovin` (`id`, `identifiant`, `espece`, `gestionnaire`, `race`, `sexe`, `dateAchat`, `prixAchat`, `poidsAchat`, `statut`, `prixVente`, `coutsEngraissement`, `autresCouts`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 28ms (compile: 8ms, proxy.ts: 8ms, render: 11ms)
+ GET / 200 in 149ms (compile: 5ms, render: 144ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`Bovin` SET `statut` = ?, `dateVente` = ?, `prixVente` = ?, `clientVente` = ?, `updatedAt` = ? WHERE (`main`.`Bovin`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 70ms (compile: 6ms, proxy.ts: 4ms, render: 60ms)
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Bovin`.`id` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`espece` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query INSERT INTO `main`.`Bovin` (`id`, `identifiant`, `espece`, `gestionnaire`, `race`, `sexe`, `dateAchat`, `prixAchat`, `poidsAchat`, `statut`, `prixVente`, `coutsEngraissement`, `autresCouts`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 63ms (compile: 5ms, proxy.ts: 4ms, render: 54ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`id` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`Bovin` SET `statut` = ?, `dateVente` = ?, `prixVente` = ?, `clientVente` = ?, `updatedAt` = ? WHERE (`main`.`Bovin`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 22ms (compile: 4ms, proxy.ts: 8ms, render: 10ms)
+ POST /api/saisie 400 in 24ms (compile: 7ms, proxy.ts: 5ms, render: 12ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`id` = ? AND 1=1) LIMIT ? OFFSET ?
+ POST /api/saisie 400 in 21ms (compile: 4ms, proxy.ts: 4ms, render: 14ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
 ⚠ Cross origin request detected from preview-chat-1426fbc7-0a71-4b1d-893c-549d75d90725.space-z.ai to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- GET / 200 in 411ms (compile: 8ms, render: 403ms)
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].historique.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__7d61f6c3._.js:184:162
-
-  181 ;
-  182 ;
-  183 async function GET() {
-→ 184     const historique = await {imported module ./src/lib/db.ts}["db"].historique.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/historique/route.ts:7:42)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/historique/route.ts:7:22)
-   5 |
-   6 | export async function GET() {
->  7 |   const historique = await db.historique.findMany({
-     |                                          ^
-   8 |     include: { user: { select: { name: true } } },
-   9 |     orderBy: { date: "desc" },
-  10 |     take: 50, {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__eb30536a._.js:372:136
-
-  369 ;
-  370 async function GET() {
-  371     const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
-→ 372         {imported module ./src/lib/db.ts}["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/dashboard/route.ts:9:14)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/dashboard/route.ts:8:71)
-   7 | export async function GET() {
-   8 |   const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
->  9 |     db.bovin.findMany({ orderBy: { identifiant: "asc" } }),
-     |              ^
-  10 |     db.alimentation.findMany({ orderBy: { date: "desc" } }),
-  11 |     db.depense.findMany({ orderBy: { date: "desc" } }),
-  12 |     db.financement.findMany({ include: { echeances: true } }), {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/historique 500 in 942ms (compile: 339ms, proxy.ts: 8ms, render: 595ms)
- GET /api/dashboard 500 in 944ms (compile: 376ms, proxy.ts: 8ms, render: 560ms)
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].historique.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__7d61f6c3._.js:184:162
-
-  181 ;
-  182 ;
-  183 async function GET() {
-→ 184     const historique = await {imported module ./src/lib/db.ts}["db"].historique.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/historique/route.ts:7:42)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/historique/route.ts:7:22)
-   5 |
-   6 | export async function GET() {
->  7 |   const historique = await db.historique.findMany({
-     |                                          ^
-   8 |     include: { user: { select: { name: true } } },
-   9 |     orderBy: { date: "desc" },
-  10 |     take: 50, {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__eb30536a._.js:372:136
-
-  369 ;
-  370 async function GET() {
-  371     const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
-→ 372         {imported module ./src/lib/db.ts}["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/dashboard/route.ts:9:14)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/dashboard/route.ts:8:71)
-   7 | export async function GET() {
-   8 |   const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
->  9 |     db.bovin.findMany({ orderBy: { identifiant: "asc" } }),
-     |              ^
-  10 |     db.alimentation.findMany({ orderBy: { date: "desc" } }),
-  11 |     db.depense.findMany({ orderBy: { date: "desc" } }),
-  12 |     db.financement.findMany({ include: { echeances: true } }), {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/historique 500 in 228ms (compile: 6ms, proxy.ts: 5ms, render: 217ms)
- GET /api/dashboard 500 in 227ms (compile: 8ms, proxy.ts: 5ms, render: 213ms)
-Erreur alertes: Error [PrismaClientInitializationError]: 
-Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].stockMouvement.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__32b8d180._.js:125:172
-
-  122 if (type === "alertes") {
-  123     const alertes = [];
-  124     try {
-→ 125         const allStock = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].stockMouvement.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/saisie/route.ts:46:48)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/saisie/route.ts:46:24)
-  44 |     const alertes: { type: string; severite: string; message: string }[] = [];
-  45 |     try {
-> 46 |       const allStock = await db.stockMouvement.findMany();
-     |                                                ^
-  47 |       const stockParType: Record<string, number> = {};
-  48 |       for (const m of allStock) {
-  49 |         stockParType[m.typeAliment] = (stockParType[m.typeAliment] || 0) + m.entree - m.sortie; {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/saisie?type=alertes 200 in 248ms (compile: 115ms, proxy.ts: 4ms, render: 129ms)
-getAchats: Error [PrismaClientInitializationError]: 
-Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__32b8d180._.js:185:161
-
-  182 // Helper: journal d'achat (compte 6011 débit / 5711 crédit)
-  183 async function getAchats() {
-  184     try {
-→ 185         const bovins = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/saisie/route.ts:79:37)
-    at <unknown> (-->  schema.prisma:11)
-    at async getAchats (src/app/api/saisie/route.ts:79:22)
-    at async GET (src/app/api/saisie/route.ts:158:21)
-  77 |   async function getAchats() {
-  78 |     try {
-> 79 |       const bovins = await db.bovin.findMany({ orderBy: { dateAchat: "desc" }, take: limit });
-     |                                     ^
-  80 |       return bovins.flatMap((b) => {
-  81 |         const montant = b.prixAchat;
-  82 |         const date = b.dateAchat.toISOString().slice(0, 10).split("-").reverse().join("/"); {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/saisie?type=achat 200 in 180ms (compile: 4ms, proxy.ts: 9ms, render: 166ms)
-✓ Compiled in 168ms
-✓ Compiled in 306ms
-✓ Compiled in 248ms
-✓ Compiled in 575ms
-✓ Compiled in 227ms
-✓ Compiled in 217ms
-✓ Compiled in 478ms
-✓ Compiled in 301ms
-✓ Compiled in 205ms
- GET / 200 in 701ms (compile: 124ms, render: 577ms)
- GET / 200 in 290ms (compile: 3ms, render: 287ms)
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].historique.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__7d61f6c3._.js:184:162
-
-  181 ;
-  182 ;
-  183 async function GET() {
-→ 184     const historique = await {imported module ./src/lib/db.ts}["db"].historique.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/historique/route.ts:7:42)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/historique/route.ts:7:22)
-   5 |
-   6 | export async function GET() {
->  7 |   const historique = await db.historique.findMany({
-     |                                          ^
-   8 |     include: { user: { select: { name: true } } },
-   9 |     orderBy: { date: "desc" },
-  10 |     take: 50, {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__eb30536a._.js:372:136
-
-  369 ;
-  370 async function GET() {
-  371     const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
-→ 372         {imported module ./src/lib/db.ts}["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/dashboard/route.ts:9:14)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/dashboard/route.ts:8:71)
-   7 | export async function GET() {
-   8 |   const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
->  9 |     db.bovin.findMany({ orderBy: { identifiant: "asc" } }),
-     |              ^
-  10 |     db.alimentation.findMany({ orderBy: { date: "desc" } }),
-  11 |     db.depense.findMany({ orderBy: { date: "desc" } }),
-  12 |     db.financement.findMany({ include: { echeances: true } }), {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/historique 500 in 417ms (compile: 44ms, proxy.ts: 18ms, render: 355ms)
- GET /api/dashboard 500 in 421ms (compile: 45ms, proxy.ts: 7ms, render: 370ms)
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].historique.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__7d61f6c3._.js:184:162
-
-  181 ;
-  182 ;
-  183 async function GET() {
-→ 184     const historique = await {imported module ./src/lib/db.ts}["db"].historique.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/historique/route.ts:7:42)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/historique/route.ts:7:22)
-   5 |
-   6 | export async function GET() {
->  7 |   const historique = await db.historique.findMany({
-     |                                          ^
-   8 |     include: { user: { select: { name: true } } },
-   9 |     orderBy: { date: "desc" },
-  10 |     take: 50, {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
-⨯ Error [PrismaClientInitializationError]: 
-Invalid `{imported module ./src/lib/db.ts}["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__eb30536a._.js:372:136
-
-  369 ;
-  370 async function GET() {
-  371     const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
-→ 372         {imported module ./src/lib/db.ts}["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/dashboard/route.ts:9:14)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/dashboard/route.ts:8:71)
-   7 | export async function GET() {
-   8 |   const [bovins, alimentations, depenses, financementRows, alertes] = await Promise.all([
->  9 |     db.bovin.findMany({ orderBy: { identifiant: "asc" } }),
-     |              ^
-  10 |     db.alimentation.findMany({ orderBy: { date: "desc" } }),
-  11 |     db.depense.findMany({ orderBy: { date: "desc" } }),
-  12 |     db.financement.findMany({ include: { echeances: true } }), {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/historique 500 in 223ms (compile: 3ms, proxy.ts: 4ms, render: 216ms)
- GET /api/dashboard 500 in 222ms (compile: 7ms, proxy.ts: 4ms, render: 212ms)
-Erreur alertes: Error [PrismaClientInitializationError]: 
-Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].stockMouvement.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__32b8d180._.js:125:172
-
-  122 if (type === "alertes") {
-  123     const alertes = [];
-  124     try {
-→ 125         const allStock = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].stockMouvement.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/saisie/route.ts:46:48)
-    at <unknown> (-->  schema.prisma:11)
-    at async GET (src/app/api/saisie/route.ts:46:24)
-  44 |     const alertes: { type: string; severite: string; message: string }[] = [];
-  45 |     try {
-> 46 |       const allStock = await db.stockMouvement.findMany();
-     |                                                ^
-  47 |       const stockParType: Record<string, number> = {};
-  48 |       for (const m of allStock) {
-  49 |         stockParType[m.typeAliment] = (stockParType[m.typeAliment] || 0) + m.entree - m.sortie; {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
-getAchats: Error [PrismaClientInitializationError]: 
-Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].bovin.findMany()` invocation in
-/home/z/my-project/.next/dev/server/chunks/[root-of-the-server]__32b8d180._.js:185:161
-
-  182 // Helper: journal d'achat (compte 6011 débit / 5711 crédit)
-  183 async function getAchats() {
-  184     try {
-→ 185         const bovins = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].bovin.findMany(
-error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
-  -->  schema.prisma:11
-   | 
-10 |   provider = "postgresql"
-11 |   url      = env("DATABASE_URL")
-   | 
-
-Validation Error Count: 1
-    at <unknown> (src/app/api/saisie/route.ts:79:37)
-    at <unknown> (-->  schema.prisma:11)
-    at async getAchats (src/app/api/saisie/route.ts:79:22)
-    at async GET (src/app/api/saisie/route.ts:158:21)
-  77 |   async function getAchats() {
-  78 |     try {
-> 79 |       const bovins = await db.bovin.findMany({ orderBy: { dateAchat: "desc" }, take: limit });
-     |                                     ^
-  80 |       return bovins.flatMap((b) => {
-  81 |         const montant = b.prixAchat;
-  82 |         const date = b.dateAchat.toISOString().slice(0, 10).split("-").reverse().join("/"); {
-  clientVersion: '6.19.2',
-  errorCode: undefined,
-  retryable: undefined
-}
- GET /api/saisie?type=alertes 200 in 237ms (compile: 5ms, proxy.ts: 6ms, render: 227ms)
- GET /api/saisie?type=achat 200 in 234ms (compile: 7ms, proxy.ts: 4ms, render: 223ms)
-e: 7ms, proxy.ts: 4ms, render: 223ms)
+ GET / 200 in 124ms (compile: 6ms, render: 118ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
+ GET /api/saisie?type=vente 200 in 21ms (compile: 4ms, proxy.ts: 5ms, render: 12ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
+ POST /api/saisie 400 in 14ms (compile: 1915µs, proxy.ts: 6ms, render: 6ms)
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Bovin`.`id` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`espece` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query INSERT INTO `main`.`Bovin` (`id`, `identifiant`, `espece`, `gestionnaire`, `race`, `sexe`, `dateAchat`, `prixAchat`, `poidsAchat`, `statut`, `prixVente`, `coutsEngraissement`, `autresCouts`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 44ms (compile: 30ms, proxy.ts: 4ms, render: 10ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`Bovin` SET `statut` = ?, `dateVente` = ?, `prixVente` = ?, `clientVente` = ?, `updatedAt` = ? WHERE (`main`.`Bovin`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 13ms (compile: 2ms, proxy.ts: 4ms, render: 7ms)
+ GET / 200 in 93ms (compile: 7ms, render: 87ms)
+ GET / 200 in 160ms (compile: 9ms, render: 151ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 168ms (compile: 109ms, proxy.ts: 4ms, render: 55ms)
+prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/historique 200 in 232ms (compile: 210ms, proxy.ts: 10ms, render: 12ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/stats/races 200 in 556ms (compile: 374ms, proxy.ts: 8ms, render: 175ms)
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+ GET /api/stats/comparaison 200 in 593ms (compile: 484ms, proxy.ts: 4ms, render: 105ms)
+prisma:query SELECT `main`.`StockMouvement`.`id`, `main`.`StockMouvement`.`date`, `main`.`StockMouvement`.`typeAliment`, `main`.`StockMouvement`.`entree`, `main`.`StockMouvement`.`sortie`, `main`.`StockMouvement`.`prixParSac`, `main`.`StockMouvement`.`observations`, `main`.`StockMouvement`.`createdAt` FROM `main`.`StockMouvement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE `main`.`Depense`.`date` >= ? LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`statut` = ? LIMIT ? OFFSET ?
+ GET /api/saisie?type=alertes 200 in 43ms (compile: 4ms, proxy.ts: 4ms, render: 34ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
+ GET /api/saisie?type=vente 200 in 73ms (compile: 19ms, proxy.ts: 13ms, render: 40ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+ GET /api/bovins 200 in 159ms (compile: 143ms, proxy.ts: 7ms, render: 9ms)
+ GET / 200 in 44ms (compile: 4ms, render: 39ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`dateAchat` DESC LIMIT ? OFFSET ?
+ GET /api/saisie?type=achat 200 in 19ms (compile: 3ms, proxy.ts: 5ms, render: 12ms)
+prisma:query SELECT `main`.`StockMouvement`.`id`, `main`.`StockMouvement`.`date`, `main`.`StockMouvement`.`typeAliment`, `main`.`StockMouvement`.`entree`, `main`.`StockMouvement`.`sortie`, `main`.`StockMouvement`.`prixParSac`, `main`.`StockMouvement`.`observations`, `main`.`StockMouvement`.`createdAt` FROM `main`.`StockMouvement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE `main`.`Depense`.`date` >= ? LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`statut` = ? LIMIT ? OFFSET ?
+ GET /api/saisie?type=alertes 200 in 16ms (compile: 5ms, proxy.ts: 5ms, render: 7ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`montant`) AS `_sum$montant` FROM (SELECT `main`.`Depense`.`montant` FROM `main`.`Depense` WHERE (`main`.`Depense`.`date` >= ? AND `main`.`Depense`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
+ GET /api/stats/comparaison 200 in 51ms (compile: 16ms, proxy.ts: 6ms, render: 29ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+ GET /api/stats/races 200 in 50ms (compile: 13ms, proxy.ts: 21ms, render: 15ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alimentation`.`id`, `main`.`Alimentation`.`date`, `main`.`Alimentation`.`produit`, `main`.`Alimentation`.`quantite`, `main`.`Alimentation`.`unite`, `main`.`Alimentation`.`coutTotal`, `main`.`Alimentation`.`nbBovinsConcernes`, `main`.`Alimentation`.`coutParTete`, `main`.`Alimentation`.`commentaire`, `main`.`Alimentation`.`createdAt` FROM `main`.`Alimentation` WHERE 1=1 ORDER BY `main`.`Alimentation`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Depense`.`id`, `main`.`Depense`.`date`, `main`.`Depense`.`categorie`, `main`.`Depense`.`libelle`, `main`.`Depense`.`montant`, `main`.`Depense`.`nbBovinsConcernes`, `main`.`Depense`.`createdAt` FROM `main`.`Depense` WHERE 1=1 ORDER BY `main`.`Depense`.`date` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Financement`.`id`, `main`.`Financement`.`bailleur`, `main`.`Financement`.`montantFinance`, `main`.`Financement`.`dateOctroi`, `main`.`Financement`.`tauxInteret`, `main`.`Financement`.`dureeMois`, `main`.`Financement`.`createdAt` FROM `main`.`Financement` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Echeance`.`id`, `main`.`Echeance`.`financementId`, `main`.`Echeance`.`numero`, `main`.`Echeance`.`datePrevue`, `main`.`Echeance`.`montant`, `main`.`Echeance`.`statut`, `main`.`Echeance`.`datePayee` FROM `main`.`Echeance` WHERE `main`.`Echeance`.`financementId` IN (?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Alerte`.`id`, `main`.`Alerte`.`date`, `main`.`Alerte`.`type`, `main`.`Alerte`.`severite`, `main`.`Alerte`.`message`, `main`.`Alerte`.`resolved` FROM `main`.`Alerte` WHERE 1=1 ORDER BY `main`.`Alerte`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/dashboard 200 in 68ms (compile: 15ms, proxy.ts: 13ms, render: 40ms)
+prisma:query SELECT `main`.`Historique`.`id`, `main`.`Historique`.`date`, `main`.`Historique`.`userId`, `main`.`Historique`.`action`, `main`.`Historique`.`entiteType`, `main`.`Historique`.`entiteId`, `main`.`Historique`.`details` FROM `main`.`Historique` WHERE 1=1 ORDER BY `main`.`Historique`.`date` DESC LIMIT ? OFFSET ?
+ GET /api/historique 200 in 67ms (compile: 22ms, proxy.ts: 14ms, render: 31ms)
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Bovin`.`id` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`espece` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query INSERT INTO `main`.`Bovin` (`id`, `identifiant`, `espece`, `gestionnaire`, `race`, `sexe`, `dateAchat`, `prixAchat`, `poidsAchat`, `statut`, `prixVente`, `coutsEngraissement`, `autresCouts`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 26ms (compile: 5ms, proxy.ts: 6ms, render: 16ms)
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE (`main`.`Bovin`.`statut` = ? AND `main`.`Bovin`.`espece` = ?) ORDER BY `main`.`Bovin`.`dateAchat` ASC LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`Bovin` SET `statut` = ?, `dateVente` = ?, `prixVente` = ?, `clientVente` = ?, `updatedAt` = ? WHERE (`main`.`Bovin`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `identifiant` AS `identifiant`, `espece` AS `espece`, `gestionnaire` AS `gestionnaire`, `race` AS `race`, `sexe` AS `sexe`, `dateAchat` AS `dateAchat`, `prixAchat` AS `prixAchat`, `poidsAchat` AS `poidsAchat`, `statut` AS `statut`, `dateVente` AS `dateVente`, `prixVente` AS `prixVente`, `coutsEngraissement` AS `coutsEngraissement`, `autresCouts` AS `autresCouts`, `clientVente` AS `clientVente`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/saisie 200 in 42ms (compile: 8ms, proxy.ts: 24ms, render: 10ms)
+ GET /api/bovins 200 in 35ms (compile: 7ms, proxy.ts: 13ms, render: 15ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE 1=1 ORDER BY `main`.`Bovin`.`identifiant` ASC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Bovin`.`id`, `main`.`Bovin`.`identifiant`, `main`.`Bovin`.`espece`, `main`.`Bovin`.`gestionnaire`, `main`.`Bovin`.`race`, `main`.`Bovin`.`sexe`, `main`.`Bovin`.`dateAchat`, `main`.`Bovin`.`prixAchat`, `main`.`Bovin`.`poidsAchat`, `main`.`Bovin`.`statut`, `main`.`Bovin`.`dateVente`, `main`.`Bovin`.`prixVente`, `main`.`Bovin`.`coutsEngraissement`, `main`.`Bovin`.`autresCouts`, `main`.`Bovin`.`clientVente`, `main`.`Bovin`.`createdAt`, `main`.`Bovin`.`updatedAt` FROM `main`.`Bovin` WHERE `main`.`Bovin`.`statut` = ? ORDER BY `main`.`Bovin`.`dateVente` DESC LIMIT ? OFFSET ?
+ GET /api/ventes 200 in 209ms (compile: 195ms, proxy.ts: 5ms, render: 9ms)
+e: 195ms, proxy.ts: 5ms, render: 9ms)

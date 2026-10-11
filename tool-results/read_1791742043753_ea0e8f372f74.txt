@@ -1,0 +1,833 @@
+     1→"use client";
+     2→/* eslint-disable react-hooks/set-state-in-effect */
+     3→
+     4→// Vue Saisie — journaux comptables (partie double) + balance + financement.
+     5→// Refonte complète avec :
+     6→// - Journal achat (Date, N° compte, Libellé, Débit, Crédit)
+     7→// - Journal vente (même structure)
+     8→// - Balance (somme débit - somme crédit + conclusion)
+     9→// - Financement (14 775 000 avec soustractions achat + ajouts vente en cascade)
+    10→
+    11→import { useState, useEffect, useCallback } from "react";
+    12→import { motion, AnimatePresence } from "framer-motion";
+    13→import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+    14→import { Button } from "@/components/ui/button";
+    15→import { Input } from "@/components/ui/input";
+    16→import { Label } from "@/components/ui/label";
+    17→import { Textarea } from "@/components/ui/textarea";
+    18→import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    19→import { Badge } from "@/components/ui/badge";
+    20→import { HugeiconsIcon } from "@hugeicons/react";
+    21→import { Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle, ChevronDown, ChevronUp, Wifi, Scale, Landmark, Wallet } from "@/lib/icons";
+    22→import { formatFCFA, formatDate, formatDateTime, nowDateTimeLocal, severiteColor } from "@/lib/format";
+    23→import { addPendingEntry } from "@/lib/offline-db";
+    24→import { useAppStore } from "@/lib/store";
+    25→import { toast } from "sonner";
+    26→
+    27→interface JournalEntry {
+    28→  id: string;
+    29→  date: string;
+    30→  numCompte: string;
+    31→  libelle: string;
+    32→  debit: number;
+    33→  credit: number;
+    34→}
+    35→interface Alerte { type: string; severite: string; message: string; }
+    36→interface FinancementMvt {
+    37→  id: string;
+    38→  date: string;       // affichage "JJ/MM/AAAA HH:MM"
+    39→  dateISO: string;    // ISO pour tri/affichage fallback
+    40→  libelle: string;
+    41→  type: "entree" | "sortie";
+    42→  typeLabel: string;
+    43→  montant: number;
+    44→  sens: "entree" | "sortie";
+    45→  soldeApres: number;
+    46→  saisiePar: string | null;
+    47→}
+    48→type SaisieType = "achat" | "vente" | "depense" | "stock";
+    49→
+    50→const TYPE_CONFIG: Record<SaisieType, { label: string; icon: typeof Beef; color: string }> = {
+    51→  achat: { label: "Journal d'achats", icon: Beef, color: "#10B981" },
+    52→  vente: { label: "Journal de ventes", icon: ShoppingCart, color: "#14B8A6" },
+    53→  depense: { label: "Journal des dépenses", icon: Receipt, color: "#F59E0B" },
+    54→  stock: { label: "Gestion de stock", icon: Package, color: "#3B82F6" },
+    55→};
+    56→
+    57→export function SaisieView() {
+    58→  // Permet à la sidebar de pointer vers cette vue en présélectionnant un type
+    59→  // (ex: bouton "Achats" → saisieInitialType = "achat")
+    60→  const saisieInitialType = useAppStore((s) => s.saisieInitialType);
+    61→  const setSaisieInitialType = useAppStore((s) => s.setSaisieInitialType);
+    62→
+    63→  const [activeType, setActiveType] = useState<SaisieType | null>(
+    64→    saisieInitialType ?? null
+    65→  );
+    66→  const [entries, setEntries] = useState<JournalEntry[]>([]);
+    67→  const [alertes, setAlertes] = useState<Alerte[]>([]);
+    68→  const [showAlerts, setShowAlerts] = useState(true);
+    69→  const [loading, setLoading] = useState(false);
+    70→  const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
+    71→  const [totalDebit, setTotalDebit] = useState(0);
+    72→  const [totalCredit, setTotalCredit] = useState(0);
+    73→  const [solde, setSolde] = useState(0);
+    74→  const [conclusion, setConclusion] = useState("");
+    75→
+    76→  // Données balance
+    77→  const [balance, setBalance] = useState<{ numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }[]>([]);
+    78→  const [showBalance, setShowBalance] = useState(false);
+    79→
+    80→  // Données financement
+    81→  const [financement, setFinancement] = useState<{
+    82→    capitalInitial: number;
+    83→    totalEntrees: number;
+    84→    totalSorties: number;
+    85→    soldeRestant: number;
+    86→    nbMouvements: number;
+    87→    mouvements: FinancementMvt[];
+    88→  } | null>(null);
+    89→  const [showFinancement, setShowFinancement] = useState(false);
+    90→
+    91→  // Formulaire d'ajout d'un mouvement de capital
+    92→  const [mvtDate, setMvtDate] = useState<string>(nowDateTimeLocal());
+    93→  const [mvtType, setMvtType] = useState<"ENTREE" | "SORTIE">("SORTIE");
+    94→  const [mvtMontant, setMvtMontant] = useState<string>("");
+    95→  const [mvtLibelle, setMvtLibelle] = useState<string>("");
+    96→  const [mvtSaving, setMvtSaving] = useState(false);
+    97→
+    98→  const loadJournal = useCallback(async (t: SaisieType) => {
+    99→    setLoading(true);
+   100→    try {
+   101→      const res = await fetch(`/api/saisie?type=${t}`);
+   102→      if (!res.ok) return;
+   103→      const data = await res.json();
+   104→      setEntries(data.entries || []);
+   105→      setTotalDebit(data.totalDebit || 0);
+   106→      setTotalCredit(data.totalCredit || 0);
+   107→      setSolde(data.solde || 0);
+   108→      setConclusion(data.conclusion || "");
+   109→    } catch { /* hors ligne */ }
+   110→    setLoading(false);
+   111→  }, []);
+   112→
+   113→  const loadAlertes = useCallback(async () => {
+   114→    try {
+   115→      const res = await fetch("/api/saisie?type=alertes");
+   116→      if (!res.ok) return;
+   117→      const data = await res.json();
+   118→      setAlertes(data.alertes || []);
+   119→    } catch { /* ignore */ }
+   120→  }, []);
+   121→
+   122→  const loadBalance = useCallback(async () => {
+   123→    try {
+   124→      const res = await fetch("/api/saisie?type=balance");
+   125→      if (!res.ok) return;
+   126→      const data = await res.json();
+   127→      setBalance(data.balance || []);
+   128→    } catch { /* ignore */ }
+   129→  }, []);
+   130→
+   131→  const loadFinancement = useCallback(async () => {
+   132→    try {
+   133→      const res = await fetch("/api/saisie?type=financement");
+   134→      if (!res.ok) return;
+   135→      const data = await res.json();
+   136→      setFinancement(data);
+   137→    } catch { /* ignore */ }
+   138→  }, []);
+   139→
+   140→  // Sauvegarde d'un nouveau mouvement manuel sur le capital
+   141→  const handleSaveMouvement = async () => {
+   142→    const montant = Number(mvtMontant.replace(/\s/g, ""));
+   143→    if (!montant || montant <= 0) {
+   144→      toast.error("Veuillez saisir un montant valide");
+   145→      return;
+   146→    }
+   147→    setMvtSaving(true);
+   148→    try {
+   149→      const res = await fetch("/api/saisie", {
+   150→        method: "POST",
+   151→        headers: { "Content-Type": "application/json" },
+   152→        body: JSON.stringify({
+   153→          type: "capital_mouvement",          // type d'opération API
+   154→          typeMvt: mvtType,                   // sens : ENTREE ou SORTIE
+   155→          date: mvtDate,                       // ISO local "YYYY-MM-DDTHH:MM"
+   156→          montant,
+   157→          libelle: mvtLibelle.trim(),
+   158→        }),
+   159→      });
+   160→      if (!res.ok) {
+   161→        const err = await res.json();
+   162→        toast.error(err.error || "Erreur");
+   163→        setMvtSaving(false);
+   164→        return;
+   165→      }
+   166→      toast.success(mvtType === "ENTREE" ? "Ajout enregistré" : "Retrait enregistré");
+   167→      // Réinitialiser le formulaire
+   168→      setMvtMontant("");
+   169→      setMvtLibelle("");
+   170→      setMvtDate(nowDateTimeLocal());
+   171→      // Recharger la liste
+   172→      await loadFinancement();
+   173→    } catch {
+   174→      toast.error("Connexion perdue");
+   175→    }
+   176→    setMvtSaving(false);
+   177→  };
+   178→
+   179→  // Suppression d'un mouvement (sans toucher au capital initial)
+   180→  const handleDeleteMouvement = async (id: string) => {
+   181→    if (!id) return;
+   182→    try {
+   183→      const res = await fetch("/api/saisie", {
+   184→        method: "POST",
+   185→        headers: { "Content-Type": "application/json" },
+   186→        body: JSON.stringify({ type: "capital_mouvement_delete", id }),
+   187→      });
+   188→      if (!res.ok) {
+   189→        const err = await res.json();
+   190→        toast.error(err.error || "Erreur lors de la suppression");
+   191→        return;
+   192→      }
+   193→      toast.success("Mouvement supprimé");
+   194→      await loadFinancement();
+   195→    } catch {
+   196→      toast.error("Connexion perdue");
+   197→    }
+   198→  };
+   199→
+   200→  useEffect(() => {
+   201→    const handleOnlineChange = () => setIsOnline(navigator.onLine);
+   202→    window.addEventListener("online", handleOnlineChange);
+   203→    window.addEventListener("offline", handleOnlineChange);
+   204→    loadAlertes();
+   205→    return () => {
+   206→      window.removeEventListener("online", handleOnlineChange);
+   207→      window.removeEventListener("offline", handleOnlineChange);
+   208→    };
+   209→  }, []);
+   210→
+   211→  useEffect(() => {
+   212→    // Si la sidebar a présélectionné un type (ex: bouton "Achats" → "achat"),
+   213→    // on l'applique et on le consomme pour ne pas polluer la prochaine ouverture
+   214→    // manuelle de la vue Saisie.
+   215→    if (saisieInitialType) {
+   216→      setActiveType(saisieInitialType);
+   217→      setSaisieInitialType(null);
+   218→    }
+   219→  }, [saisieInitialType, setSaisieInitialType]);
+   220→
+   221→  useEffect(() => {
+   222→    if (activeType) {
+   223→      loadJournal(activeType);
+   224→    }
+   225→  }, [activeType]);
+   226→
+   227→  const handleSave = async (type: SaisieType, data: Record<string, unknown>) => {
+   228→    if (!navigator.onLine) {
+   229→      await addPendingEntry(type, data);
+   230→      toast.success("Saisie enregistrée hors ligne");
+   231→      return;
+   232→    }
+   233→    try {
+   234→      const res = await fetch("/api/saisie", {
+   235→        method: "POST",
+   236→        headers: { "Content-Type": "application/json" },
+   237→        body: JSON.stringify({ type, ...data }),
+   238→      });
+   239→      if (!res.ok) {
+   240→        const err = await res.json();
+   241→        toast.error(err.error || "Erreur");
+   242→        return;
+   243→      }
+   244→      toast.success("Saisie enregistrée");
+   245→      if (activeType) loadJournal(activeType);
+   246→      loadAlertes();
+   247→      loadBalance();
+   248→      loadFinancement();
+   249→    } catch {
+   250→      await addPendingEntry(type, data);
+   251→      toast.warning("Connexion perdue — sauvegardé hors ligne");
+   252→    }
+   253→  };
+   254→
+   255→  return (
+   256→    <div className="space-y-4">
+   257→      {/* Zone d'alertes */}
+   258→      {alertes.length > 0 && (
+   259→        <Card className="border-amber-200">
+   260→          <button onClick={() => setShowAlerts((v) => !v)} className="w-full flex items-center gap-2 p-3">
+   261→            <HugeiconsIcon icon={AlertTriangle} size={16} className="text-amber-600" />
+   262→            <span className="text-xs font-semibold text-amber-900 flex-1 text-left">Zone d'alertes ({alertes.length})</span>
+   263→            {showAlerts ? <HugeiconsIcon icon={ChevronUp} size={16} className="text-amber-600" /> : <HugeiconsIcon icon={ChevronDown} size={16} className="text-amber-600" />}
+   264→          </button>
+   265→          {showAlerts && (
+   266→            <div className="px-3 pb-3 space-y-1.5">
+   267→              {alertes.map((a, i) => (
+   268→                <div key={i} className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs ${severiteColor(a.severite)}`}>
+   269→                  <span className="font-medium flex-1">{a.message}</span>
+   270→                  <span className="text-[0.55rem] uppercase font-bold shrink-0">{a.type}</span>
+   271→                </div>
+   272→              ))}
+   273→            </div>
+   274→          )}
+   275→        </Card>
+   276→      )}
+   277→
+   278→      {/* Sélecteur de type */}
+   279→      {!activeType && (
+   280→        <div className="space-y-3">
+   281→          <div className="text-center">
+   282→            <h2 className="text-lg font-bold text-foreground">Que voulez-vous saisir ?</h2>
+   283→            <p className="text-xs text-muted-foreground mt-0.5">Choisissez un type d'opération</p>
+   284→          </div>
+   285→          <div className="grid grid-cols-2 gap-3">
+   286→            {(Object.keys(TYPE_CONFIG) as SaisieType[]).map((t) => {
+   287→              const cfg = TYPE_CONFIG[t];
+   288→              return (
+   289→                <motion.button key={t} whileTap={{ scale: 0.95 }} onClick={() => setActiveType(t)}
+   290→                  className="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-colors hover:bg-muted/40"
+   291→                  style={{ borderColor: cfg.color + "40" }}>
+   292→                  <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ background: cfg.color + "15" }}>
+   293→                    <HugeiconsIcon icon={cfg.icon} size={24} style={{ color: cfg.color }} />
+   294→                  </div>
+   295→                  <span className="text-sm font-semibold text-foreground">{cfg.label}</span>
+   296→                </motion.button>
+   297→              );
+   298→            })}
+   299→          </div>
+   300→
+   301→          {/* Accès Balance et Financement */}
+   302→          <div className="grid grid-cols-2 gap-3 pt-2">
+   303→            <button onClick={() => { setShowBalance(true); loadBalance(); }}
+   304→              className="flex items-center gap-2 rounded-lg border border-border bg-white p-3 text-xs font-medium hover:bg-muted/40">
+   305→              <HugeiconsIcon icon={Scale} size={18} className="text-primary" /> Balance comptable
+   306→            </button>
+   307→            <button onClick={() => { setShowFinancement(true); loadFinancement(); }}
+   308→              className="flex items-center gap-2 rounded-lg border border-border bg-white p-3 text-xs font-medium hover:bg-muted/40">
+   309→              <HugeiconsIcon icon={Landmark} size={18} className="text-primary" /> Suivi financement
+   310→            </button>
+   311→          </div>
+   312→        </div>
+   313→      )}
+   314→
+   315→      {/* Modal Balance */}
+   316→      {showBalance && (
+   317→        <Card>
+   318→          <CardHeader><CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Scale} size={16} className="text-primary" /> Balance comptable</CardTitle></CardHeader>
+   319→          <CardContent>
+   320→            <div className="overflow-x-auto">
+   321→              <table className="w-full text-xs">
+   322→                <thead>
+   323→                  <tr className="border-b-2 border-border text-left">
+   324→                    <th className="p-2" rowSpan={2}>Compte</th>
+   325→                    <th className="p-2" rowSpan={2}>Libellé</th>
+   326→                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N-1</th>
+   327→                    <th className="p-2 text-center border-l border-border" colSpan={2}>Mouvements N</th>
+   328→                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N</th>
+   329→                  </tr>
+   330→                  <tr className="border-b border-border text-left text-[0.6rem]">
+   331→                    <th className="p-2 text-right border-l border-border">Débit</th>
+   332→                    <th className="p-2 text-right">Crédit</th>
+   333→                    <th className="p-2 text-right border-l border-border">Débit</th>
+   334→                    <th className="p-2 text-right">Crédit</th>
+   335→                    <th className="p-2 text-right border-l border-border">Débit</th>
+   336→                    <th className="p-2 text-right">Crédit</th>
+   337→                  </tr>
+   338→                </thead>
+   339→                <tbody>
+   340→                  {balance.map((c, i) => {
+   341→                    const soldeDebit = c.solde > 0 ? Math.abs(c.solde) : 0;
+   342→                    const soldeCredit = c.solde < 0 ? Math.abs(c.solde) : 0;
+   343→                    return (
+   344→                      <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+   345→                        <td className="p-2 font-mono font-bold">{c.numCompte}</td>
+   346→                        <td className="p-2 text-foreground">{c.libelle}</td>
+   347→                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+   348→                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+   349→                        <td className="p-2 text-right tabular-nums text-red-600">{c.totalDebit > 0 ? formatFCFA(c.totalDebit, false) : ""}</td>
+   350→                        <td className="p-2 text-right tabular-nums text-emerald-600">{c.totalCredit > 0 ? formatFCFA(c.totalCredit, false) : ""}</td>
+   351→                        <td className="p-2 text-right tabular-nums font-bold text-red-600">{soldeDebit > 0 ? formatFCFA(soldeDebit, false) : ""}</td>
+   352→                        <td className="p-2 text-right tabular-nums font-bold text-emerald-600">{soldeCredit > 0 ? formatFCFA(soldeCredit, false) : ""}</td>
+   353→                      </tr>
+   354→                    );
+   355→                  })}
+   356→                </tbody>
+   357→                <tfoot>
+   358→                  <tr className="border-t-2 border-border font-bold bg-muted/30">
+   359→                    <td className="p-2" colSpan={2}>Total général</td>
+   360→                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+   361→                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
+   362→                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(balance.reduce((s, c) => s + c.totalDebit, 0), false)}</td>
+   363→                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(balance.reduce((s, c) => s + c.totalCredit, 0), false)}</td>
+   364→                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(Math.max(0, balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
+   365→                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(Math.max(0, -balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
+   366→                  </tr>
+   367→                </tfoot>
+   368→              </table>
+   369→            </div>
+   370→            <div className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2">
+   371→              <span className="text-xs text-muted-foreground">Solde général (Débit − Crédit)</span>
+   372→              <div className="flex items-center gap-2">
+   373→                <span className={`text-sm font-bold tabular-nums ${balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-600" : "text-emerald-600"}`}>
+   374→                  {formatFCFA(Math.abs(balance.reduce((s, c) => s + c.solde, 0)), false)}
+   375→                </span>
+   376→                <Badge variant="outline" className={balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
+   377→                  {balance.reduce((s, c) => s + c.solde, 0) > 0 ? "Solde débitaire" : "Solde créditaire"}
+   378→                </Badge>
+   379→              </div>
+   380→            </div>
+   381→            <button onClick={() => setShowBalance(false)} className="mt-3 text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
+   382→          </CardContent>
+   383→        </Card>
+   384→      )}
+   385→
+   386→      {/* Modal Suivi financement — capital initial STATIQUE + mouvements manuels horodatés */}
+   387→      {showFinancement && financement && (
+   388→        <Card>
+   389→          <CardHeader>
+   390→            <CardTitle className="text-sm flex items-center gap-2">
+   391→              <HugeiconsIcon icon={Landmark} size={16} className="text-primary" /> Suivi du capital
+   392→            </CardTitle>
+   393→            <CardDescription className="text-xs">
+   394→              Le capital initial reste figé. Chaque opération (ajout/retrait) est enregistrée et horodatée (jour + heure + minutes).
+   395→            </CardDescription>
+   396→          </CardHeader>
+   397→          <CardContent className="space-y-4">
+   398→            {/* Capital initial — toujours visible, non modifié */}
+   399→            <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
+   400→              <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
+   401→                <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
+   402→              </p>
+   403→              <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(financement.capitalInitial)}</p>
+   404→              <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
+   405→            </div>
+   406→
+   407→            {/* Résumé des mouvements */}
+   408→            <div className="grid grid-cols-3 gap-2">
+   409→              <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-center">
+   410→                <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ajouts</p>
+   411→                <p className="text-sm font-bold text-emerald-700 tabular-nums">+ {formatFCFA(financement.totalEntrees, false)}</p>
+   412→              </div>
+   413→              <div className="rounded-lg bg-red-50 border border-red-200 p-2 text-center">
+   414→                <p className="text-[0.6rem] uppercase text-red-700 font-medium">Retraits</p>
+   415→                <p className="text-sm font-bold text-red-700 tabular-nums">− {formatFCFA(financement.totalSorties, false)}</p>
+   416→              </div>
+   417→              <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+   418→                <p className="text-[0.6rem] uppercase text-primary font-medium">Solde actuel</p>
+   419→                <p className="text-sm font-bold text-primary tabular-nums">{formatFCFA(financement.soldeRestant, false)}</p>
+   420→              </div>
+   421→            </div>
+   422→
+   423→            {/* Formulaire d'ajout d'un mouvement horodaté */}
+   424→            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2.5">
+   425→              <div className="flex items-center gap-2">
+   426→                <HugeiconsIcon icon={Plus} size={14} className="text-primary" />
+   427→                <p className="text-xs font-semibold text-foreground">Nouvelle opération sur le capital</p>
+   428→              </div>
+   429→              <div className="grid grid-cols-2 gap-2">
+   430→                <div className="space-y-1">
+   431→                  <Label htmlFor="mvt-date" className="text-[0.6rem] uppercase text-muted-foreground">Date & heure</Label>
+   432→                  <Input
+   433→                    id="mvt-date"
+   434→                    type="datetime-local"
+   435→                    value={mvtDate}
+   436→                    onChange={(e) => setMvtDate(e.target.value)}
+   437→                    className="text-xs h-8"
+   438→                  />
+   439→                </div>
+   440→                <div className="space-y-1">
+   441→                  <Label htmlFor="mvt-type" className="text-[0.6rem] uppercase text-muted-foreground">Sens de l'opération</Label>
+   442→                  <Select value={mvtType} onValueChange={(v) => setMvtType(v as "ENTREE" | "SORTIE")}>
+   443→                    <SelectTrigger id="mvt-type" className="text-xs h-8"><SelectValue /></SelectTrigger>
+   444→                    <SelectContent>
+   445→                      <SelectItem value="SORTIE">− Retrait (sortie de capital)</SelectItem>
+   446→                      <SelectItem value="ENTREE">+ Ajout (entrée de capital)</SelectItem>
+   447→                    </SelectContent>
+   448→                  </Select>
+   449→                </div>
+   450→              </div>
+   451→              <div className="grid grid-cols-2 gap-2">
+   452→                <div className="space-y-1">
+   453→                  <Label htmlFor="mvt-montant" className="text-[0.6rem] uppercase text-muted-foreground">Montant (FCFA)</Label>
+   454→                  <Input
+   455→                    id="mvt-montant"
+   456→                    type="number"
+   457→                    inputMode="numeric"
+   458→                    placeholder="ex: 150000"
+   459→                    value={mvtMontant}
+   460→                    onChange={(e) => setMvtMontant(e.target.value)}
+   461→                    className="text-xs h-8 tabular-nums"
+   462→                  />
+   463→                </div>
+   464→                <div className="space-y-1">
+   465→                  <Label htmlFor="mvt-libelle" className="text-[0.6rem] uppercase text-muted-foreground">Motif / libellé</Label>
+   466→                  <Input
+   467→                    id="mvt-libelle"
+   468→                    placeholder="ex: Achat alimentation"
+   469→                    value={mvtLibelle}
+   470→                    onChange={(e) => setMvtLibelle(e.target.value)}
+   471→                    className="text-xs h-8"
+   472→                  />
+   473→                </div>
+   474→              </div>
+   475→              <Button
+   476→                onClick={handleSaveMouvement}
+   477→                disabled={mvtSaving}
+   478→                size="sm"
+   479→                className={`w-full text-xs ${mvtType === "ENTREE" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
+   480→              >
+   481→                {mvtSaving ? "Enregistrement…" : (mvtType === "ENTREE" ? "+ Ajouter au capital" : "− Soustraire du capital")}
+   482→              </Button>
+   483→            </div>
+   484→
+   485→            {/* Mouvements horodatés en cascade */}
+   486→            <div className="space-y-1.5">
+   487→              <div className="flex items-center justify-between">
+   488→                <p className="text-xs font-semibold text-foreground">Historique des opérations ({financement.nbMouvements})</p>
+   489→                <p className="text-[0.55rem] text-muted-foreground">tri : récent → ancien</p>
+   490→              </div>
+   491→              <div className="max-h-80 overflow-y-auto pr-1 -mr-1 space-y-0">
+   492→                <AnimatePresence mode="popLayout">
+   493→                  {financement.mouvements.map((m, i) => (
+   494→                    <motion.div
+   495→                      key={m.id ?? `${m.date}-${i}`}
+   496→                      layout
+   497→                      initial={{ opacity: 0, x: -30, height: 0 }}
+   498→                      animate={{ opacity: 1, x: 0, height: "auto" }}
+   499→                      exit={{ opacity: 0, x: -30, height: 0 }}
+   500→                      transition={{ delay: i * 0.04, duration: 0.25 }}
+   501→                      className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
+   502→                    >
+   503→                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
+   504→                      <div className="flex items-center justify-between gap-2">
+   505→                        <div className="min-w-0 flex-1">
+   506→                          <p className="text-sm font-medium text-foreground truncate">
+   507→                            {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
+   508→                          </p>
+   509→                          <p className="text-[0.6rem] text-muted-foreground tabular-nums">
+   510→                            <span className="font-medium">{m.date}</span> · {m.typeLabel}
+   511→                            {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
+   512→                          </p>
+   513→                        </div>
+   514→                        <div className="text-right shrink-0 flex items-center gap-2">
+   515→                          <div>
+   516→                            <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
+   517→                              {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
+   518→                            </p>
+   519→                            <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
+   520→                          </div>
+   521→                          <button
+   522→                            onClick={() => handleDeleteMouvement(m.id)}
+   523→                            title="Supprimer ce mouvement"
+   524→                            className="text-muted-foreground hover:text-red-600 transition-colors p-1 rounded"
+   525→                          >
+   526→                            <HugeiconsIcon icon={AlertTriangle} size={14} />
+   527→                          </button>
+   528→                        </div>
+   529→                      </div>
+   530→                    </motion.div>
+   531→                  ))}
+   532→                </AnimatePresence>
+   533→                {financement.mouvements.length === 0 && (
+   534→                  <p className="text-center text-xs text-muted-foreground py-6">
+   535→                    Aucune opération enregistrée. Ajoutez votre premier mouvement ci-dessus.
+   536→                  </p>
+   537→                )}
+   538→              </div>
+   539→            </div>
+   540→
+   541→            <button onClick={() => setShowFinancement(false)} className="text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
+   542→          </CardContent>
+   543→        </Card>
+   544→      )}
+   545→
+   546→      {/* Formulaire + Journal quand un type est sélectionné */}
+   547→      {activeType && (
+   548→        <div className="space-y-4">
+   549→          <div className="flex items-center gap-3">
+   550→            <button onClick={() => { setActiveType(null); setEntries([]); }} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+   551→              <HugeiconsIcon icon={ChevronDown} size={14} className="rotate-90" /> Retour
+   552→            </button>
+   553→            <div className="flex items-center gap-2 flex-1">
+   554→              <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: TYPE_CONFIG[activeType].color + "15" }}>
+   555→                <HugeiconsIcon icon={TYPE_CONFIG[activeType].icon} size={16} style={{ color: TYPE_CONFIG[activeType].color }} />
+   556→              </div>
+   557→              <h2 className="text-base font-bold text-foreground">{TYPE_CONFIG[activeType].label}</h2>
+   558→            </div>
+   559→            <div className={`flex items-center gap-1 text-[0.6rem] ${isOnline ? "text-emerald-600" : "text-amber-600"}`}>
+   560→              <HugeiconsIcon icon={Wifi} size={12} />{isOnline ? "En ligne" : "Hors ligne"}
+   561→            </div>
+   562→          </div>
+   563→
+   564→          {/* Formulaire */}
+   565→          <Card><CardContent className="p-4">
+   566→            {activeType === "achat" && <FormAchat onSave={handleSave} />}
+   567→            {activeType === "vente" && <FormVente onSave={handleSave} />}
+   568→            {activeType === "depense" && <FormDepense onSave={handleSave} />}
+   569→            {activeType === "stock" && <FormStock onSave={handleSave} />}
+   570→          </CardContent></Card>
+   571→
+   572→          {/* Journal comptable — tableau en cascade */}
+   573→          <div>
+   574→            <div className="flex items-center justify-between mb-2">
+   575→              <h3 className="text-sm font-semibold text-foreground">{TYPE_CONFIG[activeType].label}</h3>
+   576→              {entries.length > 0 && (
+   577→                <div className="text-right">
+   578→                  <span className="text-[0.6rem] text-muted-foreground">Solde : </span>
+   579→                  <span className={`text-xs font-bold tabular-nums ${solde > 0 ? "text-red-600" : "text-emerald-600"}`}>
+   580→                    {formatFCFA(Math.abs(solde), false)} · {conclusion}
+   581→                  </span>
+   582→                </div>
+   583→              )}
+   584→            </div>
+   585→
+   586→            {/* En-tête du tableau */}
+   587→            <div className="grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 px-3 py-1.5 border-b border-border text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground">
+   588→              <span>Date</span>
+   589→              <span>N° Compte</span>
+   590→              <span>Libellé</span>
+   591→              <span className="text-right">Montant Débit</span>
+   592→              <span className="text-right">Montant Crédit</span>
+   593→            </div>
+   594→
+   595→            {/* Lignes du journal en cascade */}
+   596→            {loading ? (
+   597→              <p className="text-center text-xs text-muted-foreground py-4">Chargement...</p>
+   598→            ) : entries.length === 0 ? (
+   599→              <p className="text-center text-xs text-muted-foreground py-4">Aucune entrée</p>
+   600→            ) : (
+   601→              <div className="overflow-hidden">
+   602→                <AnimatePresence mode="popLayout">
+   603→                  {entries.map((e, i) => (
+   604→                    <motion.div
+   605→                      key={e.id}
+   606→                      layout
+   607→                      initial={{ opacity: 0, height: 0 }}
+   608→                      animate={{ opacity: 1, height: "auto" }}
+   609→                      exit={{ opacity: 0, height: 0 }}
+   610→                      transition={{ delay: i * 0.04, duration: 0.2 }}
+   611→                      className={`grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-1.5 border-b border-border/40 text-xs ${e.debit > 0 ? "bg-red-50/30" : "bg-emerald-50/30"}`}
+   612→                    >
+   613→                      <span className="text-muted-foreground tabular-nums">{e.date}</span>
+   614→                      <span className="font-mono font-bold text-foreground">{e.numCompte}</span>
+   615→                      <span className="text-foreground truncate">{e.libelle}</span>
+   616→                      <span className="text-right tabular-nums font-medium text-red-600">{e.debit > 0 ? formatFCFA(e.debit, false) : ""}</span>
+   617→                      <span className="text-right tabular-nums font-medium text-emerald-600">{e.credit > 0 ? formatFCFA(e.credit, false) : ""}</span>
+   618→                    </motion.div>
+   619→                  ))}
+   620→                </AnimatePresence>
+   621→              </div>
+   622→            )}
+   623→
+   624→            {/* Totaux du journal */}
+   625→            {entries.length > 0 && (
+   626→              <div className="grid grid-cols-[60px_60px_1fr_80px_80px] gap-2 items-center px-3 py-2 bg-muted/40 border border-border rounded-b-lg text-xs font-bold">
+   627→                <span></span>
+   628→                <span></span>
+   629→                <span className="text-muted-foreground">Total</span>
+   630→                <span className="text-right tabular-nums text-red-600">{formatFCFA(totalDebit, false)}</span>
+   631→                <span className="text-right tabular-nums text-emerald-600">{formatFCFA(totalCredit, false)}</span>
+   632→              </div>
+   633→            )}
+   634→
+   635→            {/* Conclusion */}
+   636→            {entries.length > 0 && (
+   637→              <div className="mt-2 flex items-center justify-between rounded-lg border border-border px-3 py-2">
+   638→                <span className="text-xs text-muted-foreground">Solde (Débit − Crédit)</span>
+   639→                <div className="flex items-center gap-2">
+   640→                  <span className={`text-sm font-bold tabular-nums ${solde > 0 ? "text-red-600" : "text-emerald-600"}`}>
+   641→                    {formatFCFA(Math.abs(solde), false)}
+   642→                  </span>
+   643→                  <Badge variant="outline" className={solde > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
+   644→                    {conclusion}
+   645→                  </Badge>
+   646→                </div>
+   647→              </div>
+   648→            )}
+   649→          </div>
+   650→        </div>
+   651→      )}
+   652→    </div>
+   653→  );
+   654→}
+   655→
+   656→// ============================================================
+   657→//   FORMULAIRES
+   658→// ============================================================
+   659→
+   660→function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+   661→  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+   662→  const [espece, setEspece] = useState("BOVIN");
+   663→  const [gestionnaire, setGestionnaire] = useState("SAVERDEV");
+   664→  const [race, setRace] = useState("Zébu");
+   665→  const [nbSujets, setNbSujets] = useState("1");
+   666→  const [prixUnitaire, setPrixUnitaire] = useState("");
+   667→  const [poids, setPoids] = useState("");
+   668→  const [observations, setObservations] = useState("");
+   669→  const [saving, setSaving] = useState(false);
+   670→  const montant = Number(prixUnitaire || 0) * Number(nbSujets || 0);
+   671→
+   672→  const submit = async () => {
+   673→    if (!prixUnitaire) { toast.error("Prix requis"); return; }
+   674→    setSaving(true);
+   675→    await onSave("achat", { date, espece, gestionnaire, race, nbSujets, prixUnitaire, poids, observations });
+   676→    setSaving(false);
+   677→    setPrixUnitaire(""); setPoids(""); setObservations("");
+   678→  };
+   679→
+   680→  return (
+   681→    <div className="space-y-3">
+   682→      <div className="grid grid-cols-2 gap-3">
+   683→        <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+   684→        <div>
+   685→          <Label className="text-xs">Gestionnaire</Label>
+   686→          <Select value={gestionnaire} onValueChange={setGestionnaire}>
+   687→            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+   688→            <SelectContent>
+   689→              <SelectItem value="SAVERDEV" className="text-sm">SAVERDEV (Souleymane Z.)</SelectItem>
+   690→            </SelectContent>
+   691→          </Select>
+   692→        </div>
+   693→      </div>
+   694→      <div className="grid grid-cols-2 gap-3">
+   695→        <div>
+   696→          <Label className="text-xs">Espèce</Label>
+   697→          <Select value={espece} onValueChange={(v) => { setEspece(v); setRace(v === "BOVIN" ? "Zébu" : "Mouton Sokoto"); }}>
+   698→            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+   699→            <SelectContent>
+   700→              <SelectItem value="BOVIN" className="text-sm">Bovin (BOE)</SelectItem>
+   701→              <SelectItem value="OVIN" className="text-sm">Ovin (OVN)</SelectItem>
+   702→            </SelectContent>
+   703→          </Select>
+   704→        </div>
+   705→        <div><Label className="text-xs">Race</Label><Input value={race} onChange={(e) => setRace(e.target.value)} className="h-11 text-sm" /></div>
+   706→      </div>
+   707→      <div className="grid grid-cols-3 gap-3">
+   708→        <div><Label className="text-xs">Nb sujets</Label><Input type="number" value={nbSujets} onChange={(e) => setNbSujets(e.target.value)} className="h-11 text-sm" min="1" /></div>
+   709→        <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="350000" /></div>
+   710→        <div><Label className="text-xs">Poids (kg)</Label><Input type="number" value={poids} onChange={(e) => setPoids(e.target.value)} className="h-11 text-sm" placeholder="280" /></div>
+   711→      </div>
+   712→      {montant > 0 && <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit (6011) / Crédit (5711) : </span><span className="font-bold text-red-600">{formatFCFA(montant)}</span></div>}
+   713→      <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Marché, robe..." className="text-sm min-h-[60px]" /></div>
+   714→      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer l'achat</>}</Button>
+   715→    </div>
+   716→  );
+   717→}
+   718→
+   719→function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+   720→  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+   721→  const [acheteur, setAcheteur] = useState("");
+   722→  const [nbSujets, setNbSujets] = useState("1");
+   723→  const [prixUnitaire, setPrixUnitaire] = useState("");
+   724→  const [observations, setObservations] = useState("");
+   725→  const [saving, setSaving] = useState(false);
+   726→  const montant = Number(prixUnitaire || 0) * Number(nbSujets || 0);
+   727→
+   728→  const submit = async () => {
+   729→    if (!acheteur || !prixUnitaire) { toast.error("Acheteur et prix requis"); return; }
+   730→    setSaving(true);
+   731→    await onSave("vente", { date, acheteur, nbSujets, prixUnitaire, observations });
+   732→    setSaving(false);
+   733→    setAcheteur(""); setPrixUnitaire(""); setObservations("");
+   734→  };
+   735→
+   736→  return (
+   737→    <div className="space-y-3">
+   738→      <div className="grid grid-cols-2 gap-3">
+   739→        <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+   740→        <div><Label className="text-xs">Acheteur</Label><Input value={acheteur} onChange={(e) => setAcheteur(e.target.value)} placeholder="Nom du client" className="h-11 text-sm" /></div>
+   741→      </div>
+   742→      <div className="grid grid-cols-2 gap-3">
+   743→        <div><Label className="text-xs">Nb sujets vendus</Label><Input type="number" value={nbSujets} onChange={(e) => setNbSujets(e.target.value)} className="h-11 text-sm" min="1" /></div>
+   744→        <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="450000" /></div>
+   745→      </div>
+   746→      {montant > 0 && <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit (4111) / Crédit (7011) : </span><span className="font-bold text-emerald-600">{formatFCFA(montant)}</span></div>}
+   747→      <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Conditions..." className="text-sm min-h-[60px]" /></div>
+   748→      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer la vente</>}</Button>
+   749→    </div>
+   750→  );
+   751→}
+   752→
+   753→function FormDepense({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+   754→  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+   755→  const [categorie, setCategorie] = useState("Vétérinaire");
+   756→  const [libelle, setLibelle] = useState("");
+   757→  const [montant, setMontant] = useState("");
+   758→  const [observations, setObservations] = useState("");
+   759→  const [saving, setSaving] = useState(false);
+   760→
+   761→  const submit = async () => {
+   762→    if (!libelle || !montant) { toast.error("Libellé et montant requis"); return; }
+   763→    setSaving(true);
+   764→    await onSave("depense", { date, categorie, libelle, montant, observations });
+   765→    setSaving(false);
+   766→    setLibelle(""); setMontant(""); setObservations("");
+   767→  };
+   768→
+   769→  return (
+   770→    <div className="space-y-3">
+   771→      <div className="grid grid-cols-2 gap-3">
+   772→        <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+   773→        <div><Label className="text-xs">Catégorie</Label>
+   774→          <Select value={categorie} onValueChange={setCategorie}><SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger><SelectContent>
+   775→            <SelectItem value="Vétérinaire" className="text-sm">Vétérinaire</SelectItem>
+   776→            <SelectItem value="Salariat" className="text-sm">Salariat</SelectItem>
+   777→            <SelectItem value="Immobilisation" className="text-sm">Immobilisation</SelectItem>
+   778→            <SelectItem value="Aliment bétail" className="text-sm">Aliment bétail</SelectItem>
+   779→            <SelectItem value="Transport" className="text-sm">Transport</SelectItem>
+   780→            <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
+   781→          </SelectContent></Select>
+   782→        </div>
+   783→      </div>
+   784→      <div><Label className="text-xs">Libellé</Label><Input value={libelle} onChange={(e) => setLibelle(e.target.value)} placeholder="Description" className="h-11 text-sm" /></div>
+   785→      <div><Label className="text-xs">Montant (FCFA)</Label><Input type="number" value={montant} onChange={(e) => setMontant(e.target.value)} className="h-11 text-sm" placeholder="50000" /></div>
+   786→      {montant && Number(montant) > 0 && <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit : </span><span className="font-bold text-red-600">{formatFCFA(Number(montant))}</span></div>}
+   787→      <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Remarques..." className="text-sm min-h-[60px]" /></div>
+   788→      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer la dépense</>}</Button>
+   789→    </div>
+   790→  );
+   791→}
+   792→
+   793→function FormStock({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+   794→  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+   795→  const [typeAliment, setTypeAliment] = useState("Tourteau de coton");
+   796→  const [entree, setEntree] = useState("");
+   797→  const [sortie, setSortie] = useState("");
+   798→  const [prixParSac, setPrixParSac] = useState("");
+   799→  const [observations, setObservations] = useState("");
+   800→  const [saving, setSaving] = useState(false);
+   801→
+   802→  const submit = async () => {
+   803→    if (!entree && !sortie) { toast.error("Saisir une entrée ou sortie"); return; }
+   804→    setSaving(true);
+   805→    await onSave("stock", { date, typeAliment, entree, sortie, prixParSac, observations });
+   806→    setSaving(false);
+   807→    setEntree(""); setSortie(""); setPrixParSac(""); setObservations("");
+   808→  };
+   809→
+   810→  return (
+   811→    <div className="space-y-3">
+   812→      <div className="grid grid-cols-2 gap-3">
+   813→        <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+   814→        <div><Label className="text-xs">Type d'aliment</Label>
+   815→          <Select value={typeAliment} onValueChange={setTypeAliment}><SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger><SelectContent>
+   816→            <SelectItem value="Tourteau de coton" className="text-sm">Tourteau de coton</SelectItem>
+   817→            <SelectItem value="Son" className="text-sm">Son</SelectItem>
+   818→            <SelectItem value="Concentré" className="text-sm">Concentré</SelectItem>
+   819→            <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
+   820→          </SelectContent></Select>
+   821→        </div>
+   822→      </div>
+   823→      <div className="grid grid-cols-3 gap-3">
+   824→        <div><Label className="text-xs">Entrée (sacs)</Label><Input type="number" value={entree} onChange={(e) => setEntree(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
+   825→        <div><Label className="text-xs">Sortie (sacs)</Label><Input type="number" value={sortie} onChange={(e) => setSortie(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
+   826→        <div><Label className="text-xs">Prix/sac</Label><Input type="number" value={prixParSac} onChange={(e) => setPrixParSac(e.target.value)} className="h-11 text-sm" placeholder="25000" /></div>
+   827→      </div>
+   828→      <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Fournisseur..." className="text-sm min-h-[60px]" /></div>
+   829→      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer le mouvement</>}</Button>
+   830→    </div>
+   831→  );
+   832→}
+   833→

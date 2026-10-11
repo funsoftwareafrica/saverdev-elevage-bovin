@@ -94,7 +94,7 @@ export function AlimentationView() {
                 <DialogHeader>
                   <DialogTitle>Enregistrer un achat d'aliment</DialogTitle>
                   <DialogDescription className="text-xs">
-                    Le coût sera automatiquement réparti entre les bovins concernés.
+                    Le coût sera automatiquement réparti entre les animaux concernés.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={onSubmit} className="space-y-3">
@@ -124,7 +124,7 @@ export function AlimentationView() {
                       <Input id="cout" name="cout" type="number" placeholder="600000" required />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="nb" className="text-xs">Nb bovins concernés</Label>
+                      <Label htmlFor="nb" className="text-xs">Nb animaux concernés</Label>
                       <Input id="nb" name="nb" type="number" placeholder="10" required />
                     </div>
                     <div className="col-span-2 space-y-1.5">
@@ -163,7 +163,7 @@ export function AlimentationView() {
                   <TableHead>Produit</TableHead>
                   <TableHead className="text-right">Qté</TableHead>
                   <TableHead className="text-right">Coût total</TableHead>
-                  <TableHead className="text-center hidden sm:table-cell">Bovins</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">Animaux</TableHead>
                   <TableHead className="text-right">Par tête</TableHead>
                   <TableHead className="hidden lg:table-cell">Commentaire</TableHead>
                 </TableRow>

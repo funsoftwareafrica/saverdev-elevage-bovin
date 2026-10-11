@@ -22,6 +22,7 @@ import { Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle, ChevronDown,
 import { formatFCFA, formatDate, formatDateTime, nowDateTimeLocal, severiteColor } from "@/lib/format";
 import { addPendingEntry } from "@/lib/offline-db";
 import { useAppStore } from "@/lib/store";
+import { useBovins } from "@/lib/api";
 import { toast } from "sonner";
 
 interface JournalEntry {
@@ -718,34 +719,91 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
 
 function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [espece, setEspece] = useState<"BOVIN" | "OVIN">("BOVIN");
+  const [bovinId, setBovinId] = useState<string>("");
   const [acheteur, setAcheteur] = useState("");
-  const [nbSujets, setNbSujets] = useState("1");
   const [prixUnitaire, setPrixUnitaire] = useState("");
   const [observations, setObservations] = useState("");
   const [saving, setSaving] = useState(false);
-  const montant = Number(prixUnitaire || 0) * Number(nbSujets || 0);
+
+  // Charge la liste des animaux en engraissement filtrés par espèce.
+  const { data: allBovins, isLoading } = useBovins();
+  const actifs = (allBovins ?? []).filter(
+    (b) => b.statut === "EN_ENGRAISSEMENT" && b.espece === espece
+  );
+
+  // Quand l'espèce change, on réinitialise l'animal sélectionné car
+  // les identifiants de la liste précédente ne sont plus pertinents.
+  const onEspeceChange = (v: string) => {
+    setEspece(v as "BOVIN" | "OVIN");
+    setBovinId("");
+  };
+
+  // Comme on sélectionne un animal précis, le nb de sujets vaut 1.
+  const nbSujets = 1;
+  const montant = Number(prixUnitaire || 0) * nbSujets;
+
+  // Animal sélectionné (pour réafficher son coût de revient).
+  const selected = actifs.find((b) => b.id === bovinId) ?? null;
 
   const submit = async () => {
+    if (!bovinId) { toast.error("Sélectionner un animal à vendre"); return; }
     if (!acheteur || !prixUnitaire) { toast.error("Acheteur et prix requis"); return; }
     setSaving(true);
-    await onSave("vente", { date, acheteur, nbSujets, prixUnitaire, observations });
+    await onSave("vente", { date, espece, bovinId, acheteur, nbSujets, prixUnitaire, observations });
     setSaving(false);
-    setAcheteur(""); setPrixUnitaire(""); setObservations("");
+    setBovinId(""); setAcheteur(""); setPrixUnitaire(""); setObservations("");
   };
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
-        <div><Label className="text-xs">Acheteur</Label><Input value={acheteur} onChange={(e) => setAcheteur(e.target.value)} placeholder="Nom du client" className="h-11 text-sm" /></div>
+        <div>
+          <Label className="text-xs">Espèce</Label>
+          <Select value={espece} onValueChange={onEspeceChange}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="BOVIN" className="text-sm">Bovin (BOE)</SelectItem>
+              <SelectItem value="OVIN" className="text-sm">Ovin (OVN)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Animal à vendre</Label>
+        {isLoading ? (
+          <div className="h-11 rounded-md border border-input bg-muted/40 animate-pulse" />
+        ) : actifs.length === 0 ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 flex items-center gap-2">
+            <HugeiconsIcon icon={AlertTriangle} size={14} className="text-amber-600" />
+            Aucun {espece === "OVIN" ? "Ovin" : "Bovin"} disponible à la vente
+          </div>
+        ) : (
+          <Select value={bovinId} onValueChange={setBovinId}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue placeholder={`Sélectionner un ${espece === "OVIN" ? "ovin" : "bovin"} actif`} /></SelectTrigger>
+            <SelectContent>
+              {actifs.map((b) => (
+                <SelectItem key={b.id} value={b.id} className="text-sm">
+                  {b.identifiant} — {b.race} (coût revient {formatFCFA(b.prixAchat + b.coutsEngraissement, false)})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label className="text-xs">Nb sujets vendus</Label><Input type="number" value={nbSujets} onChange={(e) => setNbSujets(e.target.value)} className="h-11 text-sm" min="1" /></div>
+        <div><Label className="text-xs">Acheteur</Label><Input value={acheteur} onChange={(e) => setAcheteur(e.target.value)} placeholder="Nom du client" className="h-11 text-sm" /></div>
         <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="450000" /></div>
       </div>
+      {selected && (
+        <div className="rounded-md bg-muted/60 border border-border px-3 py-2 text-xs text-muted-foreground">
+          Coût de revient {selected.identifiant} : <span className="font-semibold text-foreground">{formatFCFA(selected.prixAchat + selected.coutsEngraissement, false)}</span>
+        </div>
+      )}
       {montant > 0 && <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit (4111) / Crédit (7011) : </span><span className="font-bold text-emerald-600">{formatFCFA(montant)}</span></div>}
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Conditions..." className="text-sm min-h-[60px]" /></div>
-      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer la vente</>}</Button>
+      <Button onClick={submit} disabled={saving || !bovinId} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer la vente</>}</Button>
     </div>
   );
 }

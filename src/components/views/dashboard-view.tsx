@@ -60,7 +60,7 @@ export function DashboardView() {
       {/* === HERO KPI STRIP — 4 grosses tuiles animées === */}
       <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <HeroKpi
-          icon={Beef} label="Bovins actifs" value={dash.cheptel.bovinsActifs}
+          icon={Beef} label="Animaux actifs" value={dash.cheptel.bovinsActifs}
           suffix=" têtes" color="emerald" trend="+1 ce mois" trendUp
           sparkData={dash.evolutionMensuelle.map((e, i) => ({ v: 8 + i }))}
         />
@@ -88,8 +88,8 @@ export function DashboardView() {
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
           {/* KPI cards */}
           <div className="grid gap-3 sm:grid-cols-2">
-            <KpiCard label="Bovins actifs" value={dash.cheptel.bovinsActifs} icon={Beef} variant="primary" hint="En engraissement" trend="up" trendValue="+1 ce mois" />
-            <KpiCard label="Bovins vendus" value={dash.cheptel.bovinsVendus} icon={ShoppingCart} variant="success" hint="Cumul" />
+            <KpiCard label="Animaux actifs" value={dash.cheptel.bovinsActifs} icon={Beef} variant="primary" hint="En engraissement" trend="up" trendValue="+1 ce mois" />
+            <KpiCard label="Animaux vendus" value={dash.cheptel.bovinsVendus} icon={ShoppingCart} variant="success" hint="Cumul" />
             <KpiCard label="Mortalité" value={dash.cheptel.mortalite} icon={AlertTriangle} variant={dash.cheptel.mortalite > 0 ? "danger" : "default"} hint="À surveiller" />
             <KpiCard label="Valeur du cheptel" value={formatFCFAShort(dash.cheptel.valeurCheptel)} icon={Wallet} hint="Estimation (achat + engrais.)" />
           </div>
@@ -144,7 +144,7 @@ export function DashboardView() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               <MiniStat label="Durée moyenne" value={`${dash.engraissement.dureeMoyenneJours} j`} icon={Clock} />
-              <MiniStat label="Bovins en cycle" value={dash.engraissement.nbEnCycle} icon={Beef} accent />
+              <MiniStat label="Animaux en cycle" value={dash.engraissement.nbEnCycle} icon={Beef} accent />
               <MiniStat label="Poids moy. achat" value={`${dash.engraissement.poidsMoyen} kg`} icon={Scale} />
             </div>
             {/* Barre de progression durée cycle */}
@@ -1167,7 +1167,7 @@ function RacePerformanceSection() {
                 {i === 0 && <HugeiconsIcon icon={Trophy} size={16} className="text-amber-500" />}
               </div>
               <div className="flex justify-between mt-2 text-[0.7rem] text-muted-foreground">
-                <span>{r.total} bovins ({r.vendus} vendus)</span>
+                <span>{r.total} animaux ({r.vendus} vendus)</span>
                 <span className="font-semibold text-emerald-600">{formatFCFAShort(r.margeMoyenne)}</span>
               </div>
             </motion.div>
@@ -1195,7 +1195,7 @@ function RacePerformanceSection() {
           </div>
           <Separator className="my-3" />
           <div className="grid grid-cols-4 gap-2 text-center text-[0.65rem]">
-            <div><p className="text-muted-foreground">Bovins</p><p className="font-bold">{races.reduce((s,r)=>s+r.total,0)}</p></div>
+            <div><p className="text-muted-foreground">Animaux</p><p className="font-bold">{races.reduce((s,r)=>s+r.total,0)}</p></div>
             <div><p className="text-muted-foreground">Vendus</p><p className="font-bold">{races.reduce((s,r)=>s+r.vendus,0)}</p></div>
             <div><p className="text-muted-foreground">Durée moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.dureeMoyenne,0)/races.length)} j</p></div>
             <div><p className="text-muted-foreground">Poids moy.</p><p className="font-bold">{Math.round(races.reduce((s,r)=>s+r.poidsMoyen,0)/races.length)} kg</p></div>

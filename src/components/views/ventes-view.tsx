@@ -78,13 +78,13 @@ export function VentesView() {
                 </DialogHeader>
                 <form onSubmit={onSubmit} className="space-y-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="bovin" className="text-xs">Bovin vendu</Label>
+                    <Label htmlFor="bovin" className="text-xs">Animal à vendre (BOE/OVN)</Label>
                   <Select name="bovin">
-                      <SelectTrigger><SelectValue placeholder="Sélectionner un bovin actif" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Sélectionner un animal actif" /></SelectTrigger>
                       <SelectContent>
                         {actifs.map((b) => (
                           <SelectItem key={b.id} value={b.id}>
-                            {b.identifiant} — {b.race} ({formatFCFA(b.prixAchat + b.coutsEngraissement, false)} revient)
+                            {b.identifiant} {b.espece === "OVIN" ? "🐑" : "🐄"} — {b.race} ({formatFCFA(b.prixAchat + b.coutsEngraissement, false)} revient)
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -116,7 +116,7 @@ export function VentesView() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Bovins vendus" value={vendusList.length} icon={ShoppingCart} variant="primary" />
+        <KpiCard label="Animaux vendus" value={vendusList.length} icon={ShoppingCart} variant="primary" />
         <KpiCard label="Chiffre d'affaires" value={formatFCFA(ca)} icon={ShoppingCart} variant="success" />
         <KpiCard
           label="Marge totale"
@@ -137,7 +137,7 @@ export function VentesView() {
             <Table>
               <TableHeader className="sticky top-0 bg-muted/80 backdrop-blur">
                 <TableRow>
-                  <TableHead>Bovin</TableHead>
+                  <TableHead>Animal</TableHead>
                   <TableHead className="hidden sm:table-cell">Date</TableHead>
                   <TableHead className="hidden md:table-cell">Client</TableHead>
                   <TableHead className="text-right">Prix vente</TableHead>
@@ -154,7 +154,9 @@ export function VentesView() {
                   const { coutRevient, marge } = computeBovinMarge(b);
                   return (
                     <TableRow key={b.id}>
-                      <TableCell className="font-mono font-semibold text-primary text-sm">{b.identifiant}</TableCell>
+                      <TableCell className="font-mono font-semibold text-primary text-sm">
+                        {b.identifiant} <span className="ml-1 text-xs font-normal text-muted-foreground">{b.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"}</span>
+                      </TableCell>
                       <TableCell className="text-xs hidden sm:table-cell">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <HugeiconsIcon icon={Calendar} size={12} /> {formatDate(b.dateVente)}
