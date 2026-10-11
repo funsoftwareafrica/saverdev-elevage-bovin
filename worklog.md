@@ -1181,3 +1181,40 @@ Stage Summary:
   - **Alimentation & Dépenses** : "Nb animaux concernés" (NOUVEAU, au lieu de "Nb bovins concernés")
 - ⚠️ Point d'attention pour le déploiement Vercel : le provider Prisma est actuellement "sqlite" (pour le dev local) — il faudra permuter en "postgresql" avant un déploiement (script à ajouter dans vercel.json ou pre-build)
 - L'utilisateur peut maintenant voir et utiliser le bouton "Achats" dans la sidebar (s'il ne le voyait pas, c'était un cache navigateur — un hard refresh / Ctrl+F5 devrait suffire)
+
+---
+Task ID: 20
+Agent: main
+Task: Vérification finale cache navigateur (labels + bouton Achats)
+
+Work Log:
+- Constat utilisateur : "le nom doit changer: Bovins vendus" + "je ne vois pas toujours pas achat" connecté en E2A
+- Vérification du code local :
+  - src/components/views/ventes-view.tsx ligne 119 : KpiCard label="Animaux vendus" ✓ (déjà corrigé en Task 19-A)
+  - src/lib/types.ts ligne 160 : ROLE_VIEWS.E2A contient "achats" ✓
+  - src/lib/config.ts ligne 106 : NAV_ITEMS contient { key: "achats", label: "Achats", icon: Beef } ✓
+- Diagnostic : pas de service worker PWA (vérifié via find + grep)
+- Le manifest.json PWA ne contient pas de "serviceworker" config — donc pas de cache PWA
+- Conclusion : cache navigateur HTTP du bundle JS (ou version déployée Vercel qui n'a pas nos changements)
+- Action : redémarrage du serveur de dev pour forcer une recompilation fraîche
+  1. pkill next-server + pkill next dev + pkill bun run dev
+  2. rm -rf /home/z/my-project/.next/cache (vidage du cache Turbopack)
+  3. setsid -f bash -c 'exec bun run dev > dev.log 2>&1' (redémarrage)
+  4. Vérification : / HTTP 200, next-server actif
+
+- Vérification Agent Browser end-to-end (post-redémarrage serveur) :
+  - ✅ Login en tant que E2A (bouton "A E2A e2a@saverdev.org")
+  - ✅ Sidebar E2A contient : Saisie, **Achats** ✓, Trésorerie, Pesées, Pâturages, Synthèse bailleur, Paramètres
+  - ✅ Vue Ventes → 3 KPI affichés : **ANIMAUX VENDUS** (au lieu de "Bovins vendus"), CHIFFRE D'AFFAIRES, MARGE TOTALE, Marge moyenne : 75 938
+  - ✅ VLM confirme : "ANIMAUX VENDUS, CHIFFRE D'AFFAIRES, MARGE TOTALE"
+
+Stage Summary:
+- Le code local est CORRECT — toutes les corrections de la Task 19-A sont bien appliquées :
+  - KPI "Animaux vendus" au lieu de "Bovins vendus" ✓
+  - Bouton "Achats" présent dans la sidebar pour E2A ✓
+- Le serveur de dev a été redémarré + cache .next vidé pour garantir un bundle frais
+- L'utilisateur doit faire un HARD REFRESH de son navigateur pour voir les changements :
+  - PC : Ctrl+Shift+R ou Ctrl+F5
+  - Mac : Cmd+Shift+R
+  - Alternative : ouvrir une fenêtre de navigation privée (qui n'a pas de cache)
+- Si l'utilisateur regarde la version déployée Vercel (https://saverdev.vercel.app), il ne verra pas les changements tant qu'on n'a pas poussé le code sur GitHub. Le déploiement Vercel trigger automatiquement sur push.
