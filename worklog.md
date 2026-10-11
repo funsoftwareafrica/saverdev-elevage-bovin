@@ -369,3 +369,51 @@ Stage Summary:
   - ✅ BarChart financement/trésorerie : barres jaunes (+) et marron (-)
 - Lint clean (0 erreur sur nouveaux fichiers)
 - Rapport bailleur fidèle au modèle Excel E2A avec couleurs exactes et 6 graphiques
+
+---
+Task ID: 11
+Agent: main
+Task: Capital initial statique + mouvements manuels horodatés (sans toucher au capital initial)
+
+Work Log:
+- Ajout de 2 modèles Prisma au schéma :
+  - CapitalMouvement (id, date DateTime avec heure/minutes, libelle, type ENTREE/SORTIE, montant, saisiePar, createdAt) + enum CapitalType
+  - Parametre (id, cle unique, valeur string, updatedAt) — stocke le capital initial sans toucher aux mouvements
+- Tables créées directement en SQL SQLite (db:push impossible car schéma = postgresql mais URL = sqlite). Parametre "capital_initial" = 14 775 000 FCFA par défaut
+- Client Prisma régénéré temporairement en provider=sqlite (puis schéma remis en postgresql pour préserver le déploiement Vercel/Neon)
+- API /api/saisie (route.ts) :
+  - GET type=financement : récupère capital initial STATIQUE depuis Parametre + liste CapitalMouvement triée par date ASC, calcule soldeApres en cascade, renvoie capitalInitial + totalEntrees + totalSorties + soldeRestant + nbMouvements + mouvements (avec date "JJ/MM/AAAA HH:MM" + dateISO + typeLabel + saisiePar). Liste renvoyée en ordre antéchronologique pour l'affichage
+  - POST type=capital_mouvement : crée un nouveau mouvement avec date/heure/minutes (datetime-local), type ENTREE/SORTIE, montant, libelle, saisiePar — sans modifier le capital initial
+  - POST type=capital_initial_update : met à jour la valeur du capital initial dans Parametre (paramétrage rare, ne touche pas aux mouvements existants)
+  - POST type=capital_mouvement_delete : supprime un mouvement par id (sans toucher au capital initial)
+- format.ts : ajout formatDateTime(iso) → "JJ/MM/AAAA HH:MM" + nowDateTimeLocal() → "YYYY-MM-DDTHH:MM" pour les inputs datetime-local
+- saisie-view.tsx (modal "Suivi du capital") :
+  - Bloc "CAPITAL INITIAL (FIGÉ)" toujours visible en haut (14 775 000 FCFA) avec note "Cette valeur n'est jamais modifiée par les mouvements ci-dessous"
+  - 3 cellules résumé : AJOUTS (+ total entrées) | RETRAITS (− total sorties) | SOLDE ACTUEL
+  - Formulaire d'ajout d'un mouvement :
+    - Input datetime-local (date + heure + minutes) pré-rempli avec maintenant
+    - Select "Sens de l'opération" (− Retrait SORTIE / + Ajout ENTREE) — bouton de soumission change de couleur (rouge/emerald) et de libellé selon le sens
+    - Input montant (number, tabular-nums)
+    - Input libellé/motif
+  - Historique des opérations trié récent → ancien, avec :
+    - Bande couleur à gauche (rouge sortie / vert entrée)
+    - Libellé + date "JJ/MM/AAAA HH:MM" + typeLabel ("Ajout (entrée)" / "Retrait (sortie)") + saisiePar
+    - Montant signé +/− + solde après
+    - Bouton "Supprimer ce mouvement" (icône alerte) — supprime sans toucher au capital
+  - Liste scrollable (max-h-80 overflow-y-auto) pour gérer un grand nombre de mouvements
+  - Animations Framer Motion en cascade ( stagger 0.04s, layout animations)
+
+Stage Summary:
+- Vérification Agent Browser end-to-end :
+  - Login Bénéficiaire → navigation Saisie → clic "Suivi financement" → modal s'ouvre
+  - ✅ Bloc "CAPITAL INITIAL (FIGÉ) — 14 775 000 FCFA" affiché avec note explicative
+  - ✅ 3 cellules AJOUTS (+350 000) / RETRAITS (−225 000) / SOLDE ACTUEL (14 900 000) correctes
+  - ✅ Formulaire datetime-local + select sens + montant + libellé fonctionnels
+  - ✅ Bouton change dynamiquement : "− Soustraire du capital" (rouge) ↔ "+ Ajouter au capital" (vert) selon le sens choisi
+  - ✅ Ajout d'un mouvement "Test agent browser" 200 000 → rechargement automatique, nouveau solde 14 700 000 calculé correctement
+  - ✅ Suppression d'un mouvement → retrait de la liste + recalcul du solde (capital initial intact)
+  - ✅ 3 mouvements d'exemple affichés avec horodatage complet : "15/10/2025 09:30 · Retrait (sortie) · Achat 5 sacs son · − 150 000 · Solde 14 625 000" etc.
+- Aucune erreur runtime/compile/hydratation
+- Lint clean (0 erreur sur fichiers modifiés)
+- Le capital initial de 14 775 000 FCFA reste STATIQUE et TOUJOURS VISIBLE, peu importe le nombre d'ajouts/retraits
+- Chaque opération (ENTREE ou SORTIE) est horodatée avec jour + heure + minutes et peut être supprimée individuellement

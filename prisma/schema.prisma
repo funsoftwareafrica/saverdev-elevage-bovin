@@ -233,3 +233,34 @@ model StockMouvement {
   @@index([date])
   @@index([typeAliment])
 }
+
+// ---------- Capital initial & mouvements manuels (suivi financement) ----------
+// Le capital initial est stocké dans Parametre (clé "capital_initial")
+// et reste STATIQUE : on ne le modifie jamais directement.
+// À chaque opération (entrée/sortie), on crée un CapitalMouvement horodaté
+// (avec heure + minutes) qui vient ajouter ou soustraire du capital initial.
+model CapitalMouvement {
+  id        String   @id @default(cuid())
+  date      DateTime                    // date + heure + minutes de l'opération
+  libelle   String                      // motif de l'opération
+  type      CapitalType                 // ENTREE (ajout) ou SORTIE (retrait)
+  montant   Float                       // montant en FCFA
+  saisiePar String?                     // utilisateur qui a saisi
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([type])
+}
+
+enum CapitalType {
+  ENTREE
+  SORTIE
+}
+
+// ---------- Paramètres applicatifs (capital initial, seuils, etc.) ----------
+model Parametre {
+  id        String   @id @default(cuid())
+  cle       String   @unique            // ex: "capital_initial"
+  valeur     String                       // valeur sérialisée (string)
+  updatedAt DateTime @updatedAt
+}

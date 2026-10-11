@@ -1,10 +1,32 @@
 // API Saisie — journaux comptables (partie double) + balance + financement
-// POST : créer une entrée (achat, vente, dépense, stock)
+// POST : créer une entrée (achat, vente, dépense, stock, capital_mouvement)
 // GET  : récupérer un journal, la balance, ou le suivi financement
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-const FINANCEMENT_INITIAL = 14_775_000;
+// Capital initial par défaut (utilisé si aucun Parametre "capital_initial" en DB)
+const CAPITAL_INITIAL_DEFAUT = 14_775_000;
+
+/** Récupère le capital initial depuis la table Parametre (statique, immuable
+ * depuis l'UI). Si absent, retourne la valeur par défaut. */
+async function getCapitalInitial(): Promise<number> {
+  try {
+    const param = await db.parametre.findUnique({ where: { cle: "capital_initial" } });
+    if (param) {
+      const n = Number(param.valeur);
+      if (!isNaN(n) && n >= 0) return n;
+    }
+  } catch (e) {
+    console.error("getCapitalInitial:", e);
+  }
+  return CAPITAL_INITIAL_DEFAUT;
+}
+
+/** Formate une date en "JJ/MM/AAAA HH:MM" pour l'affichage horodaté. */
+function formatDateTimeFR(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 // Comptes comptables
 const COMPTES = {
@@ -201,46 +223,46 @@ export async function GET(req: NextRequest) {
   }
 
   if (type === "financement") {
-    const [achats, ventes] = await Promise.all([getAchats(), getVentes()]);
-    // Pour le financement : les achats soustraient, les ventes ajoutent
-    const mouvementsFinancement = [
-      ...achats.filter((e) => e.debit > 0).map((e) => ({
-        date: e.date,
-        libelle: e.libelle,
-        type: "achat" as const,
-        montant: e.debit,
-        sens: "sortie" as const,
-      })),
-      ...ventes.filter((e) => e.credit > 0).map((e) => ({
-        date: e.date,
-        libelle: e.libelle,
-        type: "vente" as const,
-        montant: e.credit,
-        sens: "entree" as const,
-      })),
-    ].sort((a, b) => b.date.localeCompare(a.date)); // tri par date décroissante
+    // Capital initial STATIQUE (depuis Parametre) — jamais modifié par les mouvements
+    const capitalInitial = await getCapitalInitial();
 
-    // Calculer le solde cumulé
-    let soldeCumule = FINANCEMENT_INITIAL;
-    const mouvementsAvecSolde = mouvementsFinancement.map((m) => {
-      if (m.sens === "sortie") {
-        soldeCumule -= m.montant;
-      } else {
+    // Mouvements manuels CapitalMouvement, triés par date chronologique (asc)
+    // pour calculer le solde cumulé après chaque opération.
+    const mvts = await db.capitalMouvement.findMany({ orderBy: { date: "asc" } });
+
+    let soldeCumule = capitalInitial;
+    const mouvements = mvts.map((m) => {
+      const sens = m.type === "ENTREE" ? "entree" : "sortie";
+      if (sens === "entree") {
         soldeCumule += m.montant;
+      } else {
+        soldeCumule -= m.montant;
       }
-      return { ...m, soldeApres: soldeCumule };
-    });
+      return {
+        id: m.id,
+        date: formatDateTimeFR(m.date),
+        dateISO: m.date.toISOString(),
+        libelle: m.libelle,
+        type: m.type === "ENTREE" ? "entree" : "sortie", // pour compat UI
+        typeLabel: m.type === "ENTREE" ? "Ajout (entrée)" : "Retrait (sortie)",
+        montant: m.montant,
+        sens,
+        soldeApres: soldeCumule,
+        saisiePar: m.saisiePar ?? null,
+      };
+    }).reverse(); // ordre antéchronologique pour l'affichage
 
-    const totalAchats = mouvementsFinancement.filter((m) => m.sens === "sortie").reduce((s, m) => s + m.montant, 0);
-    const totalVentes = mouvementsFinancement.filter((m) => m.sens === "entree").reduce((s, m) => s + m.montant, 0);
-    const soldeRestant = FINANCEMENT_INITIAL - totalAchats + totalVentes;
+    const totalEntrees = mvts.filter((m) => m.type === "ENTREE").reduce((s, m) => s + m.montant, 0);
+    const totalSorties = mvts.filter((m) => m.type === "SORTIE").reduce((s, m) => s + m.montant, 0);
+    const soldeRestant = capitalInitial + totalEntrees - totalSorties;
 
     return NextResponse.json({
-      financementInitial: FINANCEMENT_INITIAL,
-      totalAchats,
-      totalVentes,
-      soldeRestant,
-      mouvements: mouvementsAvecSolde,
+      capitalInitial,             // CAPITAL INITIAL — STATIQUE ET TOUJOURS VISIBLE
+      totalEntrees,               // somme des ajouts
+      totalSorties,               // somme des retraits
+      soldeRestant,               // capital initial + entrées - sorties
+      nbMouvements: mvts.length,
+      mouvements,                 // liste horodatée (avec heures + minutes)
     });
   }
 
@@ -300,6 +322,63 @@ export async function POST(req: NextRequest) {
       data: { date: new Date(data.date), typeAliment: data.typeAliment ?? "Son", entree: Number(data.entree ?? 0), sortie: Number(data.sortie ?? 0), prixParSac: Number(data.prixParSac ?? 0), observations: data.observations ?? null },
     });
     return NextResponse.json({ ok: true, id: mvt.id });
+  }
+
+  if (type === "capital_mouvement") {
+    // Nouveau mouvement manuel sur le capital initial.
+    // Le capital initial reste STATIQUE : on ne fait que créer un mouvement
+    // (ENTREE ou SORTIE) horodaté avec heure + minutes.
+    // Note : `type` = "capital_mouvement" (type d'opération API), le sens
+    // réel du mouvement est lu dans `data.typeMvt` (ENTREE/SORTIE).
+    const typeMvt = (data.typeMvt === "ENTREE" ? "ENTREE" : "SORTIE") as "ENTREE" | "SORTIE";
+    const montant = Number(data.montant);
+    if (!montant || montant <= 0) {
+      return NextResponse.json({ ok: false, error: "Montant invalide" }, { status: 400 });
+    }
+    // Accepter une date/heure ISO (datetime-local). Si absente → maintenant.
+    const dateMvt = data.date ? new Date(data.date) : new Date();
+    if (isNaN(dateMvt.getTime())) {
+      return NextResponse.json({ ok: false, error: "Date invalide" }, { status: 400 });
+    }
+    const mvt = await db.capitalMouvement.create({
+      data: {
+        date: dateMvt,
+        libelle: String(data.libelle ?? "").slice(0, 200) || (typeMvt === "ENTREE" ? "Ajout de capital" : "Retrait de capital"),
+        type: typeMvt,
+        montant,
+        saisiePar: (data.saisiePar as string) ?? null,
+      },
+    });
+    return NextResponse.json({ ok: true, id: mvt.id });
+  }
+
+  if (type === "capital_initial_update") {
+    // Permet de mettre à jour la valeur du capital initial (rare, opération
+    // de paramétrage). Aucun mouvement existant n'est affecté — la nouvelle
+    // valeur sera utilisée pour le calcul du solde restant.
+    const montant = Number(data.montant);
+    if (isNaN(montant) || montant < 0) {
+      return NextResponse.json({ ok: false, error: "Montant invalide" }, { status: 400 });
+    }
+    const existing = await db.parametre.findUnique({ where: { cle: "capital_initial" } });
+    if (existing) {
+      await db.parametre.update({ where: { cle: "capital_initial" }, data: { valeur: String(montant) } });
+    } else {
+      await db.parametre.create({ data: { cle: "capital_initial", valeur: String(montant) } });
+    }
+    return NextResponse.json({ ok: true, capitalInitial: montant });
+  }
+
+  if (type === "capital_mouvement_delete") {
+    // Supprimer un mouvement de capital (sans toucher au capital initial).
+    const id = String(data.id ?? "");
+    if (!id) return NextResponse.json({ ok: false, error: "ID requis" }, { status: 400 });
+    try {
+      await db.capitalMouvement.delete({ where: { id } });
+    } catch {
+      return NextResponse.json({ ok: false, error: "Mouvement introuvable" }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true });
   }
 
   return NextResponse.json({ ok: false, error: "Type inconnu" }, { status: 400 });

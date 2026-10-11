@@ -29,6 +29,23 @@ export function formatDate(iso: string | null | undefined): string {
   return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+/** Formate une date ISO en "JJ/MM/AAAA HH:MM" (avec heures et minutes). */
+export function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** Génère une chaîne au format ISO local "YYYY-MM-DDTHH:MM" pour les inputs
+ *  datetime-local (valeur par défaut = maintenant). */
+export function nowDateTimeLocal(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 /** Formate une date ISO en "Janv. 2025" par exemple. */
 export function formatMonthLabel(iso: string | null | undefined): string {
   if (!iso) return "—";

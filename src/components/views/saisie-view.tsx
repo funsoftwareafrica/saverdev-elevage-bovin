@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle, ChevronDown, ChevronUp, Wifi, Scale, Landmark, Wallet } from "@/lib/icons";
-import { formatFCFA, formatDate, severiteColor } from "@/lib/format";
+import { formatFCFA, formatDate, formatDateTime, nowDateTimeLocal, severiteColor } from "@/lib/format";
 import { addPendingEntry } from "@/lib/offline-db";
 import { toast } from "sonner";
 
@@ -33,12 +33,16 @@ interface JournalEntry {
 }
 interface Alerte { type: string; severite: string; message: string; }
 interface FinancementMvt {
-  date: string;
+  id: string;
+  date: string;       // affichage "JJ/MM/AAAA HH:MM"
+  dateISO: string;    // ISO pour tri/affichage fallback
   libelle: string;
-  type: "achat" | "vente";
+  type: "entree" | "sortie";
+  typeLabel: string;
   montant: number;
-  sens: "sortie" | "entree";
+  sens: "entree" | "sortie";
   soldeApres: number;
+  saisiePar: string | null;
 }
 type SaisieType = "achat" | "vente" | "depense" | "stock";
 
@@ -66,8 +70,22 @@ export function SaisieView() {
   const [showBalance, setShowBalance] = useState(false);
 
   // Données financement
-  const [financement, setFinancement] = useState<{ financementInitial: number; totalAchats: number; totalVentes: number; soldeRestant: number; mouvements: FinancementMvt[] } | null>(null);
+  const [financement, setFinancement] = useState<{
+    capitalInitial: number;
+    totalEntrees: number;
+    totalSorties: number;
+    soldeRestant: number;
+    nbMouvements: number;
+    mouvements: FinancementMvt[];
+  } | null>(null);
   const [showFinancement, setShowFinancement] = useState(false);
+
+  // Formulaire d'ajout d'un mouvement de capital
+  const [mvtDate, setMvtDate] = useState<string>(nowDateTimeLocal());
+  const [mvtType, setMvtType] = useState<"ENTREE" | "SORTIE">("SORTIE");
+  const [mvtMontant, setMvtMontant] = useState<string>("");
+  const [mvtLibelle, setMvtLibelle] = useState<string>("");
+  const [mvtSaving, setMvtSaving] = useState(false);
 
   const loadJournal = useCallback(async (t: SaisieType) => {
     setLoading(true);
@@ -110,6 +128,66 @@ export function SaisieView() {
       setFinancement(data);
     } catch { /* ignore */ }
   }, []);
+
+  // Sauvegarde d'un nouveau mouvement manuel sur le capital
+  const handleSaveMouvement = async () => {
+    const montant = Number(mvtMontant.replace(/\s/g, ""));
+    if (!montant || montant <= 0) {
+      toast.error("Veuillez saisir un montant valide");
+      return;
+    }
+    setMvtSaving(true);
+    try {
+      const res = await fetch("/api/saisie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "capital_mouvement",          // type d'opération API
+          typeMvt: mvtType,                   // sens : ENTREE ou SORTIE
+          date: mvtDate,                       // ISO local "YYYY-MM-DDTHH:MM"
+          montant,
+          libelle: mvtLibelle.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Erreur");
+        setMvtSaving(false);
+        return;
+      }
+      toast.success(mvtType === "ENTREE" ? "Ajout enregistré" : "Retrait enregistré");
+      // Réinitialiser le formulaire
+      setMvtMontant("");
+      setMvtLibelle("");
+      setMvtDate(nowDateTimeLocal());
+      // Recharger la liste
+      await loadFinancement();
+    } catch {
+      toast.error("Connexion perdue");
+    }
+    setMvtSaving(false);
+  };
+
+  // Suppression d'un mouvement (sans toucher au capital initial)
+  const handleDeleteMouvement = async (id: string) => {
+    if (!id) return;
+    try {
+      const res = await fetch("/api/saisie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "capital_mouvement_delete", id }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Erreur lors de la suppression");
+        return;
+      }
+      toast.success("Mouvement supprimé");
+      await loadFinancement();
+    } catch {
+      toast.error("Connexion perdue");
+    }
+  };
 
   useEffect(() => {
     const handleOnlineChange = () => setIsOnline(navigator.onLine);
@@ -287,62 +365,159 @@ export function SaisieView() {
         </Card>
       )}
 
-      {/* Modal Financement en cascade */}
+      {/* Modal Suivi financement — capital initial STATIQUE + mouvements manuels horodatés */}
       {showFinancement && financement && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Landmark} size={16} className="text-primary" /> Suivi financement</CardTitle>
-            <CardDescription className="text-xs">Capital initial : {formatFCFA(financement.financementInitial)}</CardDescription>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <HugeiconsIcon icon={Landmark} size={16} className="text-primary" /> Suivi du capital
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Le capital initial reste figé. Chaque opération (ajout/retrait) est enregistrée et horodatée (jour + heure + minutes).
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Résumé */}
+          <CardContent className="space-y-4">
+            {/* Capital initial — toujours visible, non modifié */}
+            <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
+              <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
+                <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
+              </p>
+              <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(financement.capitalInitial)}</p>
+              <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
+            </div>
+
+            {/* Résumé des mouvements */}
             <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg bg-red-50 border border-red-200 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-red-700 font-medium">Achats (sorties)</p>
-                <p className="text-sm font-bold text-red-700 tabular-nums">{formatFCFA(financement.totalAchats, false)}</p>
-              </div>
               <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ventes (entrées)</p>
-                <p className="text-sm font-bold text-emerald-700 tabular-nums">{formatFCFA(financement.totalVentes, false)}</p>
+                <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ajouts</p>
+                <p className="text-sm font-bold text-emerald-700 tabular-nums">+ {formatFCFA(financement.totalEntrees, false)}</p>
+              </div>
+              <div className="rounded-lg bg-red-50 border border-red-200 p-2 text-center">
+                <p className="text-[0.6rem] uppercase text-red-700 font-medium">Retraits</p>
+                <p className="text-sm font-bold text-red-700 tabular-nums">− {formatFCFA(financement.totalSorties, false)}</p>
               </div>
               <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-primary font-medium">Solde restant</p>
+                <p className="text-[0.6rem] uppercase text-primary font-medium">Solde actuel</p>
                 <p className="text-sm font-bold text-primary tabular-nums">{formatFCFA(financement.soldeRestant, false)}</p>
               </div>
             </div>
 
-            {/* Mouvements en cascade */}
-            <div className="space-y-0">
-              <AnimatePresence mode="popLayout">
-                {financement.mouvements.map((m, i) => (
-                  <motion.div
-                    key={`${m.date}-${i}`}
-                    layout
-                    initial={{ opacity: 0, x: -30, height: 0 }}
-                    animate={{ opacity: 1, x: 0, height: "auto", marginLeft: Math.max(0, 16 - i * 3) }}
-                    exit={{ opacity: 0, x: -30, height: 0 }}
-                    transition={{ delay: i * 0.06, duration: 0.3 }}
-                    className={`relative overflow-hidden rounded-lg border p-3 ${m.sens === "sortie" ? "border-red-200 bg-red-50/30" : "border-emerald-200 bg-emerald-50/30"}`}
-                  >
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
-                    <div className="flex items-center justify-between gap-2 pl-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">{m.libelle}</p>
-                        <p className="text-[0.6rem] text-muted-foreground">{m.date} · {m.sens === "sortie" ? "Achat (sortie)" : "Vente (entrée)"}</p>
+            {/* Formulaire d'ajout d'un mouvement horodaté */}
+            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2.5">
+              <div className="flex items-center gap-2">
+                <HugeiconsIcon icon={Plus} size={14} className="text-primary" />
+                <p className="text-xs font-semibold text-foreground">Nouvelle opération sur le capital</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="mvt-date" className="text-[0.6rem] uppercase text-muted-foreground">Date & heure</Label>
+                  <Input
+                    id="mvt-date"
+                    type="datetime-local"
+                    value={mvtDate}
+                    onChange={(e) => setMvtDate(e.target.value)}
+                    className="text-xs h-8"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="mvt-type" className="text-[0.6rem] uppercase text-muted-foreground">Sens de l'opération</Label>
+                  <Select value={mvtType} onValueChange={(v) => setMvtType(v as "ENTREE" | "SORTIE")}>
+                    <SelectTrigger id="mvt-type" className="text-xs h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SORTIE">− Retrait (sortie de capital)</SelectItem>
+                      <SelectItem value="ENTREE">+ Ajout (entrée de capital)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="mvt-montant" className="text-[0.6rem] uppercase text-muted-foreground">Montant (FCFA)</Label>
+                  <Input
+                    id="mvt-montant"
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="ex: 150000"
+                    value={mvtMontant}
+                    onChange={(e) => setMvtMontant(e.target.value)}
+                    className="text-xs h-8 tabular-nums"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="mvt-libelle" className="text-[0.6rem] uppercase text-muted-foreground">Motif / libellé</Label>
+                  <Input
+                    id="mvt-libelle"
+                    placeholder="ex: Achat alimentation"
+                    value={mvtLibelle}
+                    onChange={(e) => setMvtLibelle(e.target.value)}
+                    className="text-xs h-8"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleSaveMouvement}
+                disabled={mvtSaving}
+                size="sm"
+                className={`w-full text-xs ${mvtType === "ENTREE" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
+              >
+                {mvtSaving ? "Enregistrement…" : (mvtType === "ENTREE" ? "+ Ajouter au capital" : "− Soustraire du capital")}
+              </Button>
+            </div>
+
+            {/* Mouvements horodatés en cascade */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground">Historique des opérations ({financement.nbMouvements})</p>
+                <p className="text-[0.55rem] text-muted-foreground">tri : récent → ancien</p>
+              </div>
+              <div className="max-h-80 overflow-y-auto pr-1 -mr-1 space-y-0">
+                <AnimatePresence mode="popLayout">
+                  {financement.mouvements.map((m, i) => (
+                    <motion.div
+                      key={m.id ?? `${m.date}-${i}`}
+                      layout
+                      initial={{ opacity: 0, x: -30, height: 0 }}
+                      animate={{ opacity: 1, x: 0, height: "auto" }}
+                      exit={{ opacity: 0, x: -30, height: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.25 }}
+                      className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
+                    >
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
+                          </p>
+                          <p className="text-[0.6rem] text-muted-foreground tabular-nums">
+                            <span className="font-medium">{m.date}</span> · {m.typeLabel}
+                            {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0 flex items-center gap-2">
+                          <div>
+                            <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
+                              {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
+                            </p>
+                            <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteMouvement(m.id)}
+                            title="Supprimer ce mouvement"
+                            className="text-muted-foreground hover:text-red-600 transition-colors p-1 rounded"
+                          >
+                            <HugeiconsIcon icon={AlertTriangle} size={14} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
-                          {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
-                        </p>
-                        <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              {financement.mouvements.length === 0 && (
-                <p className="text-center text-xs text-muted-foreground py-4">Aucun mouvement</p>
-              )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                {financement.mouvements.length === 0 && (
+                  <p className="text-center text-xs text-muted-foreground py-6">
+                    Aucune opération enregistrée. Ajoutez votre premier mouvement ci-dessus.
+                  </p>
+                )}
+              </div>
             </div>
 
             <button onClick={() => setShowFinancement(false)} className="text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
