@@ -191,7 +191,7 @@ export function FicheBovinView() {
                 className="h-8 text-sm flex-1"
               />
               <Button type="submit" size="sm" variant="outline" disabled={addTag.isPending || !newTag.trim()}>
-                <HugeiconsIcon icon={Plus} size={12} className=".5 .5" />
+                <HugeiconsIcon icon={Plus} size={12} className="shrink-0" />
               </Button>
             </form>
           </CardContent>

@@ -1,4 +1,4 @@
-// GET /api/backup/[id]/download — télécharge le fichier JSON d'une sauvegarde (ADMIN only)
+// GET /api/backup/[id]/download — télécharge le fichier JSON d'une sauvegarde (E2A only)
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import { requireRole } from "@/lib/auth";
@@ -9,7 +9,7 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { forbidden } = await requireRole(["ADMIN", "GERANT"]);
+  const { forbidden } = await requireRole(["E2A", "SINERGI"]);
   if (forbidden) return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
 
   const { id } = await params;

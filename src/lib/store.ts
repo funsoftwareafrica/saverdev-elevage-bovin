@@ -1,6 +1,7 @@
 // Store Zustand — état global de l'app (auth, rôle actif, vue courante, mois, bovin)
 import { create } from "zustand";
 import type { Role, ViewKey } from "./types";
+import { ROLE_VIEWS } from "./types";
 
 interface AuthUser {
   email: string;
@@ -60,12 +61,7 @@ export const useAppStore = create<AppState>((set) => ({
   setSelectedMonth: (selectedMonth) => set({ selectedMonth }),
 }));
 
-// helper local (évite d'importer ROLE_VIEWS partout)
+// helper local — délègue à ROLE_VIEWS (source unique de vérité dans types.ts)
 function rolePermissions(role: Role): ViewKey[] {
-  const m: Record<Role, ViewKey[]> = {
-    BENEFICIAIRE: ["dashboard", "bovins", "alimentation", "depenses", "ventes"],
-    SINERGI: ["dashboard", "rentabilite", "financement", "rapport"],
-    E2A: ["dashboard", "bovins", "alimentation", "depenses", "ventes", "rentabilite", "financement", "rapport"],
-  };
-  return m[role];
+  return ROLE_VIEWS[role];
 }

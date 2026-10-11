@@ -479,7 +479,7 @@ export function DashboardView() {
                       <p className="text-xs text-foreground">{h.details}</p>
                       <p className="text-[0.65rem] text-muted-foreground mt-0.5">{formatDate(h.date)} · {h.user?.name ?? "Système"} · {h.action}</p>
                     </div>
-                    <HugeiconsIcon icon={ArrowUpRight} size={12} className=".5 .5 text-muted-foreground shrink-0 mt-1" />
+                    <HugeiconsIcon icon={ArrowUpRight} size={12} className="text-muted-foreground shrink-0 mt-1" />
                   </div>
                 ))}
                 {(!historique || historique.length === 0) && (

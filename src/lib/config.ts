@@ -5,7 +5,7 @@
 import type { IconSvgElement } from "@hugeicons/react";
 import {
   Activity, Database, Package, CreditCard, TrendingUp, BarChart3,
-  Clock, FileText, Box, Plus,
+  Clock, FileText, Box, Plus, Wallet, Scale, Settings, Map, Landmark,
 } from "@/lib/icons";
 import type { ViewKey } from "@/lib/types";
 
@@ -108,7 +108,12 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "ventes", label: "Ventes", icon: TrendingUp },
   { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
   { key: "financement", label: "Financement", icon: Clock },
+  { key: "tresorerie", label: "Trésorerie", icon: Wallet },
+  { key: "pesees", label: "Pesées", icon: Scale },
+  { key: "paturages", label: "Pâturages", icon: Map },
   { key: "rapport", label: "Rapport bailleur", icon: FileText },
+  { key: "bailleur-synthese", label: "Synthèse bailleur", icon: Landmark },
+  { key: "parametres", label: "Paramètres", icon: Settings },
   { key: "carte-3d", label: "Carte 3D", icon: Box },
 ];
 

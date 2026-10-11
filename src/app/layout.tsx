@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,8 +24,12 @@ export const metadata: Metadata = {
   keywords: ["élevage bovin", "engraissement", "SAVERDEV", "Sahel", "gestion cheptel", "reporting bailleur"],
   authors: [{ name: "SAVERDEV" }],
   manifest: "/manifest.json",
-  themeColor: "#10B981",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "SAVERDEV" },
+};
+
+// Next.js 16 — themeColor doit être exporté via `viewport`, plus dans `metadata`.
+export const viewport: Viewport = {
+  themeColor: "#10B981",
 };
 
 export default function RootLayout({

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+// Next.js 16 — la convention "middleware" est dépréciée en faveur de "proxy".
+// Le fichier doit être nommé `proxy.ts` (à la racine de `src/` ou du projet).
+// La fonction exportée peut s'appeler `proxy` ou `middleware` (alias acceptés).
+export function proxy(request: NextRequest) {
   if (request.method === "OPTIONS") {
     const response = new NextResponse(null, { status: 204 });
     response.headers.set("Access-Control-Allow-Origin", "*");

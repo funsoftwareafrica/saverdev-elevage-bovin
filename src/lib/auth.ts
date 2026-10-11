@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       // On expose id + role dans la session côté client
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = (token.role as Role) ?? "ELEVEUR";
+        session.user.role = (token.role as Role) ?? "BENEFICIAIRE";
       }
       return session;
     },

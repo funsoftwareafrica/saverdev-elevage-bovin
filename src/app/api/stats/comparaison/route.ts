@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { computeBovinMarge } from "@/lib/calculations";
+import { toBovin } from "@/lib/server-mappers";
 
 export async function GET() {
   const now = new Date();
@@ -15,8 +16,8 @@ export async function GET() {
 
   const caC = ventesCourant.reduce((s,b)=>s+b.prixVente,0);
   const caP = ventesPrec.reduce((s,b)=>s+b.prixVente,0);
-  const margeC = ventesCourant.reduce((s,b)=>{const {marge}=computeBovinMarge({ ...b, dateAchat: b.dateAchat.toISOString(), dateVente: b.dateVente?.toISOString() ?? null } as any); return s+(marge??0)},0);
-  const margeP = ventesPrec.reduce((s,b)=>{const {marge}=computeBovinMarge({ ...b, dateAchat: b.dateAchat.toISOString(), dateVente: b.dateVente?.toISOString() ?? null } as any); return s+(marge??0)},0);
+  const margeC = ventesCourant.reduce((s,b)=>{const {marge}=computeBovinMarge(toBovin(b)); return s+(marge??0)},0);
+  const margeP = ventesPrec.reduce((s,b)=>{const {marge}=computeBovinMarge(toBovin(b)); return s+(marge??0)},0);
 
   const depC = await db.depense.aggregate({ _sum: { montant: true }, where: { date: { gte: debutCourant, lte: now } } });
   const depP = await db.depense.aggregate({ _sum: { montant: true }, where: { date: { gte: debutPrec, lte: finPrec } } });

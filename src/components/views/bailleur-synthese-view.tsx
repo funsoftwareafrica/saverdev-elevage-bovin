@@ -16,7 +16,6 @@ import { SaverdevLogo } from "@/components/saverdev-logo";
 import { GaugeChart } from "@/components/charts/gauge-chart";
 import { ROLE_LABELS } from "@/lib/types";
 import { Landmark, Wallet, TrendingUp, TrendingDown, AlertTriangle, FileText, Beef, Clock, CheckCircle2, ArrowRight, Info, Shield, PiggyBank } from "@/lib/icons";
-import { Banknote,  } from "lucide-react";
 
 export function BailleurSyntheseView() {
   const { data: dash, isLoading } = useDashboard();
@@ -152,7 +151,7 @@ export function BailleurSyntheseView() {
             </div>
             <Separator />
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <HugeiconsIcon icon={Info} size={12} className=".5 .5 shrink-0" />
+              <HugeiconsIcon icon={Info} size={12} className="shrink-0" />
               <span>Ces données reflètent l'activité d'engraissement financée par {fin?.bailleur ?? "SAVERDEV"}.</span>
             </div>
           </CardContent>
@@ -236,7 +235,7 @@ export function BailleurSyntheseView() {
 
       {/* Mention */}
       <div className="flex items-center gap-2 text-[0.7rem] text-muted-foreground justify-center pb-4">
-        <HugeiconsIcon icon={Shield} size={12} className=".5 .5" />
+        <HugeiconsIcon icon={Shield} size={12} className="shrink-0" />
         Accès en lecture seule — Vos données sont protégées (cahier des charges §9)
       </div>
     </div>

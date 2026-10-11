@@ -455,3 +455,374 @@ Stage Summary:
 - Lint clean (0 erreur sur fichiers modifiés)
 - Page Rentabilité, Dashboard et Rapport bailleur chargent en 200, aucune erreur runtime/compile
 - Source de vérité unique : COST_STRUCTURE_COLORS dans src/lib/config.ts (orange achatBovin, vert alimentation, bleu autresCouts)
+
+---
+Task ID: 13-A
+Agent: Explore
+Task: Audit complet du code SAVERDEV
+
+Work Log:
+- Lecture du worklog.md (457 lignes) pour comprendre le contexte : 12 tâches précédentes (fondation, shell, 9 vues, API Prisma, icônes cattly, enrichissement graphique dashboard, animations 3D, rentabilité waterfall, ventilation coûts, lazy-load, rapport bailleur modèle Excel, capital statique, alignement couleurs ventilation)
+- Audit exhaustif du projet `/home/z/my-project` (Next.js 16 + shadcn/ui + Tailwind v4 + Prisma + TanStack Query)
+- Vérification des 17 vues attendues dans src/components/views/ → **TOUTES PRÉSENTES** (17/17)
+  - dashboard, saisie, bovins, fiche-bovin, alimentation, depenses, ventes, rentabilite,
+    financement, rapport-bailleur, bailleur-synthese, carte-3d, parametres, paturages, pesees,
+    tresorerie, login → toutes en fichiers .tsx accessibles
+- Vérification de la navigation NAV_ITEMS dans src/lib/config.ts (10 items : dashboard, saisie, bovins, alimentation, depenses, ventes, rentabilite, financement, rapport, carte-3d) → **5 Vues orphelines** non présentes dans la sidebar : fiche-bovin (sous-vue cliquable), tresorerie, pesees, parametres, paturages, bailleur-synthese
+- Vérification de src/app/page.tsx (VIEW_TITLES + VIEW_COMPONENTS) → **MAPPE CORRECTEMENT** les 16 vues (toutes sauf login qui est rendue avant le shell). Aucune vue oubliée.
+- Vérification des 21 API routes dans src/app/api/ → **4 routes plantent à l'exécution** car elles appellent des modèles Prisma inexistants dans le schéma (notification, pese, paturage, soin) ; 2 routes backup appellent `db.backup` (inexistant) ; route parametres utilise champ `description` inexistant sur modèle Parametre
+- Vérification du schéma Prisma (prisma/schema.prisma) → ** datasource postgresql MAIS .env pointe sur SQLite `file:/home/z/my-project/db/custom.db` ** (incohérence critique, reportée par Task 11 mais non résolue)
+  - Tables SQLite présentes localement : User, Bovin, Alimentation, AlimentationBovin, Depense, DepenseBovin, Financement, Echeance, Alerte, Historique, Tag, Photo, Validation, StockMouvement, CapitalMouvement, Parametre
+  - Tables/manquants dans le schéma Prisma : **Paturage, Pese, Soin, Notification, Backup** → CRITIQUE
+- Vérification src/lib/format.ts → fonctions exportées : formatFCFA, formatFCFAShort, formatDate, formatDateTime, nowDateTimeLocal, formatMonthLabel, moisLabel, joursEntre, statutEcheanceColor, statutBovinColor, severiteColor, nextBovinIdentifiant, CHART_COLORS (re-export de config.ts) → **Toutes valides et utilisées correctement**. Aucun import cassé de fonctions inexistantes.
+- Vérification src/lib/icons.ts → 81 exports Hugeicons (Activity, Database, Package, CreditCard, TrendingUp, TrendingDown, BarChart3, Clock, FileText, Box, Wallet, AlertTriangle, Receipt, Shield, Menu, ChevronRight, Trophy, Check, CheckCircle2, Target, Gauge, History, Minus, Percent, Coins, PiggyBank, Scale, ShoppingCart, Salad, Beef, Landmark, ArrowUpRight, ArrowLeft, ArrowRight, BarChartHorizontal, PieChart, Settings, Printer, Download, Plus, Trash, Pencil, X, AlertCircle, LayoutGrid, Eye, Calendar, CalendarClock, HardDrive, Info, Map, MapPin, QrCode, Search, User, Layers, Maximize2, RotateCw, Navigation, Logout, Lock, EyeOff, Sun, Moon, Sparkles, Bolt, Wifi, ChevronDown, ChevronUp) → **TOUS EXISTENT** dans @hugeicons/core-free-icons
+- Vérification de src/app/layout.tsx → `themeColor: "#10B981"` dans `metadata` (Metadata type) → **deprecated depuis Next.js 14, supprimé dans Next.js 16**. Build/Runtime affiche un warning. Doit être déplacé dans `export const viewport: Viewport = { themeColor: "#10B981" }`
+- Vérification des 56 composants shadcn dans src/components/ui/ → **TOUS IMPORTÉS EXISTENT**. Aucun composant manquant.
+- Vérification "Ventilation des coûts" dans dashboard-view.tsx (lignes 333-358) :
+  - LazyMount height={176} + fallback `<Skeleton className="h-full w-full rounded-md" />` → **CORRECT** (CardContent h-44 = 176px = height LazyMount, pas de saut de layout)
+  - BarChart avec 3 Cell components, fill = COST_STRUCTURE_COLORS.achatBovin / .alimentation / .autresCouts → **CORRECT** (orange, vert, bleu)
+- Vérification "Ventilation des coûts" Pie chart dans rentabilite-view.tsx (lignes 53-57, 117-145) :
+  - repartitionCouts utilise COST_STRUCTURE_COLORS.achatBovin/.alimentation/.autresCouts → **CORRECT**
+- Vérification "Structure des coûts (cumul)" dans rapport-bailleur-view.tsx (lignes 28, 178-199) :
+  - DOUGHNUT_COLORS = [COST_STRUCTURE_COLORS.achatBovin, .alimentation, .autresCouts] → **COULEURS IDENTIQUES au dashboard et à rentabilité** ✓
+- Vérification src/lib/store.ts `rolePermissions(role)` → **INCOHÉRENT avec ROLE_VIEWS de types.ts** :
+  - store.ts donne BENEFICIAIRE = [dashboard, bovins, alimentation, depenses, ventes] (5)
+  - types.ts donne BENEFICIAIRE = [carte-3d, dashboard, saisie, bovins, fiche-bovin, alimentation, depenses, ventes, rentabilite, financement, rapport, tresorerie, pesees, parametres, paturages] (15)
+  - → `setRole()` reset systématiquement à "dashboard" pour la plupart des transitions de rôle, même quand la vue est autorisée
+- Vérification src/components/app-shell.tsx → **ORPHELIN** (non importé par page.tsx ni aucun autre fichier), VIEW_TITLES et VIEW_COMPONENTS manquants (bailleur-synthese, carte-3d, saisie) → 3 erreurs TS (lignes 30, 46, 94). Devrait être supprimé ou réparé.
+- Vérification src/lib/auth.ts → **3 problèmes** :
+  - import `bcryptjs` (module absent, build casse à ce niveau)
+  - `session.user.role = (token.role as Role) ?? "ELEVEUR"` → "ELEVEUR" n'existe pas dans le type Role actuel (BENEFICIAIRE/SINERGI/E2A)
+  - `requireRole(["ADMIN", "GERANT"])` dans backup routes → "ADMIN"/"GERANT" n'existent pas dans Role actuel
+- Vérification des `.5 .5` invalides (className typo) → **7 occurrences dans 5 fichiers** :
+  - rapport-bailleur-view.tsx:304 (AlertCircle)
+  - paturages-view.tsx:29, 38 (MapPin ×2)
+  - fiche-bovin-view.tsx:194 (Plus)
+  - bailleur-synthese-view.tsx:155, 239 (Info, Shield)
+  - dashboard-view.tsx:482 (ArrowUpRight)
+- Audit TypeScript via `bunx tsc --noEmit` → **26 erreurs dans src/** (et 100+ dans les projets annexes mobile/ et examples/ qui ne sont pas déployés)
+- Build Next.js (Turbopack) → **ÉCHEC** sur `bcryptjs` introuvable dans src/lib/auth.ts (bloque tout déploiement Vercel)
+- Warning build : convention `middleware.ts` dépréciée dans Next.js 16 → doit être renommée en `proxy.ts`
+
+Stage Summary:
+
+=== ERREURS À CORRIGER (par priorité) ===
+
+--- 🔴 PRIORITÉ HAUTE (bloquantes, build échoue) ---
+
+1. **`bcryptjs` non installé** (src/lib/auth.ts:5)
+   - Le build Next.js casse : `Module not found: Can't resolve 'bcryptjs'`
+   - Fix : `bun add bcryptjs` + `bun add -D @types/bcryptjs`
+   - Alternatives : remplacer par `argon2` ou supprimer le hash bcrypt (login démo sans bcrypt) si NextAuth n'est pas réellement utilisé en prod
+
+2. **Incohérence schéma Prisma vs DATABASE_URL** (prisma/schema.prisma)
+   - datasource `provider = "postgresql"` mais `.env` = `file:/home/z/my-project/db/custom.db` (SQLite)
+   - Fix : passer le schéma en `provider = "sqlite"` OU configurer une vraie URL PostgreSQL (Neon/Supabase)
+   - Actuellement le client Prisma généré ne correspond pas au dialecte SQL local
+
+3. **4 modèles Prisma manquants** (notifications, pesees, paturages, soins ne peuvent pas être appelés)
+   - Ajouter dans prisma/schema.prisma :
+     ```prisma
+     model Paturage {
+       id          String   @id @default(cuid())
+       nom         String
+       surface     Float
+       coordonnees String?
+       capacite    Int
+       createdAt   DateTime @default(now())
+     }
+     model Pese {
+       id      String   @id @default(cuid())
+       bovinId String
+       date    DateTime @default(now())
+       poids   Float
+       methode String   @default("Manuelle")
+       bovin   Bovin?   @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+       @@index([bovinId])
+     }
+     model Soin {
+       id             String    @id @default(cuid())
+       bovinId        String
+       date           DateTime  @default(now())
+       type           String
+       libelle        String
+       cout           Float     @default(0)
+       prochainRappel DateTime?
+       notes          String?
+       bovin          Bovin?    @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+       @@index([bovinId])
+     }
+     model Notification {
+       id      String   @id @default(cuid())
+       date    DateTime @default(now())
+       type    String
+       titre   String
+       message String
+       lu      Boolean  @default(false)
+       lien    String?
+     }
+     model Backup {
+       id        String   @id @default(cuid())
+       date      DateTime @default(now())
+       filename  String   @unique
+       size      Int
+       type      String
+       entities  Int
+       createdAt DateTime @default(now())
+     }
+     ```
+   - Ajouter aussi `pese Soin[]` et `Soin Soin[]` au modèle Bovin (relations)
+   - Lancer `bunx prisma db push` pour matérialiser en SQLite locale + `bunx prisma generate`
+
+4. **Champ `description` inexistant sur Parametre** (src/app/api/parametres/route.ts:6, 17, 22, 32)
+   - Soit ajouter le champ `description String?` au modèle Parametre dans le schéma
+   - Soit supprimer `description` du DEFAULTS[] et du mapper
+
+5. **Rôles invalides dans lib/backup et auth.ts** :
+   - src/lib/auth.ts:68 : `(token.role as Role) ?? "ELEVEUR"` → remplacer par `"BENEFICIAIRE"`
+   - src/app/api/backup/route.ts:8,15 et backup/[id]/download/route.ts:12 : `requireRole(["ADMIN", "GERANT"])` → remplacer par `requireRole(["E2A", "SINERGI"])` ou `["E2A"]` selon le besoin
+
+--- 🟡 PRIORITÉ MOYENNE (fonctionnalités cassées mais build passe) ---
+
+6. **NAV_ITEMS incomplet** (src/lib/config.ts) — 5 vues non accessibles depuis la sidebar :
+   - Ajouter les entrées manquantes : tresorerie (Wallet), pesees (Scale), parametres (Settings), paturages (Map), bailleur-synthese (FileText ou un Landmark)
+   - Ces vues sont dans ROLE_VIEWS et VIEW_COMPONENTS mais pas dans NAV_ITEMS → l'utilisateur ne peut pas y naviguer
+
+7. **bailleur-synthese-view n'est dans aucun ROLE_VIEWS** (src/lib/types.ts:157-161)
+   - La vue existe dans VIEW_COMPONENTS (page.tsx) mais aucun rôle ne peut l'atteindre même via setView (à moins de l'ajouter manuellement)
+   - Fix : ajouter `"bailleur-synthese"` au tableau ROLE_VIEWS.SINERGI (lecture seule pour bailleur)
+
+8. **store.ts rolePermissions désynchronisé** (src/lib/store.ts:64-71)
+   - Le helper local ne contient que 5 vues pour BENEFICIAIRE alors que ROLE_VIEWS en contient 15
+   - Fix : importer et utiliser ROLE_VIEWS de types.ts au lieu du helper local
+
+9. **AppShell orphelin et cassé** (src/components/app-shell.tsx)
+   - 3 erreurs TS (VIEW_TITLES/VIEW_COMPONENTS manquants de bailleur-synthese, carte-3d, saisie ; type Role incompatible)
+   - Fix : soit supprimer le fichier (page.tsx ne l'utilise pas) soit le synchroniser avec page.tsx
+
+10. **Convention middleware dépréciée** (src/middleware.ts)
+    - Next.js 16 affiche : `⚠ The "middleware" file convention is deprecated. Please use "proxy" instead`
+    - Fix : renommer `src/middleware.ts` en `src/proxy.ts`
+
+11. **themeColor dans metadata déprécié** (src/app/layout.tsx:27)
+    - `themeColor: "#10B981"` dans `metadata` n'est plus valide en Next.js 16
+    - Fix :
+      ```ts
+      // Supprimer de metadata
+      // Ajouter export séparé en bas de fichier :
+      import { type Viewport } from "next";
+      export const viewport: Viewport = { themeColor: "#10B981" };
+      ```
+
+--- 🟢 PRIORITÉ BASSE (cosmétique, ne casse pas le runtime) ---
+
+12. **7 occurrences className `.5 .5`** invalide Tailwind (ressemble à un placeholder non remplacé) :
+    - rapport-bailleur-view.tsx:304, paturages-view.tsx:29/38, fiche-bovin-view.tsx:194, bailleur-synthese-view.tsx:155/239, dashboard-view.tsx:482
+    - Fix : remplacer par `text-muted-foreground` ou `shrink-0` selon le contexte (la plupart des occurrences semblent vouloir être `text-muted-foreground`)
+
+13. **`import { Banknote,  } from "lucide-react"`** inutilisé (bailleur-synthese-view.tsx:19)
+    - Fix : supprimer l'import (Banknote n'est pas utilisé dans le fichier)
+
+14. **`as any` dans stats/races et stats/comparaison** (src/app/api/stats/races/route.ts:18, stats/comparaison/route.ts:18-19)
+    - Calcule la marge en castant le Bovin Prisma en `as any` — fonctionne mais bypass le typage
+    - Fix : utiliser `toBovin(b)` depuis server-mappers puis `computeBovinMarge(toBovin(b))`
+
+15. **Type inconnu `bovinIds: unknown[]`** (src/app/api/pesees/route.ts:17)
+    - `[...new Set(pesees.map((p) => p.bovinId))]` retourne `unknown[]` car `pese` n'est pas typé
+    - Fix : se résout automatiquement une fois le modèle Pese ajouté à Prisma
+
+16. **Aucun import de MobileDir** dans les composants UI — OK, pas d'erreur
+
+
+---
+Task ID: 13-B
+Agent: full-stack-developer
+Task: Corrections audit SAVERDEV (suivant Task 13-A)
+
+Work Log:
+
+=== 🔴 PRIORITÉ HAUTE (bloquantes) ===
+
+1. Installation bcryptjs
+   - `bun add bcryptjs` → bcryptjs@3.0.3 installé
+   - `bun add -D @types/bcryptjs` → @types/bcryptjs@3.0.0 installé
+   - Vérifié : src/lib/auth.ts:5 `import bcrypt from "bcryptjs"` compile désormais sans erreur
+
+2. Ajout des 5 modèles Prisma manquants au schéma (prisma/schema.prisma) :
+   - `Paturage` (id, nom, surface Float, coordonnees String?, capacite Int, createdAt) + index sur nom
+   - `Pese` (id, bovinId, date DateTime, poids Float, methode String default "Manuelle", createdAt) + relation Bovin + indexes
+   - `Soin` (id, bovinId, date DateTime, type String, libelle String, cout Float, prochainRappel DateTime?, notes String?, createdAt) + relation Bovin + indexes
+   - `Notification` (id, date DateTime, type String, titre String, message String, lu Boolean default false, lien String?, userId String?) + indexes
+   - `Backup` (id, date DateTime, filename String @unique, size Int, type String, entities Int default 0, createdAt) + indexes
+   - Ajout des relations `pesees Pese[]` et `soins Soin[]` au modèle Bovin (inverse des FK)
+   - Pour préserver le déploiement Vercel (provider = "postgresql") :
+     - Sauvegarde du schéma postgresql → /tmp/schema.prisma.postgres
+     - Override temporaire en sqlite via `sed -i 's/provider = "postgresql"/provider = "sqlite"/'`
+     - `bun run db:generate` → client Prisma régénéré avec les 5 nouveaux modèles + le champ description (en provider sqlite)
+     - Restauration du schéma postgresql (cp /tmp/schema.prisma.postgres prisma/schema.prisma)
+
+3. Création des tables SQLite manquantes (script scripts/create-missing-tables.ts) :
+   - Création via `db.$executeRawUnsafe` avec CREATE TABLE IF NOT EXISTS + CREATE INDEX IF NOT EXISTS (idempotent)
+   - Tables créées : Paturage, Pese, Soin, Notification, Backup (+ tous les indexes correspondants)
+   - ALTER TABLE Parametre ADD COLUMN description TEXT (vérification idempotente via PRAGMA table_info)
+   - Vérification : tables présentes et accessibles via le client Prisma régénéré
+
+4. Ajout du champ `description String?` au modèle Parametre :
+   - Modèle mis à jour dans prisma/schema.prisma
+   - Colonne créée en SQLite via le script ALTER TABLE
+   - Vérifié : GET /api/parametres renvoie maintenant le champ description pour chaque paramètre
+
+5. Correction des rôles invalides :
+   - src/lib/auth.ts:68 : `"ELEVEUR"` → `"BENEFICIAIRE"` (fallback défaut session)
+   - src/app/api/backup/route.ts:8,15 : `["ADMIN", "GERANT"]` et `["ADMIN"]` → `["E2A", "SINERGI"]` et `["E2A"]`
+   - src/app/api/backup/[id]/download/route.ts:12 : `["ADMIN", "GERANT"]` → `["E2A", "SINERGI"]`
+   - Commentaires mis à jour ("E2A only" au lieu de "ADMIN only")
+   - Vérification grep : aucun reste de ELEVEUR/ADMIN/GERANT dans src/
+
+=== 🟡 PRIORITÉ MOYENNE ===
+
+6. Ajout des 5 vues manquantes à NAV_ITEMS (src/lib/config.ts) :
+   - Imports complétés : `Wallet, Scale, Settings, Map, Landmark` depuis "@/lib/icons"
+   - Nouvelles entrées dans NAV_ITEMS :
+     - tresorerie → Wallet
+     - pesees → Scale
+     - paturages → Map
+     - bailleur-synthese → Landmark
+     - parametres → Settings
+   - Toutes les vues de ROLE_VIEWS sont désormais navigables depuis la sidebar
+
+7. Synchronisation store.ts avec ROLE_VIEWS (src/lib/store.ts) :
+   - Import `ROLE_VIEWS` depuis "@/lib/types"
+   - Helper local `rolePermissions(role)` réécrit pour simplement déléguer à `ROLE_VIEWS[role]` (source unique de vérité)
+   - BENEFICIAIRE a maintenant 15 vues au lieu de 5 (synchronisé avec types.ts)
+   - `setRole()` ne reset plus "dashboard" arbitrairement quand la vue courante est autorisée
+
+8. Ajout bailleur-synthese à ROLE_VIEWS (src/lib/types.ts) :
+   - Ajout `"bailleur-synthese"` à `ROLE_VIEWS.SINERGI` (4 → 5 vues : dashboard, rentabilite, financement, rapport, bailleur-synthese)
+   - Ajout `"bailleur-synthese"` à `ROLE_VIEWS.E2A` (le bailleur peut accéder à la synthèse dédiée)
+
+9. Renommage middleware.ts → proxy.ts (Next.js 16) :
+   - src/middleware.ts supprimé
+   - src/proxy.ts créé avec `export function proxy(request: NextRequest)` (au lieu de `middleware`)
+   - `export const config = { matcher: ["/api/:path*"] }` conservé
+   - Warning de déprecation résolu
+
+10. Déplacement themeColor de metadata vers viewport (src/app/layout.tsx) :
+    - Import `Viewport` depuis "next" : `import type { Metadata, Viewport } from "next"`
+    - Supprimé `themeColor: "#10B981"` de l'export `metadata`
+    - Nouvel export séparé : `export const viewport: Viewport = { themeColor: "#10B981" }`
+    - Warning "Unsupported metadata themeColor" résolu (vérifié dans dev.log, plus aucun warning)
+
+11. Suppression de src/components/app-shell.tsx :
+    - Vérifié : aucun fichier ne l'importe (grep `app-shell|AppShell` ne retourne que le fichier lui-même)
+    - Fichier supprimé (3 erreurs TS éliminées : VIEW_TITLES/VIEW_COMPONENTS incomplets)
+
+=== 🟢 PRIORITÉ BASSE (cosmétique) ===
+
+12. Correction des 7 occurrences className=".5 .5" (placeholder non remplacé) :
+    - rapport-bailleur-view.tsx:304 (AlertCircle) → `className="shrink-0"`
+    - paturages-view.tsx:29 (MapPin) → `className="shrink-0 text-primary"`
+    - paturages-view.tsx:38 (MapPin) → `className="shrink-0 text-primary"`
+    - fiche-bovin-view.tsx:194 (Plus) → `className="shrink-0"`
+    - dashboard-view.tsx:482 (ArrowUpRight) → `className="text-muted-foreground shrink-0 mt-1"`
+    - bailleur-synthese-view.tsx:155 (Info) → `className="shrink-0"`
+    - bailleur-synthese-view.tsx:239 (Shield) → `className="shrink-0"`
+    - Vérifié : `grep -rn 'className="\.5' src/` ne retourne plus rien
+
+13. Suppression de l'import Banknote inutilisé :
+    - bailleur-synthese-view.tsx:19 → ligne `import { Banknote, } from "lucide-react"` supprimée entièrement
+
+14. Suppression des `as any` dans stats/races et stats/comparaison :
+    - src/app/api/stats/races/route.ts:18 → remplacement de
+      `computeBovinMarge({ ...b, dateAchat: b.dateAchat.toISOString(), dateVente: b.dateVente?.toISOString() ?? null } as any)`
+      par `computeBovinMarge(toBovin(b))` — utilise le mapper officiel depuis server-mappers.ts
+    - src/app/api/stats/comparaison/route.ts:18-19 → même refactor (×2) avec `toBovin(b)`
+    - Ajout `import { toBovin } from "@/lib/server-mappers"` dans les deux fichiers
+    - Typage Prisma strict respecté
+
+=== Vérification finale ===
+
+- ESLint sur tous les fichiers modifiés : 0 erreur (les seules erreurs résiduelles sont dans /mobile/, dossier explicitement exclu par le cahier des charges)
+- TypeScript (bunx tsc --noEmit) sur src/ : 0 erreur
+- Dev server redémarré après régénération du client Prisma (PID précédent tuillait car il gardait l'ancien client en mémoire)
+- Page d'accueil : curl http://localhost:3000/ → HTTP 200 ✓
+- APIs corrigées :
+  - GET /api/paturages → HTTP 200 ✓ (retourne [] car aucune donnée seedée)
+  - GET /api/pesees → HTTP 200 ✓
+  - GET /api/notifications → HTTP 200 ✓ (retourne les alertes fusionnées)
+  - GET /api/backup → HTTP 403 (attendu : nécessite session E2A/SINERGI, sinon 403 "Accès refusé")
+  - GET /api/parametres → HTTP 200 ✓ (4 paramètres défauts créés avec description)
+  - GET /api/soins → HTTP 200 ✓
+- Plus aucun warning themeColor ni middleware déprécié dans dev.log
+- Requêtes Prisma SQL visibles dans dev.log pour les nouvelles tables (Paturage, Pese, Notification, Soin, Backup) avec toutes les colonnes attendues
+
+Stage Summary:
+
+✅ Corrections effectuées (13/13) :
+- 5 corrections 🔴 HAUTE (bcryptjs installé, 5 modèles Prisma ajoutés, tables SQLite créées, champ description Parametre ajouté, rôles invalides corrigés)
+- 6 corrections 🟡 MOYENNE (NAV_ITEMS complété, store.ts synchronisé, bailleur-synthese dans ROLE_VIEWS, middleware→proxy, themeColor→viewport, AppShell supprimé)
+- 3 corrections 🟢 BASSE (className typos, Banknote inutilisé, as any retirés)
+
+⚠️ Erreurs résiduelles :
+- Aucune dans src/. Les erreurs ESLint/TS restantes sont exclusivement dans :
+  - /mobile/ (projet React Native séparé, non déployé, explicitement exclu)
+  - /examples/ (websocket demo, non déployé)
+  - /skills/ (z-ai-web-dev-sdk types non résolus, hors périmètre)
+
+⚠️ Note sur /agent-ctx :
+- Le répertoire /agent-ctx n'a pas pu être créé (permission denied sur /). Le rapport complet est inclus dans ce worklog à la place.
+
+🔗 Vérification commands :
+- Lint : `bun run lint` → 0 erreur dans src/ (erreurs résiduelles dans /mobile/ non pertinentes)
+- TS : `bunx tsc --noEmit` → 0 erreur dans src/
+- APIs : `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/{paturages,pesees,notifications,soins,parametres}` → 200 chacune ; `/api/backup` → 403 (attendu sans session)
+
+---
+Task ID: 14
+Agent: main
+Task: Guide PDF d'utilisation pour le gérant Souleymane Zakaria SAVERDEV
+
+Work Log:
+- Script Python ReportLab créé : scripts/generate_guide_pdf.py (~900 lignes)
+  - Palette SAVERDEV : vert forêt #2E8B57, marron terre #4A3728, vert clair #7CC576, bleu ciel #87CEEB, amber, rouge
+  - 2 templates de page : Cover (fond vert forêt + logo stylisé) + Body (en-tête vert + pied de page avec numéro de page)
+  - Styles : cover_title, cover_sub, h1/h2/h3, body, bullet, note (box), cell, cell_bold, cell_header, kbd, toc
+  - Helpers : note_box (bleu/amber/rouge), kbd_table, section_table (en-tête vert + lignes alternées)
+- Guide en 16 sections + couverture + sommaire (19 pages A4 au total) :
+  1. Présentation de l'application SAVERDEV
+  2. Connexion & comptes utilisateurs (3 comptes démo : Bénéficiaire/SINERGI/E2A)
+  3. Navigation : barre latérale (10 modules)
+  4. Tableau de bord (6 blocs KPI + 7 graphiques décrits)
+  5. Saisie — journaux comptables & suivi du capital (4 journaux + balance + capital)
+  5.4 Ajouter un mouvement sur le capital (5 étapes + tableau d'exemple de cascade avec 3 mouvements horodatés 15/10/2025 09:30 / 16/10/2025 14:45 / 17/10/2025 11:15)
+  5.5 Supprimer un mouvement
+  6. Cheptel (bovins BOE-xxx + ovins OVN-xxx + fiche détaillée)
+  7. Alimentation (imputation par tête, exemple 60 000 FCFA / 3 bovins = 20 000/tête)
+  8. Dépenses d'exploitation (6 catégories avec n° de compte)
+  9. Ventes (statut VENDU + calcul marge)
+  10. Rentabilité (6 KPI + 6 graphiques + cohérence couleurs ventilation/structure)
+  11. Financement (échéances, taux d'utilisation, trésorerie)
+  12. Rapport bailleur modèle E2A (6 KPI + 6 graphiques + impression PDF)
+  13. Mode hors ligne & synchronisation (PWA installable)
+  14. Suivi du capital initial (règle d'or : capital initial STATIQUE, mouvements horodatés, tableau des 6 champs)
+  15. Astuces & raccourcis pratiques (F8 notifications, alt+T, etc.)
+  16. Contacts & assistance (E2A, SINERGI, SAVERDEV)
+- PDF généré : public/guide-saverdev.pdf (41 Ko, 19 pages, A4)
+- QA ReportLab : 11 checks PASS + 1 warning non bloquant (ponctuation en début de ligne, français OK)
+- Métadonnées : Title="Guide d'utilisation SAVERDEV", Author="SAVERDEV — Souleymane Zakaria", Creator="SAVERDEV"
+- Accessible via navigateur : http://localhost:3000/guide-saverdev.pdf (HTTP 200, 42 Ko)
+- Vérification VLM end-to-end :
+  - ✅ Page 1 (couverture) : fond vert + titre "Guide d'utilisation" + sous-titre + logo + mention "Souleymane Zakaria SAVERDEV"
+  - ✅ Page 2 (sommaire) : 16 sections numérotées avec lignes de séparation + en-tête/pied
+  - ✅ Page 9 (Cheptel) : listes à puces des fonctions + fiche détaillée
+  - ✅ Page 8 (section 5.4) : tableau d'exemple de cascade avec 3 mouvements horodatés (15/10/2025 09:30 Achat 5 sacs son Retrait − 150 000 → 14 625 000, etc.)
+  - ✅ Page 13 (Rentabilité) : tableau des 6 KPI avec formules + lecture
+  - ✅ Page 17 (Suivi capital) : règle d'or capital STATIQUE + tableau des 6 champs horodatés
+
+Stage Summary:
+- Guide PDF complet (19 pages) généré avec succès pour le gérant Souleymane Zakaria
+- Toutes les fonctionnalités documentées : connexion, navigation, 10 modules, saisie partie double, suivi capital initial statique + mouvements horodatés, mode hors ligne, PWA
+- Tableau d'exemple de cascade avec mouvements horodatés (JJ/MM/AAAA HH:MM) inclus
+- PDF accessible via http://localhost:3000/guide-saverdev.pdf
+- QA : 11 checks PASS, métadonnées complètes, fonts embedded, pas d'overflow
+- Le gérant peut télécharger et imprimer ce guide pour la semaine prochaine

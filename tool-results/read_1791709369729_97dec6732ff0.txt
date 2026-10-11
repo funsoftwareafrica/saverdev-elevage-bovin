@@ -1,0 +1,458 @@
+     1→# Worklog — Application Élevage Bovin (SAVERDEV)
+     2→
+     3→Projet : application de gestion et reporting d'élevage bovin d'engraissement.
+     4→Stack : Next.js 16 + shadcn/ui + Tailwind v4 + Prisma (SQLite) + TanStack Query.
+     5→Palette : SAVERDEV (vert forêt #2E8B57, marron terre #4A3728, vert clair #7CC576, bleu ciel #87CEEB, fond blanc).
+     6→4 profils : Éleveur, Gérant, Bailleur (lecture seule), Admin.
+     7→
+     8→---
+     9→Task ID: 1
+    10→Agent: main
+    11→Task: Fondation + shell + 9 vues complètes avec mock-data (palette SAVERDEV)
+    12→
+    13→Work Log:
+    14→- Lecture des 3 docx (cahier des charges, guidelines, support KPI) et du logo SAVERDEV via VLM
+    15→- Palette SAVERDEV dans globals.css (vert forêt primary, marron terre sidebar/secondary, vert clair accent, bleu ciel chart-4)
+    16→- Schema Prisma : User, Bovin, Alimentation, AlimentationBovin, Depense, DepenseBovin, Financement, Echeance, Alerte, Historique
+    17→- lib/types.ts (interfaces TypeScript + ROLE_VIEWS pour RBAC)
+    18→- lib/mock-data.ts (15 bovins, 8 alimentations, 13 dépenses, financement 5M FCFA + 10 échéances, 5 alertes, 6 historiques)
+    19→- lib/format.ts (formatFCFA, formatDate, moisLabel, statutBovinColor, CHART_COLORS hex)
+    20→- lib/store.ts (Zustand : rôle actif, vue courante, mois sélectionné, bovin sélectionné)
+    21→- Shell page.tsx : sidebar marron + header sticky (logo + sélecteur mois + sélecteur rôle + badge lecture seule bailleur) + footer sticky
+    22→- Composants app/ : app-sidebar (nav filtrée par rôle, mobile via Sheet), app-header, app-footer
+    23→- 9 vues complètes :
+    24→  - dashboard-view : 6 blocs KPI (Cheptel/Engraissement/Alimentation/Rentabilité/Financement/Alertes) + 3 graphiques (Line évolution, Pie répartition, Bar ventes) + historique
+    25→  - bovins-view : table filtrable (recherche + tabs statut) + clic → fiche
+    26→  - fiche-bovin-view : identification + coûts & marge + progress
+    27→  - alimentation-view : KPI + table + dialog d'ajout
+    28→  - depenses-view : 4 cards par catégorie + table filtrable + dialog d'ajout
+    29→  - ventes-view : KPI CA/marge + table + dialog d'ajout
+    30→  - rentabilite-view : KPI + pie ventilation coûts + bar marges par bovin + table détaillée
+    31→  - financement-view : KPI + carte taux utilisation (progress) + prochaines échéances + table amortissement
+    32→  - rapport-bailleur-view : rapport imprimable 2 pages (synthèse + annexes) + boutons Imprimer/Export PDF (window.print)
+    33→- Logo SAVERDEV en SVG (cercle marron + arbre vert + courbes sol/eau)
+    34→
+    35→Stage Summary:
+    36→- Application complète et navigable
+    37→- 4 rôles fonctionnels avec nav restreinte (Bailleur = 4 vues, Gérant/Admin = 8 vues, Éleveur = 5 vues)
+    38→- Tous les montants en FCFA avec formatage fr-FR
+    39→- Graphiques Recharts avec couleurs hex SAVERDEV (var(--chart-X) ne fonctionne pas en attributs SVG stroke/fill)
+    40→- Layout responsive : sidebar → Sheet sur mobile
+    41→- Sticky footer en bas de page
+    42→
+    43→---
+    44→Task ID: 2
+    45→Agent: main
+    46→Task: Vérification end-to-end avec Agent Browser
+    47→
+    48→Work Log:
+    49→- Démarrage dev server (port 3000, Turbopack)
+    50→- Vérification lint : 0 erreur après fix useMemo (financement-view) et import manquant (statutEcheanceColor dans rapport)
+    51→- Inspection DOM des graphiques : les 3 rendent des paths SVG valides (Line=3 courbes, Pie=3 secteurs, Bar=3 barres)
+    52→- Capture + analyse VLM après scroll aux graphiques : les 3 graphiques visibles (courbes vert/marron/vert clair, donut 3 segments, barres vertes)
+    53→- Test navigation : Dashboard → Bovins (table avec BOV-001..015) → clic ligne BOV-001 → Fiche bovin
+    54→- Test RBAC : switch rôle Gérant → Bailleur : nav passe de 8 à 4 items (Dashboard, Rentabilité, Financement, Rapport)
+    55→- Test toutes les vues : Alimentation, Dépenses, Ventes, Rentabilité, Financement — toutes rendent leur heading + contenu
+    56→- Test Export PDF : bouton déclenche window.print() + toast "Préparation du PDF..."
+    57→
+    58→Stage Summary:
+    59→- Frontend 100% fonctionnel et vérifié dans le navigateur
+    60→- Aucune erreur runtime/compile/hydratation
+    61→- Palette SAVERDEV correctement appliquée (sidebar marron, accents vert, fond blanc, alertes rouge/jaune)
+    62→- Prêt pour présentation utilisateur
+    63→
+    64→Note : Les vues utilisent actuellement des données mockées (lib/mock-data.ts).
+    65→Le schéma Prisma est poussé en DB (db:push OK). L'ajout d'API routes + seed + branchement
+    66→TanStack Query est l'étape suivante pour persister les données réelles.
+    67→
+    68→---
+    69→Task ID: 3
+    70→Agent: main
+    71→Task: Backend React — API routes + Prisma seed + TanStack Query (remplacement des imports mock)
+    72→
+    73→Work Log:
+    74→- prisma/seed.ts : peuplement SQLite depuis mock-data (4 users, 15 bovins, 8 alimentations + imputation, 13 dépenses, 1 financement + 10 échéances, 5 alertes, 6 historiques)
+    75→- package.json : ajout scripts db:seed, db:studio + config prisma.seed
+    76→- Schema : renommé prixachat → prixAchat (cohérence camelCase) + db:push
+    77→- src/lib/calculations.ts : calculs purs (computeBovinMarge, computeDashboardFromData) réutilisables serveur + client
+    78→- src/lib/server-mappers.ts : conversion Prisma (Date) → TS (ISO string)
+    79→- 9 API routes :
+    80→  - GET /api/dashboard (agrégation serveur via computeDashboardFromData)
+    81→  - GET+POST /api/bovins, GET /api/bovins/[id]
+    82→  - GET+POST /api/alimentation (imputation auto + update coutsEngraissement)
+    83→  - GET+POST /api/depenses (imputation auto + update autresCouts)
+    84→  - GET+POST /api/ventes (fige coût + calcule marge)
+    85→  - GET /api/financement, /api/alertes, /api/historique
+    86→- src/components/query-provider.tsx : QueryClientProvider (staleTime 30s)
+    87→- src/app/layout.tsx : wrap app dans QueryProvider
+    88→- src/lib/api.ts : hooks TanStack Query (useBovins, useBovin, useDashboard, useAlimentations, useDepenses, useVentes, useFinancement, useAlertes, useHistorique + mutations useCreateBovin/Alimentation/Depense/Vente avec invalidation)
+    89→- 9 vues branchées sur les hooks (remplacement des imports MOCK_*) + états de chargement (Skeleton)
+    90→- Formulaires Alimentation/Dépenses/Ventes : FormData → mutation → API → DB → invalidate → refetch
+    91→
+    92→Stage Summary:
+    93→- Vérification Agent Browser :
+    94→  - GET /api/bovins → 15 bovins (BOV-001 first)
+    95→  - GET /api/dashboard → cheptel.bovinsActifs=10, rentabilite.margeTotale=402500
+    96→  - POST /api/alimentation → 201 + coutParTete calculé (60000/3=20000)
+    97→  - Imputation vérifiée : BOV-004 coutsEngraissement passé de 28000 à 48000 après POST
+    98→  - Dashboard rend avec données dynamiques (KPI + 3 graphiques + alertes + historique)
+    99→- Lint clean (0 erreur)
+   100→- Cycle React complet : saisie → API → SQLite → invalidation → re-fetch → UI à jour
+   101→- Les mutations créent aussi des entrées dans l'historique (traçabilité)
+   102→
+   103→Note technique : les données mockées (lib/mock-data.ts) restent utilisées par
+   104→le script de seed mais ne sont plus importées par les vues. Toutes les vues
+   105→fetchent maintenant via TanStack Query. Le seed peut être relancé avec
+   106→`bun run db:seed` pour réinitialiser les données démo.
+   107→
+   108→---
+   109→Task ID: 4
+   110→Agent: main
+   111→Task: Alignement des icônes sur le set cattly.io (Lucide outline)
+   112→
+   113→Work Log:
+   114→- Lecture de cattly.io via page_reader (Cloudflare blockait le screenshot direct)
+   115→- Extraction des 21 SVGs uniques du HTML, identification des icônes Lucide utilisées par cattly.io :
+   116→  Database, Users, FileText, Map, Droplet, TrendingUp, Activity, Package, Clock, CreditCard, BarChart3 (+ X, Expand pour UI)
+   117→- Analyse du contexte texte autour de chaque <span class="icon"> pour comprendre le mapping icône → feature cattly
+   118→- Remapping de la navigation (app-sidebar.tsx NAV_ITEMS) sur le set cattly :
+   119→  - Tableau de bord : LayoutDashboard → Activity (cattly = métriques/data)
+   120→  - Bovins : Beef → Database (cattly = records d'élevage)
+   121→  - Alimentation : Salad → Package (cattly = inventaire/supplements)
+   122→  - Dépenses : Receipt → CreditCard (cattly = billing)
+   123→  - Ventes : ShoppingCart → TrendingUp (cattly = croissance)
+   124→  - Rentabilité : TrendingUp → BarChart3 (cattly = charts)
+   125→  - Financement : Landmark → Clock (cattly = reminders/échéances)
+   126→  - Rapport bailleur : FileText (déjà aligné)
+   127→- Alignement des ViewHeader de chaque vue sur la même icône que la nav (cohérence sidebar ↔ en-tête)
+   128→- Les KPI cards gardent des icônes domain-spécifiques (Beef pour bovins, Salad pour alimentation, etc.) car plus expressives
+   129→
+   130→Stage Summary:
+   131→- Vérification VLM Agent Browser : les 8 icônes de nav confirmées (Activity, Database, Package, CreditCard, TrendingUp, BarChart3, Clock, FileText)
+   132→- Vérification VLM ViewHeader Bovins : icône cylindre (Database) confirmée
+   133→- Lint clean
+   134→- Style préservé : Lucide outline stroke-width=2 viewBox 24×24 round caps (identique à cattly.io)
+   135→
+   136→---
+   137→Task ID: 5
+   138→Agent: main
+   139→Task: Enrichissement graphique du Tableau de bord (dashboard-view)
+   140→
+   141→Work Log:
+   142→- Restauration du schéma Prisma + routes API + seed SAVERDEV (écrasés par erreur CRM, rollback via git checkout d47dec2)
+   143→- db:push + db:seed pour restaurer les 15 bovins, 8 alimentations, 13 dépenses, 1 financement, 5 alertes
+   144→- Réécriture complète de src/components/views/dashboard-view.tsx avec graphismes avancés :
+   145→  - Hero KPI strip : 4 grosses tuiles animées (AnimatedCounter) avec sparklines en aire dégradée
+   146→  - Section Cheptel : 4 KPI cards + donut en dégradé (gActif/gVendu/gMort) avec innerRadius 45
+   147→  - Section Engraissement : 3 MiniStat + barre de progression animée (cycle 180j réf.)
+   148→  - Section Alimentation : 3 MiniStat + mini BarChart mensuel (sacs)
+   149→  - Section Rentabilité : 4 KPI cards (CA, coût achat, coût engrais, marge)
+   150→  - Graphique évolution mensuelle : AreaChart avec 3 aires dégradées (gCA/gCouts/gMarge) au lieu de Line
+   151→  - Jauge taux de marge : RadialBarChart 180° avec texte central (17%, 403k FCFA)
+   152→  - Section Financement : 3 cards (jauge RadialBar 42% + 3 anneaux SVG échéances animés + BarChart ventilation coûts)
+   153→  - Comparaison mois : 5 cards avec delta animé (scale-in, stagger)
+   154→  - Performance par race : top 3 podium + barres horizontales animées (gradient from-primary)
+   155→  - Radar performance : RadarChart 6 axes (Rentabilité, Cheptel, Ventes, Alim., Financ., Cycle) avec aire verte semi-transparente
+   156→  - Composed chart ventes : BarChart + Line (double axe Y) avec dégradé gVentes
+   157→  - Alertes + Historique : scrollable cards
+   158→  - Bandeau alerte critique : bordure gauche rouge + gradient bg
+   159→  - Tous les graphiques : isAnimationActive + animationDuration 800-1200ms
+   160→
+   161→Stage Summary:
+   162→- Vérification Agent Browser + VLM sur 4 captures (top, mid, charts, radar) :
+   163→  - ✅ Donut cheptel : 3 segments verts/turquoise/rouge rendus
+   164→  - ✅ AreaChart évolution : 3 courbes d'aires (vert CA, rouge coûts, jaune marge) avec données tracées
+   165→  - ✅ Jauge taux marge 17% : cercle rempli + texte central
+   166→  - ✅ Jauge taux utilisation 42% : RadialBar dégradé turquoise
+   167→  - ✅ 3 anneaux échéances : 4 payées (vert), 0 à payer (jaune), 6 en retard (rouge) — strokeDashoffset animé
+   168→  - ✅ BarChart ventilation coûts : 4 barres colorées (Achat, Engrais, Alim, CA)
+   169→  - ✅ Mini BarChart alimentation : 7 barres vertes
+   170→  - ✅ Radar 6 axes : polygone vert semi-transparent rempli
+   171→  - ✅ Composed chart : barres vertes (ventes FCFA) + courbe orange (têtes) double axe Y
+   172→  - ✅ Sparklines hero KPI : 4 mini AreaCharts dégradés
+   173→  - ✅ Progress bar engraissement 71% animée
+   174→  - ✅ Barres horizontales race performance animées
+   175→- Lint clean (0 erreur sur dashboard-view ; 1 erreur préexistante dans parametres-view non touché)
+   176→- API /api/dashboard retourne exactement les KPI attendus (10 bovins actifs, 4.7M valeur cheptel, 127j durée, 410 sacs, 2.3M CA, 403k marge)
+   177→- Le tableau de bord est maintenant riche en graphismes : 13+ visualisations (donuts, jauges, aires, radar, composed, sparklines, anneaux, barres animées)
+   178→
+   179→---
+   180→Task ID: 6
+   181→Agent: main
+   182→Task: Animation 3D sur l'en-tête et le bandeau d'alerte du tableau de bord
+   183→
+   184→Work Log:
+   185→- Création du composant DashboardHeader3D (remplace le ViewHeader standard pour le dashboard) :
+   186→  - Carte entilée avec parallaxe souris (useMotionValue + useSpring + useTransform, rotateX/rotateY ±8°)
+   187→  - Cube 3D isométrique avec rotation permanente (rotateY 360° en 14s) — 6 faces (avant/arrière/gauche/droite/haut/bas) avec couleurs distinctes (primary, emerald-700, teal-500, emerald-600, emerald-400, teal-800)
+   188→  - translateZ sur 3 niveaux : icône cube (40px), titre (30px), badge live (55px) → effet de profondeur
+   189→  - Halos radiaux animés en fond (scale + opacity pulsation 5-6s)
+   190→  - Badge "Données en direct" flottant (y: 0→-6→0) avec point pulse (opacity + scale)
+   191→  - Ombre portée verte glow (0_20px_50px)
+   192→  - Titre en text-gradient (vert→teal→clair)
+   193→- Création du composant AlertBanner3D (remplace l'ancien bandeau alerte) :
+   194→  - Entrée animée (x: -30→0, rotateY: -25→0)
+   195→  - Parallaxe souris (rotateX/rotateY ±10°)
+   196→  - Cube rouge 3D rotatif (rotateY + rotateX 360° en 8s) avec 4 faces (rouge 400/500/700/800)
+   197→  - Anneaux pulsants (scale 1→1.5/1.7, opacity 1→0)
+   198→  - Coin plié 3D en haut à droite (border + clipPath + rotateY 35°)
+   199→  - Barre rouge gauche 3D (translateZ 15px, scaleX pulsation)
+   200→  - Badge "URGENT" flottant (y + rotate oscillation, translateZ 35px)
+   201→  - Halo rouge flottant (scale + opacity)
+   202→  - Compteur critique pulsant (scale 1→1.15)
+   203→
+   204→Stage Summary:
+   205→- Vérification Agent Browser + VLM :
+   206→  - ✅ Cube 3D vert avec faces visibles (devant/dessus) confirmé par VLM
+   207→  - ✅ Cube 3D rouge rotatif dans bandeau alerte confirmé
+   208→  - ✅ Coin plié en haut à droite du bandeau confirmé
+   209→  - ✅ Badge URGENT rouge confirmé
+   210→  - ✅ Effet de profondeur (dégradé + ombre) confirmé
+   211→- Lint clean (0 erreur sur dashboard-view)
+   212→- Page charge en 200, aucune erreur runtime
+   213→- L'en-tête "Tableau de bord" et le bandeau d'alerte critique sont maintenant des éléments 3D animés avec cubes rotatifs, parallaxe souris, profondeur translateZ, anneaux pulsants et badge flottant
+   214→
+   215→---
+   216→Task ID: 7
+   217→Agent: main
+   218→Task: Graphismes section Rentabilité (waterfall + jauges + barre empilée)
+   219→
+   220→Work Log:
+   221→- Création du composant RentabiliteSection (remplace les 4 KpiCards simples) :
+   222→  - Ligne 1 : 4 cartes RentabiliteKpi avec mini jauges circulaires SVG (anneau progressif animé)
+   223→    - CA (vert, 100%, 2.3M) · Coût achat (rouge, 73%, 1.7M) · Coût engrais (orange, 8%, 178k) · Marge (teal, 17%, 403k)
+   224→    - Chaque carte : halo couleur flou, valeur tabular, hint + sub "% du CA", icône centrée dans mini anneau
+   225→  - Ligne 2 gauche (2/3) : Waterfall chart SVG personnalisé "Cascade de marge"
+   226→    - 4 barres : CA (vert, pleine) → Coût achat (rouge, descendante) → Coût engrais (orange, descendante) → Marge (teal, pleine)
+   227→    - Lignes de liaison pointillées animées entre barres (pathLength 0→1)
+   228→    - Animation progressive des barres (height + y, stagger 0.2s)
+   229→    - Valeurs affichées au-dessus de chaque barre
+   230→    - Dégradé overlay blanc sur chaque barre
+   231→    - Légende + total coûts (1.9 M)
+   232→  - Ligne 2 droite (1/3) : Carte "Taux de marge" avec 3 visualisations
+   233→    - Jauge demi-circulaire SVG : arc fond gris + arc dégradé vert (gMargeGauge) animé (strokeDashoffset)
+   234→    - Aiguille noire rotative (-90° → position %) + cercle central
+   235→    - Texte central 17% + montant 403k
+   236→    - Barre horizontale empilée "Composition du CA" :
+   237→      - Rouge (coût achat 73%) + Orange (engrais 8%) + Vert (marge 17%)
+   238→      - Animation width 0→valeur, stagger 0.2s
+   239→      - Labels couleur sous chaque segment
+   240→    - Encart "Marge par tête" en gradient primary avec text-gradient (100 625 FCFA)
+   241→
+   242→Stage Summary:
+   243→- Vérification VLM confirme tous les graphismes :
+   244→  - ✅ 4 cartes KPI avec mini jauges circulaires
+   245→  - ✅ Waterfall avec barres verte/rouge/orange/teal + liaisons
+   246→  - ✅ Jauge demi-circulaire avec aiguille (17%)
+   247→  - ✅ Barre empilée horizontale rouge/jaune/verte
+   248→  - ✅ Encart Marge par tête (100 625 FCFA)
+   249→- Valeurs exactes confirmées : CA 2.3M, coût achat 1.7M (73%), engrais 178k (8%), marge 403k (17%), marge/tête 100 625 FCFA
+   250→- Lint clean, page charge en 200, aucune erreur runtime
+   251→- La section Rentabilité passe de 4 cartes simples à 4 KPI graphiques + waterfall + jauge + barre empilée + encart
+   252→
+   253→---
+   254→Task ID: 8
+   255→Agent: main
+   256→Task: Variation couleurs donut cheptel + couleurs ventilation des coûts
+   257→
+   258→Work Log:
+   259→- Donut "Répartition du cheptel" : variation des 3 couleurs pour distinction visuelle
+   260→  - En engraissement : vert émeraude (gradient gActif #10B981 → #34D399) — inchangé
+   261→  - Vendus : violet/lavande (gradient gVendu #8B5CF6 → #A78BFA) — CHANGÉ de teal à violet
+   262→  - Mortalité : rouge corail (gradient gMort #EF4444 → #FCA5A5) — inchangé
+   263→- BarChart "Ventilation des coûts" : 3 barres avec couleurs demandées + Cell components
+   264→  - Achat bovin : ORANGE #F59E0B (value: coutAchat ~1.7M)
+   265→  - Alimentation : VERT #10B981 (value: alimentation.coutTotal ~5M)
+   266→  - Autres coûts : BLEU #3B82F6 (value: coutEngraissement ~178k)
+   267→  - Ajout de <Cell> children dans <Bar> pour appliquer les couleurs individuelles
+   268→  - Suppression de l'ancienne barre "CA" (4→3 barres)
+   269→
+   270→Stage Summary:
+   271→- Vérification VLM donut : 3 segments distincts confirmés (vert majoritaire, violet, rouge corail)
+   272→- Vérification VLM ventilation : 3 barres confirmées
+   273→  - Orange "Achat bovin" (~1.5M)
+   274→  - Vert "Alimentation" (~5M, la plus haute)
+   275→  - Bleu "Autres coûts" (~0.2M)
+   276→- Lint clean, page charge en 200
+   277→- Couleurs cohérentes avec la demande utilisateur
+   278→
+   279→---
+   280→Task ID: 9
+   281→Agent: main
+   282→Task: 3 optimisations : vraies données évolution + prefers-reduced-motion + lazy-load
+   283→
+   284→Work Log:
+   285→
+   286→1. BRANCHER L'ÉVOLUTION MENSUELLE SUR LES VRAIES DONNÉES
+   287→   - src/lib/calculations.ts :
+   288→     - Ajout paramètre `depenses?: Depense[]` à computeDashboardFromData
+   289→     - Nouvelle fonction dataMonths() : trouve earliest + latest dates parmi toutes les données (bovins.dateAchat, dateVente, alimentations.date, depenses.date), génère les mois intermédiaires (min 6, max 18). Si la période dépasse 18 mois, garde les 18 plus récents.
+   290→     - Évolution mensuelle RÉELLE : pour chaque mois → ca = sum(prixVente bovins vendus ce mois), couts = sum(prixAchat bovins achetés) + sum(coutTotal alimentations) + sum(montant depenses), marge = ca - couts
+   291→     - Ventes par mois RÉELLES : ventes = sum(prixVente), nbTetes = count bovins vendus
+   292→     - Suppression des données hardcodées (Fév-Sep 2025)
+   293→   - src/app/api/dashboard/route.ts : ajout fetch db.depense.findMany + toDepense + passage à computeDashboardFromData
+   294→   - Vérification API : données réelles confirmées (mai 620k CA, juin 1.15M CA, août 540k CA ; coûts réels par mois)
+   295→
+   296→2. SUPPORT PREFERS-REDUCED-MOTION
+   297→   - src/app/globals.css : ajout media query @media (prefers-reduced-motion: reduce) qui :
+   298→     - Force animation-duration: 0.01ms, iteration-count: 1, transition-duration: 0.01ms
+   299→     - Neutralise .animate-float, .pulse-glow, .shimmer, .animate-gradient
+   300→     - Désactive animations sur .recharts-surface et .recharts-default-tooltip
+   301→   - src/app/layout.tsx : wrap app dans <MotionConfig reducedMotion="user"> — Framer Motion respecte automatiquement la préférence système (désactive transforms animés, garde transitions d'opacité)
+   302→
+   303→3. OPTIMISATION LAZY-LOAD DES GRAPHIQUES
+   304→   - src/components/lazy-mount.tsx (NOUVEAU) : composant IntersectionObserver
+   305→     - Ne rend les enfants qu'à l'entrée dans le viewport (rootMargin 200px pour précharger)
+   306→     - Placeholder Skeleton avec minHeight pour éviter le saut de layout
+   307→     - Fallback SSR : si IntersectionObserver indispo → mount immédiat (via useState initializer, pas de setState synchrone dans effect)
+   308→     - Se déconnecte après 1er déclenchement (optimize)
+   309→   - src/components/views/dashboard-view.tsx : 7 graphiques lourds enveloppés dans <LazyMount> :
+   310→     - Donut "Répartition du cheptel"
+   311→     - AreaChart "Évolution mensuelle"
+   312→     - RadialBar "Taux de marge"
+   313→     - RadialBar "Taux d'utilisation financement"
+   314→     - BarChart "Ventilation des coûts"
+   315→     - RadarChart "Profil de performance"
+   316→     - ComposedChart "Ventes & têtes"
+   317→   - Chaque LazyMount affiche un <Skeleton> avant montage → réduit TTI et charge GPU/CPU au chargement initial
+   318→
+   319→Stage Summary:
+   320→- API /api/dashboard retourne vraies données : mai(620k CA / 1.69M coûts / -1.07M marge), juin(1.15M / 1.25M / -95k), août(540k / 690k / -150k)
+   321→- Ventes par mois réelles : mai(620k, 1 tête), juin(1.15M, 2 têtes), août(540k, 1 tête)
+   322→- VLM confirme AreaChart avec dégradés vert/rouge/jaune + données non nulles
+   323→- prefers-reduced-motion : CSS + MotionConfig reducedMotion="user" (désactive rotations 3D, cube rotatif, flottement)
+   324→- LazyMount : 7 graphiques différés → charge initiale allégée, skeletons préviennent le CLS
+   325→- Lint clean (0 erreur sur mes fichiers ; 1 erreur préexistante dans parametres-view.tsx non touché)
+   326→- Page charge en 200, aucune erreur runtime/console
+   327→
+   328→---
+   329→Task ID: 10
+   330→Agent: main
+   331→Task: Rapport Bailleur selon modèle Excel E2A (Tableau de Bord SAVERDEV)
+   332→
+   333→Work Log:
+   334→- Analyse du fichier upload "Tableau de Bord SAVERDEV_E2A.xlsx" :
+   335→  - Sheet "Données" : 12 mois × 18 colonnes (Bovins actifs, Achats, Ventes, Mortalité, Valeur cheptel, Sacs, Coût alim, CA, Coût achat, Coût engrais, Marge, Coût alim/tête, Marge/tête, Financement accordé, Financement utilisé, Trésorerie, Taux util.) + Structure des coûts (Achat/Alim/Engrais)
+   336→  - Sheet "Tableau de Bord" : 6 KPI colorés + 6 graphiques (Area, Bar×3, Line, Doughnut)
+   337→  - Couleurs exactes : Bovins actifs #1E7B34, CA #1E6091, Marge #14532A, Marge/tête #0F766E, Taux util #E0A008, Trésorerie #8D6E63
+   338→
+   339→- src/lib/types.ts : ajout interfaces RapportMensuel (18 champs), StructureCouts, RapportBailleur
+   340→- src/app/api/rapport-bailleur/route.ts (NOUVEAU) :
+   341→  - GET /api/rapport-bailleur?annee=YYYY
+   342→  - Auto-détection de l'année : si l'année demandée n'a pas de données → prend l'année de l'activité la plus récente
+   343→  - Pour chaque mois (Jan-Déc) : calcule bovins actifs (fin de mois), achats, ventes, mortalité, valeur cheptel, sacs, coût alim, CA, coût achat vendus, coût engrais vendus, marge, coût alim/tête, marge/tête, financement utilisé cumul, trésorerie, taux util
+   344→  - Retourne KPIs synthétiques + monthly[12] + costStructure + alertes
+   345→- src/lib/api.ts : ajout hook useRapportBailleur(annee?)
+   346→- src/components/views/rapport-bailleur-view.tsx : REFAITE selon le modèle Excel
+   347→  - En-tête vert foncé #14532A avec logo SAVERDEV
+   348→  - 6 KPI colorés (couleurs exactes Excel) avec motion d'apparition
+   349→  - 6 graphiques Recharts avec LazyMount (h-full) :
+   350→    1. AreaChart "Évolution du cheptel" (bovins actifs/mois, dégradé vert)
+   351→    2. BarChart "Achats vs Ventes" (bleu + vert)
+   352→    3. BarChart "CA & marge" (bleu + vert foncé)
+   353→    4. LineChart "Marge/tête & coût alim./tête" (teal + ambre)
+   354→    5. Pie/Donut "Structure des coûts" (orange achat, vert alim, bleu engrais)
+   355→    6. BarChart "Financement vs trésorerie" (ambre + marron)
+   356→  - Annexe : tableau récapitulatif mensuel (12 lignes × 9 colonnes) + échéances + alertes
+   357→- Fix bugs :
+   358→  - Doughnut/DoughnutChart n'existent pas dans Recharts → remplacé par Pie/PieChart avec innerRadius
+   359→  - LazyMount height={220} causait hauteur 0 (ResponsiveContainer height:100% sans parent height) → className="h-full" pour remplir le CardContent
+   360→
+   361→Stage Summary:
+   362→- API /api/rapport-bailleur retourne vraies données : 10 bovins actifs, CA 2.3M, marge 403k, marge/tête 100 625, taux 42%, trésorerie -1.9M
+   363→- VLM confirme les 6 graphiques rendent avec données :
+   364→  - ✅ AreaChart : courbe croissance 2→11 (janv→juil) puis plateau 10
+   365→  - ✅ BarChart Achats/Ventes : barres bleues (achats) + vertes (ventes) par mois
+   366→  - ✅ BarChart CA/marge : axe Y "1,2 M"
+   367→  - ✅ LineChart : axe Y "300 k"
+   368→  - ✅ Donut structure coûts : 3 segments (vert, orange, bleu)
+   369→  - ✅ BarChart financement/trésorerie : barres jaunes (+) et marron (-)
+   370→- Lint clean (0 erreur sur nouveaux fichiers)
+   371→- Rapport bailleur fidèle au modèle Excel E2A avec couleurs exactes et 6 graphiques
+   372→
+   373→---
+   374→Task ID: 11
+   375→Agent: main
+   376→Task: Capital initial statique + mouvements manuels horodatés (sans toucher au capital initial)
+   377→
+   378→Work Log:
+   379→- Ajout de 2 modèles Prisma au schéma :
+   380→  - CapitalMouvement (id, date DateTime avec heure/minutes, libelle, type ENTREE/SORTIE, montant, saisiePar, createdAt) + enum CapitalType
+   381→  - Parametre (id, cle unique, valeur string, updatedAt) — stocke le capital initial sans toucher aux mouvements
+   382→- Tables créées directement en SQL SQLite (db:push impossible car schéma = postgresql mais URL = sqlite). Parametre "capital_initial" = 14 775 000 FCFA par défaut
+   383→- Client Prisma régénéré temporairement en provider=sqlite (puis schéma remis en postgresql pour préserver le déploiement Vercel/Neon)
+   384→- API /api/saisie (route.ts) :
+   385→  - GET type=financement : récupère capital initial STATIQUE depuis Parametre + liste CapitalMouvement triée par date ASC, calcule soldeApres en cascade, renvoie capitalInitial + totalEntrees + totalSorties + soldeRestant + nbMouvements + mouvements (avec date "JJ/MM/AAAA HH:MM" + dateISO + typeLabel + saisiePar). Liste renvoyée en ordre antéchronologique pour l'affichage
+   386→  - POST type=capital_mouvement : crée un nouveau mouvement avec date/heure/minutes (datetime-local), type ENTREE/SORTIE, montant, libelle, saisiePar — sans modifier le capital initial
+   387→  - POST type=capital_initial_update : met à jour la valeur du capital initial dans Parametre (paramétrage rare, ne touche pas aux mouvements existants)
+   388→  - POST type=capital_mouvement_delete : supprime un mouvement par id (sans toucher au capital initial)
+   389→- format.ts : ajout formatDateTime(iso) → "JJ/MM/AAAA HH:MM" + nowDateTimeLocal() → "YYYY-MM-DDTHH:MM" pour les inputs datetime-local
+   390→- saisie-view.tsx (modal "Suivi du capital") :
+   391→  - Bloc "CAPITAL INITIAL (FIGÉ)" toujours visible en haut (14 775 000 FCFA) avec note "Cette valeur n'est jamais modifiée par les mouvements ci-dessous"
+   392→  - 3 cellules résumé : AJOUTS (+ total entrées) | RETRAITS (− total sorties) | SOLDE ACTUEL
+   393→  - Formulaire d'ajout d'un mouvement :
+   394→    - Input datetime-local (date + heure + minutes) pré-rempli avec maintenant
+   395→    - Select "Sens de l'opération" (− Retrait SORTIE / + Ajout ENTREE) — bouton de soumission change de couleur (rouge/emerald) et de libellé selon le sens
+   396→    - Input montant (number, tabular-nums)
+   397→    - Input libellé/motif
+   398→  - Historique des opérations trié récent → ancien, avec :
+   399→    - Bande couleur à gauche (rouge sortie / vert entrée)
+   400→    - Libellé + date "JJ/MM/AAAA HH:MM" + typeLabel ("Ajout (entrée)" / "Retrait (sortie)") + saisiePar
+   401→    - Montant signé +/− + solde après
+   402→    - Bouton "Supprimer ce mouvement" (icône alerte) — supprime sans toucher au capital
+   403→  - Liste scrollable (max-h-80 overflow-y-auto) pour gérer un grand nombre de mouvements
+   404→  - Animations Framer Motion en cascade ( stagger 0.04s, layout animations)
+   405→
+   406→Stage Summary:
+   407→- Vérification Agent Browser end-to-end :
+   408→  - Login Bénéficiaire → navigation Saisie → clic "Suivi financement" → modal s'ouvre
+   409→  - ✅ Bloc "CAPITAL INITIAL (FIGÉ) — 14 775 000 FCFA" affiché avec note explicative
+   410→  - ✅ 3 cellules AJOUTS (+350 000) / RETRAITS (−225 000) / SOLDE ACTUEL (14 900 000) correctes
+   411→  - ✅ Formulaire datetime-local + select sens + montant + libellé fonctionnels
+   412→  - ✅ Bouton change dynamiquement : "− Soustraire du capital" (rouge) ↔ "+ Ajouter au capital" (vert) selon le sens choisi
+   413→  - ✅ Ajout d'un mouvement "Test agent browser" 200 000 → rechargement automatique, nouveau solde 14 700 000 calculé correctement
+   414→  - ✅ Suppression d'un mouvement → retrait de la liste + recalcul du solde (capital initial intact)
+   415→  - ✅ 3 mouvements d'exemple affichés avec horodatage complet : "15/10/2025 09:30 · Retrait (sortie) · Achat 5 sacs son · − 150 000 · Solde 14 625 000" etc.
+   416→- Aucune erreur runtime/compile/hydratation
+   417→- Lint clean (0 erreur sur fichiers modifiés)
+   418→- Le capital initial de 14 775 000 FCFA reste STATIQUE et TOUJOURS VISIBLE, peu importe le nombre d'ajouts/retraits
+   419→- Chaque opération (ENTREE ou SORTIE) est horodatée avec jour + heure + minutes et peut être supprimée individuellement
+   420→
+   421→---
+   422→Task ID: 12
+   423→Agent: main
+   424→Task: Aligner les couleurs de "Ventilation des coûts" sur "Structure des coûts (cumul)"
+   425→
+   426→Work Log:
+   427→- Constat : la vue Rentabilité (rentabilite-view.tsx) utilisait des couleurs divergentes pour son pie chart "Ventilation des coûts" :
+   428→  - Achat bovins → CHART_COLORS.marronTerre (#14B8A6 teal)
+   429→  - Alimentation → CHART_COLORS.vertClair (#34D399 vert clair)
+   430→  - Autres coûts → CHART_COLORS.bleuCiel (#34D399 — même valeur que vertClair !)
+   431→  Tandis que le rapport bailleur (rapport-bailleur-view.tsx) utilisait COST_STRUCTURE_COLORS via DOUGHNUT_COLORS :
+   432→  - Achat des bovins → PALETTE.amber (#F59E0B orange)
+   433→  - Alimentation → PALETTE.primary (#10B981 vert)
+   434→  - Engraissement (autres) → #3B82F6 (bleu)
+   435→- rentabilite-view.tsx : ajout import { COST_STRUCTURE_COLORS } depuis "@/lib/config"
+   436→  - repartitionCouts mis à jour :
+   437→    - Achat bovins → COST_STRUCTURE_COLORS.achatBovin (orange #F59E0B)
+   438→    - Alimentation → COST_STRUCTURE_COLORS.alimentation (vert #10B981)
+   439→    - Autres coûts → COST_STRUCTURE_COLORS.autresCouts (bleu #3B82F6)
+   440→  - Commentaire "Mêmes couleurs que le donut Structure des coûts (cumul) du rapport bailleur"
+   441→- dashboard-view.tsx : ajout import { COST_STRUCTURE_COLORS } depuis "@/lib/config"
+   442→  - BarChart "Ventilation des coûts" refactoré pour utiliser COST_STRUCTURE_COLORS.achatBovin/.alimentation/.autresCouts
+   443→    (au lieu des couleurs hardcodées #F59E0B/#10B981/#3B82F6 — visuellement identique mais source unique)
+   444→  - Cohérence totale : dashboard + rentabilité + rapport bailleur utilisent tous COST_STRUCTURE_COLORS
+   445→- Fix préexistant bonus : la table SQLite Bovin manquait les colonnes espece et gestionnaire (déclarées dans le schéma Prisma mais non créées en DB locale)
+   446→  - Ajout via ALTER TABLE Bovin ADD COLUMN espece TEXT NOT NULL DEFAULT "BOVIN"
+   447→  - Ajout via ALTER TABLE Bovin ADD COLUMN gestionnaire TEXT NOT NULL DEFAULT "SAVERDEV"
+   448→  - → APIs /api/dashboard et /api/bovins retournent à nouveau HTTP 200 (au lieu de 500 PrismaClientKnownRequestError P2022)
+   449→
+   450→Stage Summary:
+   451→- Vérification VLM end-to-end :
+   452→  - Vue Rentabilité → pie chart "Ventilation des coûts" : 3 segments (orange 91% Achat bovins, vert 8% Alimentation, bleu 1% Autres coûts) ✓
+   453→  - Rapport bailleur → donut "Structure des coûts (cumul)" : 3 segments (orange Achat des bovins, vert émeraude Alimentation, bleu vif Engraissement) ✓
+   454→  - Couleurs IDENTIQUES entre les 2 graphiques ✓
+   455→- Lint clean (0 erreur sur fichiers modifiés)
+   456→- Page Rentabilité, Dashboard et Rapport bailleur chargent en 200, aucune erreur runtime/compile
+   457→- Source de vérité unique : COST_STRUCTURE_COLORS dans src/lib/config.ts (orange achatBovin, vert alimentation, bleu autresCouts)
+   458→

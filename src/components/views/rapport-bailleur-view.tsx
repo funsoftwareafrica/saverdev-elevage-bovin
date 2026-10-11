@@ -301,7 +301,7 @@ export function RapportBailleurView() {
           {/* Alertes & faits marquants */}
           <div>
             <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-              <HugeiconsIcon icon={AlertCircle} size={12} className=".5 .5" /> Alertes & faits marquants
+              <HugeiconsIcon icon={AlertCircle} size={12} className="shrink-0" /> Alertes & faits marquants
             </h4>
             <div className="space-y-2">
               {rap.alertes.filter((a) => !a.resolved).map((a) => (

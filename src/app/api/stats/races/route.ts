@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { computeBovinMarge } from "@/lib/calculations";
+import { toBovin } from "@/lib/server-mappers";
 
 export async function GET() {
   const bovins = await db.bovin.findMany({ orderBy: { identifiant: "asc" } });
@@ -15,7 +16,7 @@ export async function GET() {
     const vendus = list.filter((b) => b.statut === "VENDU");
     const actifs = list.filter((b) => b.statut === "EN_ENGRAISSEMENT");
     const marges = vendus.map((b) => {
-      const { marge } = computeBovinMarge({ ...b, dateAchat: b.dateAchat.toISOString(), dateVente: b.dateVente?.toISOString() ?? null } as any);
+      const { marge } = computeBovinMarge(toBovin(b));
       return marge ?? 0;
     });
     const margeTotale = marges.reduce((s, m) => s + m, 0);

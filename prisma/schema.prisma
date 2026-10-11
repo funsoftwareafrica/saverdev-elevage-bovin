@@ -52,6 +52,8 @@ model Bovin {
 
   alimentations     AlimentationBovin[]
   depenses          DepenseBovin[]
+  pesees            Pese[]
+  soins             Soin[]
 
   @@index([statut])
   @@index([espece])
@@ -259,8 +261,83 @@ enum CapitalType {
 
 // ---------- Paramètres applicatifs (capital initial, seuils, etc.) ----------
 model Parametre {
+  id          String   @id @default(cuid())
+  cle         String   @unique            // ex: "capital_initial"
+  valeur       String                       // valeur sérialisée (string)
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------- Pâturages (géolocalisation des parcelles) ----------
+model Paturage {
+  id          String   @id @default(cuid())
+  nom         String
+  surface     Float                          // hectares
+  coordonnees String?                       // "lat,lng" ou adresse
+  capacite    Int                            // nb bovins
+  createdAt   DateTime @default(now())
+
+  @@index([nom])
+}
+
+// ---------- Pesées connectées (suivi poids bovin) ----------
+model Pese {
   id        String   @id @default(cuid())
-  cle       String   @unique            // ex: "capital_initial"
-  valeur     String                       // valeur sérialisée (string)
-  updatedAt DateTime @updatedAt
+  bovinId   String
+  date      DateTime @default(now())
+  poids     Float                           // kg
+  methode   String   @default("Manuelle")   // "Manuelle" | "Connectée"
+  createdAt DateTime @default(now())
+
+  bovin     Bovin?   @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+
+  @@index([bovinId])
+  @@index([date])
+}
+
+// ---------- Soins vétérinaires (carnet de santé) ----------
+model Soin {
+  id              String    @id @default(cuid())
+  bovinId         String
+  date            DateTime  @default(now())
+  type            String                          // "Contrôle" | "Vaccin" | "Traitement" | ...
+  libelle         String
+  cout            Float     @default(0)             // FCFA
+  prochainRappel  DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  bovin           Bovin?    @relation(fields: [bovinId], references: [id], onDelete: Cascade)
+
+  @@index([bovinId])
+  @@index([date])
+}
+
+// ---------- Notifications (centre de notifications) ----------
+model Notification {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  type      String                          // "ECHEANCE" | "BUDGET" | "MORTALITE" | ...
+  titre     String
+  message   String
+  lu        Boolean  @default(false)
+  lien      String?
+  userId    String?
+
+  @@index([date])
+  @@index([lu])
+}
+
+// ---------- Sauvegardes (backup JSON complet) ----------
+model Backup {
+  id        String   @id @default(cuid())
+  date      DateTime                          // date de la sauvegarde
+  filename  String   @unique
+  size      Int                               // bytes
+  type      String                            // "manual" | "auto"
+  entities  Int      @default(0)              // nb total d'entités exportées
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([type])
 }
