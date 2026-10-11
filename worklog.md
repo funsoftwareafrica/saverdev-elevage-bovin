@@ -957,3 +957,47 @@ Stage Summary:
 - Appréciation critique honnête : 10 points forts + 8 axes d'amélioration + note 8,5/10
 - Téléchargement toujours fonctionnel : http://localhost:3000/api/guide-pdf (HTTP 200, 70 757 octets, Content-Disposition: attachment)
 - Le guide PDF est désormais COMPLET : 10 modules principaux détaillés + 6 modules complémentaires + inventaire de TOUS les fichiers du projet + 10 mises à jour prévues + appréciation critique globale
+
+---
+Task ID: 17
+Agent: main
+Task: Ajout section "Appréciation globale SAVERDEV" + "Tous les fichiers du projet" au guide PDF
+
+Work Log:
+- Constat utilisateur : "quel est l'intérêt de vente ici ? oubien tu as oublié ? il faut également donner ton appreciation"
+  → Vérification : la section 9 « Ventes » du guide détaillait DÉJÀ l'intérêt du module (4 rôles : enregistrer la sortie, figer le coût de revient, calculer la marge, alimenter le journal 4111/7011) + note "Pourquoi c'est crucial"
+  → Ajout demandé : section d'appréciation globale du projet + inventaire de tous les fichiers
+- Script scripts/generate_guide_pdf.py enrichi avec 2 nouvelles sections :
+  - Section 18 « Tous les fichiers du projet (inventaire) » (pages 23-26) :
+    - 18.1 Vues (interfaces utilisateur) — tableau de 17 vues (login, dashboard, saisie, bovins, fiche-bovin, alimentation, depenses, ventes, rentabilite, financement, rapport-bailleur, carte-3d, paturages, pesees, tresorerie, bailleur-synthese, parametres, _shared)
+    - 18.2 API Routes (backend) — tableau de 22 endpoints (/api/auth, dashboard, bovins, alimentation, depenses, ventes, saisie, financement, rapport-bailleur, alertes, historique, stats/comparaison, stats/races, paturages, pesees, soins, notifications, backup, parametres, tresorerie, validations, guide-pdf)
+    - 18.3 Bibliothèque & utilitaires (lib) — 12 fichiers (db, auth, config, types, store, api, calculations, server-mappers, format, icons, offline-db, backup)
+    - 18.4 Schéma & scripts base de données — 19 modèles Prisma listés + scripts
+    - 18.5 Composants d'application & UI — app-sidebar, app-header, app-footer, saverdev-logo, lazy-mount, query-provider, session-provider, theme-provider, animated-counter, shimmer-skeleton, ripple-button, network-status, ui/* (56 composants shadcn)
+    - 18.6 Pages Next.js & config — page.tsx, layout.tsx, globals.css, proxy.ts, manifest.json, guide-saverdev.pdf, logos, next.config.ts, tailwind.config.ts, vercel.json, .env
+    - Note finale : total 17 vues + 22 endpoints + 12 lib + 19 modèles + 56 UI composants + stack complet
+  - Section 19 « Appréciation globale de l'application SAVERDEV » (pages 27-28) :
+    - 19.1 Évaluation par module — tableau 10 modules × 3 colonnes (Points forts / À améliorer)
+      - Tableau de bord, Saisie, Cheptel, Alimentation, Dépenses, Ventes, Rentabilité, Financement, Rapport bailleur, Carte 3D
+      - Chaque module avec Points forts ET Axes d'amélioration identifiés
+    - 19.2 Points forts globaux — 10 atouts majeurs (architecture pro, partie double, capital statique, mode hors ligne, PWA, 3 rôles, rapport E2A fidèle, palette cohérente, accessibilité, cohérence couleurs ventilation/structure)
+    - 19.3 Axes d'amélioration prioritaires — 8 évolutions numérotées (workflow validation, notifications push, export Excel, mobile natif, budget prévisionnel, dashboard personnalisable, calendrier vaccinal, sauvegarde auto)
+    - 19.4 Note globale — analyse qualitative + note finale chiffrée
+      - "Application mature, fonctionnelle et fiable, prête pour un usage quotidien en élevage"
+      - "Note finale : 8,5 / 10" — Application réussie, 1,5 points manquants correspondent aux évolutions de la section 19.3
+      - "SAVERDEV peut devenir une référence régionale en gestion d'élevage d'engraissement"
+- Sommaire mis à jour : 20 sections au total (au lieu de 18)
+- Renumérotation : ancienne section 18 (Contacts) → 20
+- Libellés boutons mis à jour : "PDF · 22 pages" → "PDF · 29 pages" sur page connexion + sidebar
+
+Stage Summary:
+- PDF régénéré : public/guide-saverdev.pdf — 29 pages (au lieu de 22), 69 Ko (au lieu de 49 Ko)
+- Accessible via : http://localhost:3000/api/guide-pdf (HTTP 200, 70 757 octets)
+- Header Content-Disposition: attachment (force le téléchargement)
+- Vérification VLM end-to-end :
+  - ✅ Page 23 : Section 18 « Tous les fichiers du projet » avec sous-sections 18.1 (Vues) + 18.2 (API Routes) visibles
+  - ✅ Page 27 : Section 19 « Appréciation globale » avec tableau 19.1 Évaluation par module (10 modules × 3 colonnes Points forts / À améliorer) + 19.2 Points forts globaux visibles
+  - ✅ Page 28 : Note finale « 8,5 / 10 » avec commentaire justificatif (Application mature, fonctionnelle et fiable)
+- Lint clean (0 erreur, 1 warning non bloquant)
+- Bouton de téléchargement : page de connexion + sidebar affichent "PDF · 29 pages"
+- Guide désormais COMPLET avec : 10 modules principaux + 6 modules complémentaires + 10 mises à jour prévues + inventaire de tous les fichiers + appréciation critique chiffrée

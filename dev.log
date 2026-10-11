@@ -12,4 +12,8 @@ https://nextjs.org/telemetry
 ✓ Ready in 1072ms
  GET /api/guide-pdf 200 in 562ms (compile: 421ms, proxy.ts: 103ms, render: 38ms)
  HEAD /api/guide-pdf 200 in 10ms (compile: 3ms, proxy.ts: 4ms, render: 3ms)
-ile: 3ms, proxy.ts: 4ms, render: 3ms)
+○ Compiling / ...
+ GET /api/guide-pdf 200 in 18ms (compile: 5ms, proxy.ts: 6ms, render: 7ms)
+ HEAD /api/guide-pdf 200 in 14ms (compile: 4ms, proxy.ts: 5ms, render: 6ms)
+ GET / 200 in 558ms (compile: 159ms, render: 399ms)
+558ms (compile: 159ms, render: 399ms)

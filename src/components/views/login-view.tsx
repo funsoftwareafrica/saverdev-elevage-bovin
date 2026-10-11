@@ -254,10 +254,10 @@ export function LoginView() {
             href="/api/guide-pdf"
             download
             className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-            title="Télécharger le guide d'utilisation PDF complet (22 pages, à destination du gérant Souleymane Zakaria)"
+            title="Télécharger le guide d'utilisation PDF complet (29 pages, à destination du gérant Souleymane Zakaria)"
           >
             <HugeiconsIcon icon={Download} size={14} />
-            <span>Télécharger le guide d'utilisation (PDF · 22 pages)</span>
+            <span>Télécharger le guide d'utilisation (PDF · 29 pages)</span>
           </a>
 
           {/* Pied de page */}
