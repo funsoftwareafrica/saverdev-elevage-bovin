@@ -1218,3 +1218,72 @@ Stage Summary:
   - Mac : Cmd+Shift+R
   - Alternative : ouvrir une fenêtre de navigation privée (qui n'a pas de cache)
 - Si l'utilisateur regarde la version déployée Vercel (https://saverdev.vercel.app), il ne verra pas les changements tant qu'on n'a pas poussé le code sur GitHub. Le déploiement Vercel trigger automatiquement sur push.
+
+---
+Task ID: 21
+Agent: main
+Task: Pesées — gestion des 2 espèces (bovins + ovins)
+
+Work Log:
+- Constat utilisateur : "pour la pesée ce n'est pas seulement les bovins mais aussi les ovins"
+- Audit pesees-view.tsx : le formulaire Pesées ne gérait PAS l'espèce
+  - Label "Bovin" (au lieu de "Animal")
+  - Description "Suivi du poids par bovin"
+  - KPI "Bovins pesés" (au lieu de "Animaux pesés")
+  - Colonne "Bovin" dans le tableau
+  - Pas de sélecteur d'espèce dans le formulaire
+  - Pas de filtre par espèce dans la liste
+- Audit API /api/pesees : ne retournait pas espece dans la réponse (select sans espece)
+
+- Corrections effectuées (3 fichiers) :
+
+1. **src/lib/types.ts** (ligne 182) :
+   - Ajout champ `espece: string` dans l'interface Pese
+
+2. **src/app/api/pesees/route.ts** (GET) :
+   - Ajout paramètre `espece` dans l'URL query (?espece=BOVIN ou ?espece=OVIN)
+   - Ajout de `espece: true` dans le select du findMany Bovin
+   - Filtre des pesées par espèce : `pesees.filter((p) => bovinMap.get(p.bovinId)?.espece === espece)`
+   - Ajout `espece: b?.espece ?? "BOVIN"` dans la réponse mappée
+
+3. **src/components/views/pesees-view.tsx** — réécriture complète :
+   - Ajout état `especeFilter` ("ALL" | "BOVIN" | "OVIN") pour le filtre de liste
+   - Ajout état `formEspece` ("BOVIN" | "OVIN") pour le formulaire de saisie
+   - Liste filtrée par especeFilter : `filteredList = especeFilter === "ALL" ? list : list.filter((p) => (p.espece ?? "BOVIN") === especeFilter)`
+   - Animaux disponibles filtrés par formEspece : `actifs = allActifs.filter((b) => b.espece === formEspece)`
+   - **Description changée** : "Suivi du poids par bovin" → "Suivi du poids par animal (bovins & ovins)"
+   - **Formulaire** : ajout sélecteur Espèce (Bovin BOE / Ovin OVN) + liste d'animaux filtrée par espèce
+   - **Filtre de liste** : 3 boutons (Toutes / 🐄 Bovins / 🐑 Ovins) avec état actif
+   - **KPI "Bovins pesés"** → **"Animaux pesés"** (distinctAnimaux calculé sur filteredList)
+   - **Tableau** : colonne "Bovin" → "Animal" + ajout colonne "Espèce" avec badge 🐑 Ovin / 🐄 Bovin
+   - **Message "Aucune pesée d'ovins/bovins enregistrée"** selon le filtre
+   - **Message formulaire** : "Aucun {Ovin/Bovin} disponible en engraissement" si liste vide
+
+- Vérification Agent Browser end-to-end :
+  - ✅ Login Bénéficiaire → sidebar → clic "Pesées" (via JS direct car agent-browser click sur e37/e83/e167 ne déclenche pas la navigation — workaround : agent-browser eval `document.querySelector('button')?.click()`)
+  - ✅ Page "Pesées connectées" s'affiche avec :
+    - Filtre par espèce : 3 boutons Toutes / 🐄 Bovins / 🐑 Ovins
+    - KPI Pesées / Poids moyen / Animaux pesés
+  - ✅ Clic sur "🐑 Ovins" → message "Aucune pesée d'ovins enregistrée." (cohérent car pas de pesée d'ovin en base)
+  - ✅ Clic "Nouvelle pesée" → formulaire avec :
+    - Sélecteur Espèce (Bovin BOE / Ovin OVN) — défaut Bovin
+    - Liste "Animal à peser" filtrée par espèce (10 bovins actifs : BOE-004 à BOE-014)
+    - Champs Poids (kg) + Méthode (Manuelle / Balance connectée / Estimée)
+  - ✅ Changement d'espèce → "Ovin (OVN)" → message "Aucun Ovin disponible en engraissement." (cohérent car tous les ovins sont déjà vendus en base)
+- Lint clean (0 erreur sur les 3 fichiers modifiés)
+
+Stage Summary:
+- La vue Pesées gère désormais correctement les 2 espèces à tous les niveaux :
+  - **Formulaire** : sélecteur Espèce + liste d'animaux filtrée par espèce
+  - **Filtre de liste** : 3 boutons (Toutes / 🐄 Bovins / 🐑 Ovins)
+  - **KPI** : "Animaux pesés" (au lieu de "Bovins pesés")
+  - **Tableau** : colonne "Animal" avec colonne "Espèce" (badge 🐑/🐄)
+  - **API** : paramètre ?espece=BOVIN|OVIN + champ espece dans la réponse
+  - **Type** : Pese.espece ajouté à l'interface TypeScript
+- L'application gère maintenant les 2 espèces (bovins BOE-xxx + ovins OVN-xxx) dans TOUS les modules :
+  - Achats (saisie) ✓
+  - Ventes (saisie + vue séparée) ✓
+  - Pesées ✓ NOUVEAU
+  - Dashboard (libellés "Animaux") ✓
+  - Rapport bailleur ✓
+  - Alimentation & Dépenses ✓

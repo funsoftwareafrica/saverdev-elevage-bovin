@@ -179,7 +179,7 @@ export type ViewKey =
   | "carte-3d"
   | "saisie";
 
-export interface Pese { id: string; bovinId: string; identifiant: string; race: string; date: string; poids: number; methode: string; }
+export interface Pese { id: string; bovinId: string; identifiant: string; race: string; espece: string; date: string; poids: number; methode: string; }
 export interface Parametre { id: string; cle: string; valeur: string; description: string | null; }
 export interface NotificationItem { id: string; date: string; type: string; titre: string; message: string; lu: boolean; lien: string | null; }
 export interface TresorerieProjection { mois: string; date: string; entrees: number; sorties: number; solde: number; soldeCumule: number; enRisque: boolean; }

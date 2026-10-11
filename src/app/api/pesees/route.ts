@@ -1,4 +1,4 @@
-// GET /api/pesees — liste des pesées (avec info bovin)
+// GET /api/pesees — liste des pesées (avec info animal : bovin ou ovin)
 // POST /api/pesees — enregistre une pesée
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -6,27 +6,34 @@ import { db } from "@/lib/db";
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const bovinId = url.searchParams.get("bovinId");
+  const espece = url.searchParams.get("espece"); // "BOVIN" ou "OVIN" — filtre optionnel
   const pesees = await db.pese.findMany({
     where: bovinId ? { bovinId } : undefined,
     orderBy: { date: "desc" },
   });
 
-  // Récupère les identifiants/races des bovins concernés (relation non déclarée dans le schema)
+  // Récupère les identifiants/races/espèces des animaux concernés (relation non déclarée dans le schema)
   const bovinIds = [...new Set(pesees.map((p) => p.bovinId))];
   const bovins = await db.bovin.findMany({
     where: { id: { in: bovinIds } },
-    select: { id: true, identifiant: true, race: true },
+    select: { id: true, identifiant: true, race: true, espece: true },
   });
   const bovinMap = new Map(bovins.map((b) => [b.id, b]));
 
+  // Filtre par espèce si demandé
+  const filtered = espece
+    ? pesees.filter((p) => bovinMap.get(p.bovinId)?.espece === espece)
+    : pesees;
+
   return NextResponse.json(
-    pesees.map((p) => {
+    filtered.map((p) => {
       const b = bovinMap.get(p.bovinId);
       return {
         id: p.id,
         bovinId: p.bovinId,
         identifiant: b?.identifiant ?? "—",
         race: b?.race ?? "—",
+        espece: b?.espece ?? "BOVIN",
         date: p.date.toISOString(),
         poids: p.poids,
         methode: p.methode,
