@@ -272,8 +272,10 @@ def build_story(styles):
         ("12.", "Rapport bailleur — modèle E2A"),
         ("13.", "Mode hors ligne &amp; synchronisation"),
         ("14.", "Suivi du capital initial (mouvements horodatés)"),
-        ("15.", "Astuces &amp; raccourcis pratiques"),
-        ("16.", "Contacts &amp; assistance"),
+        ("15.", "Modules complémentaires (Carte 3D, Pâturages, Pesées, Trésorerie, Paramètres, Synthèse bailleur)"),
+        ("16.", "Astuces &amp; raccourcis pratiques"),
+        ("17.", "Mises à jour prochaines — feuille de route"),
+        ("18.", "Contacts &amp; assistance"),
     ]
     toc_data = [[Paragraph(n, styles["cell_bold"]), Paragraph(t, styles["cell"])] for n, t in toc_items]
     toc_t = Table(toc_data, colWidths=[1.5*cm, 14.5*cm])
@@ -784,8 +786,74 @@ def build_story(styles):
     ))
     s.append(PageBreak())
 
-    # ---------- 15. ASTUCES ----------
-    s.append(Paragraph("15. Astuces &amp; raccourcis pratiques", styles["h1"]))
+    # ---------- 15. MODULES COMPLÉMENTAIRES ----------
+    s.append(Paragraph("15. Modules complémentaires", styles["h1"]))
+    s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
+    s.append(Paragraph(
+        "En plus des modules principaux décrits précédemment, l'application SAVERDEV "
+        "propose un ensemble de modules complémentaires accessibles depuis la barre "
+        "latérale. Ces modules enrichissent le pilotage de l'élevage et facilitent "
+        "la gestion quotidienne.",
+        styles["body"]))
+    s.append(Paragraph("15.1 Carte 3D — vue immersive du cheptel", styles["h2"]))
+    s.append(Paragraph(
+        "La <b>Carte 3D</b> propose une représentation visuelle interactive du "
+        "cheptel. Les bovins et ovins sont affichés sous forme de cubes 3D animés "
+        "avec un effet de parallaxe qui suit les mouvements de la souris. Les "
+        "animaux en retard de rentabilité sont signalés en rouge, ceux à bonne "
+        "marge en vert. Le badge <b>URGENT</b> flotte au-dessus des animaux "
+        "nécessitant une attention immédiate.",
+        styles["body"]))
+    s.append(note_box(
+        "<b>Astuce :</b> si les animations 3D ralentissent l'affichage, activez "
+        "la préférence système <i>réduire les animations</i> ; l'application "
+        "désactive automatiquement les rotations de cubes.",
+        styles))
+    s.append(Paragraph("15.2 Pâturages — gestion des zones", styles["h2"]))
+    s.append(Paragraph(
+        "Le module <b>Pâturages</b> recense les zones de pâturage exploitées : "
+        "nom, superficie (hectares), localisation, capacité d'accueil (nombre "
+        "de têtes) et taux d'occupation. Il permet de répartir le cheptel sur "
+        "les différentes zones pour éviter le surpâturage.",
+        styles["body"]))
+    s.append(Paragraph("15.3 Pesées — suivi du poids", styles["h2"]))
+    s.append(Paragraph(
+        "Le module <b>Pesées</b> enregistre les pesées régulières de chaque "
+        "animal. Chaque pesée est datée, effectuée par un opérateur identifié, "
+        "et liée à un bovin. Le suivi des courbes de poids permet d'évaluer "
+        "le GMQ (gain moyen quotidien) et d'ajuster l'alimentation.",
+        styles["body"]))
+    s.append(Paragraph("15.4 Trésorerie — liquidités", styles["h2"]))
+    s.append(Paragraph(
+        "Le module <b>Trésorerie</b> suit les liquidités de l'exploitation : "
+        "encaissements (ventes, apports), décaissements (achats, dépenses, "
+        "remboursements d'échéances), et solde net. Il complète le suivi du "
+        "capital initial en visualisant les flux financiers réels.",
+        styles["body"]))
+    s.append(Paragraph("15.5 Synthèse bailleur — vue SINERGI", styles["h2"]))
+    s.append(Paragraph(
+        "La <b>Synthèse bailleur</b> est une vue en lecture seule destinée au "
+        "bailleur SINERGI. Elle présente une synthèse consolidée du financement, "
+        "des échéances, de l'utilisation des fonds et de la rentabilité globale. "
+        "Accessible aux rôles SINERGI et E2A.",
+        styles["body"]))
+    s.append(Paragraph("15.6 Paramètres — configuration", styles["h2"]))
+    s.append(Paragraph(
+        "Le module <b>Paramètres</b> regroupe les réglages applicatifs : "
+        "capital initial (rarement modifié — utilisé comme référence statique), "
+        "seuils d'alertes (stock minimum, dépenses mensuelles maximales), "
+        "informations sur l'élevage, et préférences d'affichage.",
+        styles["body"]))
+    s.append(danger_box(
+        "<b>Attention :</b> la modification du capital initial dans les "
+        "paramètres ne supprime pas les mouvements déjà enregistrés. Elle "
+        "recalcule simplement le solde restant à partir de la nouvelle valeur. "
+        "À utiliser avec parcimonie.",
+        styles))
+    s.append(PageBreak())
+
+    # ---------- 16. ASTUCES ----------
+    s.append(Paragraph("16. Astuces &amp; raccourcis pratiques", styles["h1"]))
     s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
     s.append(Paragraph("Bonnes pratiques quotidiennes", styles["h2"]))
     s.append(ListFlowable([
@@ -818,8 +886,96 @@ def build_story(styles):
         styles))
     s.append(PageBreak())
 
-    # ---------- 16. CONTACTS ----------
-    s.append(Paragraph("16. Contacts &amp; assistance", styles["h1"]))
+    # ---------- 17. MISES À JOUR PROCHAINES ----------
+    s.append(Paragraph("17. Mises à jour prochaines — feuille de route", styles["h1"]))
+    s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
+    s.append(Paragraph(
+        "L'application SAVERDEV est en évolution continue. Voici les modules "
+        "et fonctionnalités prévus dans les prochaines mises à jour. "
+        "Cette feuille de route est indicative et peut évoluer selon les "
+        "priorités du bailleur et les retours du gérant.",
+        styles["body"]))
+    s.append(Paragraph("17.1 Workflow de validation à 2 niveaux", styles["h2"]))
+    s.append(Paragraph(
+        "Mise en place d'un <b>workflow d'approbation</b> : les saisies du "
+        "Bénéficiaire (achats, ventes, dépenses) seront marquées « EN_ATTENTE » "
+        "et devront être validées par l'administrateur E2A avant d'être prises "
+        "en compte dans les KPIs et le rapport bailleur. Cela renforce la "
+        "traçabilité et la fiabilité comptable.",
+        styles["body"]))
+    s.append(Paragraph("17.2 Sauvegarde automatique (Backup)", styles["h2"]))
+    s.append(Paragraph(
+        "Un module de <b>sauvegarde automatique</b> sera activé : export "
+        "périodique de la base de données (format JSON/CSV), archivage horodaté, "
+        "et restauration en un clic. Accessible au rôle E2A uniquement.",
+        styles["body"]))
+    s.append(Paragraph("17.3 Notifications temps réel", styles["h2"]))
+    s.append(Paragraph(
+        "Système de <b>notifications push</b> : alertes échéances, stock bas, "
+        "mortalité, dépenses hors budget. Les notifications seront affichées "
+        "en cloche en haut à droite et archivées dans un centre de notifications "
+        "consultable. Raccourcis <b>F8</b> et <b>alt+T</b> déjà disponibles.",
+        styles["body"]))
+    s.append(Paragraph("17.4 Module Soins vétérinaires", styles["h2"]))
+    s.append(Paragraph(
+        "Le module <b>Soins</b> centralisera les interventions vétérinaires : "
+        "vaccins, traitements antiparasitaires, interventions curatives. "
+        "Chaque soin sera daté, coûté, et imputable à un bovin ou à tout le "
+        "cheptel. Le calendrier vaccinal sera généré automatiquement.",
+        styles["body"]))
+    s.append(Paragraph("17.5 Comparaison de périodes & performance par race", styles["h2"]))
+    s.append(Paragraph(
+        "Deux nouveaux graphiques déjà en place seront enrichis : "
+        "<b>comparaison mois N vs mois N-1</b> (CA, coûts, marge) et "
+        "<b>performance par race</b> (marge moyenne/tête, durée engraissement, "
+        "taux de mortalité par race).",
+        styles["body"]))
+    s.append(Paragraph("17.6 Export Excel & impression étendue", styles["h2"]))
+    s.append(Paragraph(
+        "L'export PDF du <b>rapport bailleur</b> sera complété par un export "
+        "<b>Excel (.xlsx)</b> du tableau mensuel complet (12 mois × 18 colonnes). "
+        "L'impression du <b>tableau de bord</b> et de la <b>fiche bovin</b> "
+        "sera également disponible.",
+        styles["body"]))
+    s.append(Paragraph("17.7 Application mobile native", styles["h2"]))
+    s.append(Paragraph(
+        "L'<b>application mobile</b> (React Native / Expo) est en cours de "
+        "développement. Elle offrira : scan de codes QR pour identifier les "
+        "animaux en pickle, saisie rapide depuis le terrain, photos de profil "
+        "depuis l'appareil photo, et notifications push natives.",
+        styles["body"]))
+    s.append(Paragraph("17.8 Mode hors ligne avancé", styles["h2"]))
+    s.append(Paragraph(
+        "Amélioration du mode hors ligne : <b>file d'attente persistante</b> "
+        "(IndexedDB), <b>sync incrémentale</b> (seules les saisies modifiées "
+        "sont renvoyées), <b>conflit de version</b> géré automatiquement, et "
+        "<b>cache des données consultées</b> (cheptel, alimentation) accessible "
+        "hors ligne.",
+        styles["body"]))
+    s.append(Paragraph("17.9 Tableau de bord personnalisable", styles["h2"]))
+    s.append(Paragraph(
+        "Le tableau de bord deviendra <b>personnalisable</b> : choix des KPIs "
+        "affichés, réorganisation des blocs par glisser-déposer, et "
+        "<b>tableaux de bord dédiés</b> par rôle (vue synthétique pour SINERGI, "
+        "vue opérationnelle pour SAVERDEV, vue d'audit pour E2A).",
+        styles["body"]))
+    s.append(Paragraph("17.10 Rapports personnalisés", styles["h2"]))
+    s.append(Paragraph(
+        "Un <b>générateur de rapports</b> permettra de créer des rapports "
+        "personnalisés : sélection de la période, des indicateurs, des graphiques, "
+        "et du format (PDF, Excel, CSV). Idéal pour répondre aux demandes "
+        "spécifiques du bailleur ou des partenaires.",
+        styles["body"]))
+    s.append(warning_box(
+        "<b>Note :</b> les dates de livraison de ces mises à jour sont indicatives "
+        "et dépendent des priorités du bailleur SINERGI, des retours du gérant "
+        "SAVERDEV, et de la disponibilité de l'équipe E2A. N'hésitez pas à "
+        "formuler vos besoins via l'administrateur E2A.",
+        styles))
+    s.append(PageBreak())
+
+    # ---------- 18. CONTACTS ----------
+    s.append(Paragraph("18. Contacts &amp; assistance", styles["h1"]))
     s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
     s.append(Paragraph(
         "En cas de question, de problème technique ou de besoin d'assistance, "

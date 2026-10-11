@@ -162,7 +162,7 @@ export function AppSidebar({ activeView, role }: Props) {
               href="/api/guide-pdf"
               download
               className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-sidebar-accent/30 bg-sidebar-accent/30 px-3 py-2.5 text-xs font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
-              title="Télécharger le guide d'utilisation PDF (19 pages, pour le gérant)"
+              title="Télécharger le guide d'utilisation PDF (22 pages, pour le gérant)"
             >
               <HugeiconsIcon icon={Download} size={14} className="text-primary" />
               <span className="flex-1 text-left">Guide d'utilisation (PDF)</span>
@@ -182,7 +182,7 @@ export function AppSidebar({ activeView, role }: Props) {
         href="/api/guide-pdf"
         download
         className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-sidebar-accent/30 bg-sidebar-accent/30 px-3 py-2.5 text-xs font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
-        title="Télécharger le guide d'utilisation PDF (19 pages, pour le gérant)"
+        title="Télécharger le guide d'utilisation PDF (22 pages, pour le gérant)"
       >
         <HugeiconsIcon icon={Download} size={14} className="text-primary shrink-0" />
         <span className="flex-1 text-left">Guide d'utilisation (PDF)</span>

@@ -870,3 +870,47 @@ Stage Summary:
   1. La page de connexion (sans authentification nécessaire) — bouton vert sous les comptes démo
   2. La barre latérale (une fois connecté) — bouton en bas de la sidebar
 - L'utilisateur peut maintenant télécharger le guide sans difficulté
+
+---
+Task ID: 16
+Agent: main
+Task: Ajout sections "Modules complémentaires" + "Mises à jour prochaines" au guide PDF
+
+Work Log:
+- Constat : le guide PDF original (19 pages) ne couvrait que les 10 modules principaux de la sidebar.
+  Il manquait les modules complémentaires récemment ajoutés (Paturages, Pesées, Trésorerie, Paramètres, Carte 3D, Synthèse bailleur) et une feuille de route des mises à jour à venir.
+- Script scripts/generate_guide_pdf.py mis à jour :
+  - Sommaire mis à jour : 18 sections (au lieu de 16)
+  - NOUVELLE section 15 « Modules complémentaires » (6 sous-sections) :
+    - 15.1 Carte 3D — vue immersive du cheptel (cubes 3D animés, parallaxe souris, badge URGENT)
+    - 15.2 Pâturages — gestion des zones (superficie, localisation, capacité, taux d'occupation)
+    - 15.3 Pesées — suivi du poids (GMQ, courbes de poids)
+    - 15.4 Trésorerie — liquidités (encaissements, décaissements, solde net)
+    - 15.5 Synthèse bailleur — vue SINERGI (lecture seule, accessible SINERGI/E2A)
+    - 15.6 Paramètres — configuration (capital initial, seuils d'alertes, préférences)
+  - Renumérotation : ancienne section 15 (Astuces) → 16, ancienne section 16 (Contacts) → 18
+  - NOUVELLE section 17 « Mises à jour prochaines — feuille de route » (10 sous-sections) :
+    - 17.1 Workflow de validation à 2 niveaux (saisies marquées EN_ATTENTE + validation E2A)
+    - 17.2 Sauvegarde automatique (Backup JSON/CSV horodaté, restauration 1 clic)
+    - 17.3 Notifications temps réel (push + centre de notifications, F8/alt+T)
+    - 17.4 Module Soins vétérinaires (vaccins, antiparasitaires, calendrier auto)
+    - 17.5 Comparaison de périodes & performance par race (N vs N-1, marge/tête par race)
+    - 17.6 Export Excel & impression étendue (.xlsx mensuel + impression dashboard/fiche)
+    - 17.7 Application mobile native (React Native/Expo, scan QR, photos terrain)
+    - 17.8 Mode hors ligne avancé (file persistante, sync incrémentale, cache consulté)
+    - 17.9 Tableau de bord personnalisable (glisser-déposer, vues par rôle)
+    - 17.10 Rapports personnalisés (sélection période/indicateurs/graphiques/format)
+  - Note d'avertissement : dates indicatives, dépendent des priorités bailleur SINERGI
+
+Stage Summary:
+- PDF régénéré : public/guide-saverdev.pdf — 22 pages (au lieu de 19), 49 Ko (au lieu de 41 Ko)
+- QA ReportLab : 11 checks PASS (métadonnées, fonts embedded, pas d'overflow, marges symétriques, full-bleed couverture) + 1 warning non bloquant (ponctuation — en début de ligne)
+- Vérification VLM end-to-end sur les nouvelles pages :
+  - ✅ Page 18 (section 15) : « Modules complémentaires » avec 6 sous-sections 15.1 à 15.6 visibles
+  - ✅ Page 20 (section 17) : « Mises à jour prochaines — feuille de route » avec 9 sous-sections 17.1 à 17.9 visibles
+  - ✅ Page 22 (section 18) : « Contacts & assistance » avec tableau des contacts + procédure en cas de bug
+- Accessible via : http://localhost:3000/api/guide-pdf (HTTP 200, 50 201 octets)
+- Boutons de téléchargement conservés :
+  - Sur la page de connexion (sans login) — bouton vert « Télécharger le guide d'utilisation (PDF · 19 pages) » (texte à mettre à jour en 22 pages)
+  - Dans la sidebar (après login) — bouton « Guide d'utilisation (PDF) »
+- Guide désormais complet : 10 modules principaux + 6 modules complémentaires + 10 mises à jour prévues = couverture exhaustive du projet SAVERDEV

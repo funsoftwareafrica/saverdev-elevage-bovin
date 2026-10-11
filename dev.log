@@ -126,3 +126,14 @@ prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Al
 prisma:query SELECT SUM(`coutTotal`) AS `_sum$coutTotal` FROM (SELECT `main`.`Alimentation`.`coutTotal` FROM `main`.`Alimentation` WHERE (`main`.`Alimentation`.`date` >= ? AND `main`.`Alimentation`.`date` <= ?) LIMIT ? OFFSET ?) AS `sub`
  GET /api/stats/comparaison 200 in 130ms (compile: 53ms, proxy.ts: 8ms, render: 69ms)
  GET /api/guide-pdf 200 in 37ms (compile: 5ms, proxy.ts: 7ms, render: 25ms)
+ GET / 200 in 46ms (compile: 5ms, render: 40ms)
+ GET / 200 in 37ms (compile: 3ms, render: 34ms)
+ GET / 200 in 45ms (compile: 7ms, render: 37ms)
+ GET /api/guide-pdf 200 in 11ms (compile: 2ms, proxy.ts: 4ms, render: 4ms)
+✓ Compiled in 172ms
+✓ Compiled in 133ms
+✓ Compiled in 177ms
+ GET / 200 in 772ms (compile: 258ms, render: 514ms)
+ GET /api/guide-pdf 200 in 51ms (compile: 27ms, proxy.ts: 6ms, render: 18ms)
+ HEAD /api/guide-pdf 200 in 35ms (compile: 15ms, proxy.ts: 3ms, render: 16ms)
+ GET / 200 in 46ms (compile: 4ms, render: 42ms)
