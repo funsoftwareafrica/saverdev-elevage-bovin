@@ -21,6 +21,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle, ChevronDown, ChevronUp, Wifi, Scale, Landmark, Wallet } from "@/lib/icons";
 import { formatFCFA, formatDate, formatDateTime, nowDateTimeLocal, severiteColor } from "@/lib/format";
 import { addPendingEntry } from "@/lib/offline-db";
+import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
 
 interface JournalEntry {
@@ -54,7 +55,14 @@ const TYPE_CONFIG: Record<SaisieType, { label: string; icon: typeof Beef; color:
 };
 
 export function SaisieView() {
-  const [activeType, setActiveType] = useState<SaisieType | null>(null);
+  // Permet à la sidebar de pointer vers cette vue en présélectionnant un type
+  // (ex: bouton "Achats" → saisieInitialType = "achat")
+  const saisieInitialType = useAppStore((s) => s.saisieInitialType);
+  const setSaisieInitialType = useAppStore((s) => s.setSaisieInitialType);
+
+  const [activeType, setActiveType] = useState<SaisieType | null>(
+    saisieInitialType ?? null
+  );
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [alertes, setAlertes] = useState<Alerte[]>([]);
   const [showAlerts, setShowAlerts] = useState(true);
@@ -199,6 +207,16 @@ export function SaisieView() {
       window.removeEventListener("offline", handleOnlineChange);
     };
   }, []);
+
+  useEffect(() => {
+    // Si la sidebar a présélectionné un type (ex: bouton "Achats" → "achat"),
+    // on l'applique et on le consomme pour ne pas polluer la prochaine ouverture
+    // manuelle de la vue Saisie.
+    if (saisieInitialType) {
+      setActiveType(saisieInitialType);
+      setSaisieInitialType(null);
+    }
+  }, [saisieInitialType, setSaisieInitialType]);
 
   useEffect(() => {
     if (activeType) {

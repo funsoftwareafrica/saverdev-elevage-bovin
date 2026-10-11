@@ -16,12 +16,14 @@ interface AppState {
   view: ViewKey;
   selectedBovinId: string | null;
   selectedMonth: string; // ISO "YYYY-MM"
+  saisieInitialType: "achat" | "vente" | "depense" | "stock" | null;
   login: (user: AuthUser) => void;
   logout: () => void;
   setRole: (r: Role) => void;
   setView: (v: ViewKey) => void;
   openBovin: (id: string) => void;
   setSelectedMonth: (m: string) => void;
+  setSaisieInitialType: (t: "achat" | "vente" | "depense" | "stock" | null) => void;
 }
 
 const currentMonthISO = () => {
@@ -36,6 +38,7 @@ export const useAppStore = create<AppState>((set) => ({
   view: "dashboard",
   selectedBovinId: null,
   selectedMonth: currentMonthISO(),
+  saisieInitialType: null,
   login: (user) =>
     set({
       isAuthenticated: true,
@@ -50,6 +53,7 @@ export const useAppStore = create<AppState>((set) => ({
       role: "BENEFICIAIRE",
       view: "dashboard",
       selectedBovinId: null,
+      saisieInitialType: null,
     }),
   setRole: (role) =>
     set((s) => ({
@@ -59,6 +63,7 @@ export const useAppStore = create<AppState>((set) => ({
   setView: (view) => set({ view }),
   openBovin: (id) => set({ view: "fiche-bovin", selectedBovinId: id }),
   setSelectedMonth: (selectedMonth) => set({ selectedMonth }),
+  setSaisieInitialType: (saisieInitialType) => set({ saisieInitialType }),
 }));
 
 // helper local — délègue à ROLE_VIEWS (source unique de vérité dans types.ts)

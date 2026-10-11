@@ -155,9 +155,9 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 
 // Vues accessibles par rôle
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
-  BENEFICIAIRE: ["carte-3d","dashboard","saisie","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages"],
+  BENEFICIAIRE: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages"],
   SINERGI: ["dashboard","rentabilite","financement","rapport","bailleur-synthese"],
-  E2A: ["carte-3d","dashboard","saisie","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese"],
+  E2A: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese"],
 };
 
 export type ViewKey =
@@ -167,6 +167,7 @@ export type ViewKey =
   | "alimentation"
   | "depenses"
   | "ventes"
+  | "achats"
   | "rentabilite"
   | "financement"
   | "rapport"

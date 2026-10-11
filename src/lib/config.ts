@@ -4,8 +4,9 @@
 
 import type { IconSvgElement } from "@hugeicons/react";
 import {
-  Activity, Database, Package, CreditCard, TrendingUp, BarChart3,
+  Activity, Database, Package, CreditCard, BarChart3,
   Clock, FileText, Box, Plus, Wallet, Scale, Settings, Map, Landmark,
+  ShoppingCart, Beef,
 } from "@/lib/icons";
 import type { ViewKey } from "@/lib/types";
 
@@ -102,10 +103,11 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { key: "dashboard", label: "Tableau de bord", icon: Activity },
   { key: "saisie", label: "Saisie", icon: Plus },
+  { key: "achats", label: "Achats", icon: Beef },
   { key: "bovins", label: "Cheptel", icon: Database },
   { key: "alimentation", label: "Alimentation", icon: Package },
   { key: "depenses", label: "Dépenses", icon: CreditCard },
-  { key: "ventes", label: "Ventes", icon: TrendingUp },
+  { key: "ventes", label: "Ventes", icon: ShoppingCart },
   { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
   { key: "financement", label: "Financement", icon: Clock },
   { key: "tresorerie", label: "Trésorerie", icon: Wallet },

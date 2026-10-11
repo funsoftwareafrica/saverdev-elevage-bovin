@@ -22,6 +22,7 @@ interface Props {
 
 export function AppSidebar({ activeView, role }: Props) {
   const setView = useAppStore((s) => s.setView);
+  const setSaisieInitialType = useAppStore((s) => s.setSaisieInitialType);
   const user = useAppStore((s) => s.user);
   const logout = useAppStore((s) => s.logout);
   const isMobile = useIsMobile();
@@ -31,7 +32,15 @@ export function AppSidebar({ activeView, role }: Props) {
   const items = NAV_ITEMS.filter((i) => allowedKeys.has(i.key));
 
   const handleSelect = (key: ViewKey) => {
-    setView(key);
+    // Le raccourci "achats" ouvre la vue Saisie en présélectionnant le
+    // journal d'achats (type = "achat"). Idem pour un éventuel raccourci
+    // "ventes-saisie" ou "depenses-saisie" à venir.
+    if (key === "achats") {
+      setSaisieInitialType("achat");
+      setView("achats");
+    } else {
+      setView(key);
+    }
     setOpen(false);
   };
 

@@ -1001,3 +1001,48 @@ Stage Summary:
 - Lint clean (0 erreur, 1 warning non bloquant)
 - Bouton de téléchargement : page de connexion + sidebar affichent "PDF · 29 pages"
 - Guide désormais COMPLET avec : 10 modules principaux + 6 modules complémentaires + 10 mises à jour prévues + inventaire de tous les fichiers + appréciation critique chiffrée
+
+---
+Task ID: 18
+Agent: main
+Task: Ajout du module "Achats" dans la sidebar (raccourci direct vers Journal d'achats)
+
+Work Log:
+- Constat utilisateur : "pourquoi je ne vois pas achat ?"
+  → Avant : le journal d'achats était enfoui dans Saisie → 1er bouton "Journal d'achats"
+  → L'utilisateur s'attendait à voir "Achats" comme module séparé dans la sidebar, symétriquement à "Ventes"
+- Solution : créer un raccourci "Achats" dans la sidebar qui ouvre directement la vue Saisie en présélectionnant le type "achat"
+- Plomberie store Zustand (src/lib/store.ts) :
+  - Ajout champ `saisieInitialType: "achat" | "vente" | "depense" | "stock" | null`
+  - Ajout action `setSaisieInitialType(t)`
+  - Reset à null dans logout()
+- Types (src/lib/types.ts) :
+  - Ajout viewKey "achats" dans le type union ViewKey
+  - Ajout "achats" dans ROLE_VIEWS.BENEFICIAIRE (après "saisie") et ROLE_VIEWS.E2A
+- Config (src/lib/config.ts) :
+  - Import ShoppingCart et Beef depuis "@/lib/icons"
+  - Retrait TrendingUp (plus utilisé dans NAV_ITEMS)
+  - Ajout item { key: "achats", label: "Achats", icon: Beef } dans NAV_ITEMS (entre "Saisie" et "Cheptel")
+  - Changement icône "Ventes" de TrendingUp → ShoppingCart (plus cohérent avec le panier)
+- Page routing (src/app/page.tsx) :
+  - Ajout VIEW_TITLES.achats = "Achats de bétail"
+  - Ajout VIEW_COMPONENTS.achats = SaisieView (la même vue que "saisie", mais avec initialType présélectionné)
+- Sidebar (src/components/app/app-sidebar.tsx) :
+  - Récupération `setSaisieInitialType` depuis le store
+  - handleSelect() : si key === "achats" → setSaisieInitialType("achat") + setView("achats")
+- SaisieView (src/components/views/saisie-view.tsx) :
+  - Récupération `saisieInitialType` et `setSaisieInitialType` depuis le store
+  - useState activeType initialisé avec `saisieInitialType ?? null` (au premier montage)
+  - Nouveau useEffect watch `saisieInitialType` : applique le type au montage ET quand il change (ex: clic "Achats" alors que SaisieView est déjà monté), puis consomme le flag (reset à null) pour ne pas polluer la prochaine ouverture manuelle
+
+Stage Summary:
+- Vérification Agent Browser end-to-end :
+  - ✅ Login Bénéficiaire → sidebar contient "Achats" (icône Beef) entre "Saisie" et "Cheptel"
+  - ✅ Clic sur "Achats" → page titre "Achats de bétail" + ouverture directe du Journal d'achats (formulaire Date, Espèce Bovin BOE, Gestionnaire, Race, Nb sujets, Prix unitaire, Poids, bouton "Enregistrer l'achat")
+  - ✅ Le journal d'achats reste accessible via Saisie > Journal d'achats (1er bouton) pour la navigation classique
+  - ✅ VLM confirme : "formulaire complet pour enregistrer un nouvel achat... champ Date, sélecteur Espèce Bovin (BOE), bouton vert Enregistrer l'achat"
+- Lint clean (0 erreur sur les 6 fichiers modifiés : store.ts, types.ts, config.ts, page.tsx, app-sidebar.tsx, saisie-view.tsx)
+- Architecture propre : "Achats" est un raccourci, pas une vue dupliquée — la même SaisieView est réutilisée via le flag `saisieInitialType`
+- Pattern réutilisable : on peut ajouter d'autres raccourcis similaires (ex: "Ventes Saisie", "Dépenses Saisie") en réutilisant le même mécanisme
+- Sidebar mise à jour :
+  Tableau de bord, Saisie, **Achats** (nouveau), Cheptel, Alimentation, Dépenses, Ventes, Rentabilité, Financement, Trésorerie, Pesées, Pâturages, Rapport bailleur, Synthèse bailleur, Paramètres, Carte 3D

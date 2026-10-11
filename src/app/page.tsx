@@ -34,6 +34,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const VIEW_TITLES: Record<ViewKey, string> = {
   dashboard: "Tableau de bord",
   saisie: "Saisie des opérations",
+  achats: "Achats de bétail",
   bovins: "Cheptel (Bovins + Ovins)",
   "fiche-bovin": "Fiche bovin",
   alimentation: "Alimentation",
@@ -53,6 +54,7 @@ const VIEW_TITLES: Record<ViewKey, string> = {
 const VIEW_COMPONENTS: Record<ViewKey, React.ComponentType> = {
   dashboard: DashboardView,
   saisie: SaisieView,
+  achats: SaisieView,
   bovins: BovinsView,
   "fiche-bovin": FicheBovinView,
   alimentation: AlimentationView,
