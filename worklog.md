@@ -914,3 +914,46 @@ Stage Summary:
   - Sur la page de connexion (sans login) — bouton vert « Télécharger le guide d'utilisation (PDF · 19 pages) » (texte à mettre à jour en 22 pages)
   - Dans la sidebar (après login) — bouton « Guide d'utilisation (PDF) »
 - Guide désormais complet : 10 modules principaux + 6 modules complémentaires + 10 mises à jour prévues = couverture exhaustive du projet SAVERDEV
+
+---
+Task ID: 17
+Agent: main
+Task: Enrichir section Ventes + ajouter section Appréciation globale + inventaire de tous les fichiers
+
+Work Log:
+- Constat utilisateur : la section 9 (Ventes) du guide était trop sommaire. Il manquait l'explication de l'INTÉRÊT du module et des KPI affichés.
+- Section 9 (Ventes) entièrement enrichie :
+  - 9.1 « À quoi sert ce module ? » : 4 rôles essentiels (enregistrer sortie animal, figer coût de revient, calculer marge, alimenter journal comptable 4111/7011)
+  - Note box « Pourquoi c'est crucial » (sans ventes → CA=0, marge=0, rapport vide)
+  - 9.2 Tableau des 5 KPI affichés (CA, marge totale, marge/tête, nb vendus, panier moyen)
+  - 9.3 Formulaire d'ajout (5 étapes détaillées + interaction avec statut VENDU + journal 4111/7011 + suivi capital)
+  - 9.4 Historique des ventes (tableau filtrable avec marges vertes/rouges)
+  - Warning box (enregistrer sous 24h sinon capital et rapport erronés)
+- NOUVELLE section 18 « Tous les fichiers du projet (inventaire) » (6 sous-sections) :
+  - 18.1 Vues (interfaces) — 17 fichiers .tsx listés avec rôle
+  - 18.2 API Routes (backend) — 22 endpoints listés avec rôle
+  - 18.3 Bibliothèque & utilitaires (lib) — 12 fichiers listés
+  - 18.4 Schéma & scripts base de données — prisma/schema.prisma + 19 modèles
+  - 18.5 Composants d'application & UI — 13 composants + 56 shadcn/ui
+  - 18.6 Pages Next.js & config — 13 fichiers (page.tsx, layout.tsx, proxy.ts, manifest.json, etc.)
+  - Note box récapitulative (stack technique complète)
+- NOUVELLE section 19 « Appréciation globale de l'application SAVERDEV » (4 sous-sections) :
+  - 19.1 Évaluation par module : tableau 10 modules × (points forts + à améliorer)
+  - 19.2 Points forts globaux : 10 atouts (architecture, partie double, capital statique, hors ligne, PWA, 3 rôles, rapport E2A, palette, cohérence couleurs, accessibilité)
+  - 19.3 Axes d'amélioration prioritaires : 8 évolutions (validation 2 niveaux, notifications, Excel, mobile, budget prévisionnel, dashboard personnalisable, calendrier vaccinal, backup auto)
+  - 19.4 Note globale : synthèse + note finale 8,5/10
+- Renumérotation : section Contacts passe de 18 → 20
+- Sommaire mis à jour : 20 sections au total (au lieu de 18)
+- Remplacement des balises HTML <code> (non supportées par ReportLab) par <font face='Courier' color='#4A3728'> pour les chemins de fichiers
+
+Stage Summary:
+- PDF régénéré : public/guide-saverdev.pdf — 29 pages (au lieu de 22), 69 Ko (au lieu de 49 Ko)
+- QA ReportLab : 11 checks PASS + 1 warning non bloquant (ponctuation — en début de ligne)
+- Vérification VLM end-to-end :
+  - ✅ Page 12 (section 9 Ventes) : sous-sections 9.1, 9.2, 9.3, 9.4 visibles avec tableau des KPI
+  - ✅ Page 23 (section 18) : tableau 18.1 Vues + 18.2 API Routes bien rendus
+  - ✅ Page 27 (section 19) : tableau 19.1 Évaluation par module + 19.2 Points forts visibles
+- Inventaire complet du projet : 17 vues + 22 endpoints API + 12 fichiers lib + 19 modèles Prisma + 56 composants UI shadcn
+- Appréciation critique honnête : 10 points forts + 8 axes d'amélioration + note 8,5/10
+- Téléchargement toujours fonctionnel : http://localhost:3000/api/guide-pdf (HTTP 200, 70 757 octets, Content-Disposition: attachment)
+- Le guide PDF est désormais COMPLET : 10 modules principaux détaillés + 6 modules complémentaires + inventaire de TOUS les fichiers du projet + 10 mises à jour prévues + appréciation critique globale

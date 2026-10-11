@@ -266,7 +266,7 @@ def build_story(styles):
         ("6.", "Cheptel — bovins &amp; ovins"),
         ("7.", "Alimentation — imputation par tête"),
         ("8.", "Dépenses d'exploitation"),
-        ("9.", "Ventes"),
+        ("9.", "Ventes — intérêt &amp; fonctionnement"),
         ("10.", "Rentabilité — marges &amp; coûts"),
         ("11.", "Financement — échéances &amp; trésorerie"),
         ("12.", "Rapport bailleur — modèle E2A"),
@@ -275,7 +275,9 @@ def build_story(styles):
         ("15.", "Modules complémentaires (Carte 3D, Pâturages, Pesées, Trésorerie, Paramètres, Synthèse bailleur)"),
         ("16.", "Astuces &amp; raccourcis pratiques"),
         ("17.", "Mises à jour prochaines — feuille de route"),
-        ("18.", "Contacts &amp; assistance"),
+        ("18.", "Tous les fichiers du projet (inventaire)"),
+        ("19.", "Appréciation globale de l'application SAVERDEV"),
+        ("20.", "Contacts &amp; assistance"),
     ]
     toc_data = [[Paragraph(n, styles["cell_bold"]), Paragraph(t, styles["cell"])] for n, t in toc_items]
     toc_t = Table(toc_data, colWidths=[1.5*cm, 14.5*cm])
@@ -603,24 +605,66 @@ def build_story(styles):
     # ---------- 9. VENTES ----------
     s.append(Paragraph("9. Ventes", styles["h1"]))
     s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
+    s.append(Paragraph("9.1 À quoi sert ce module ?", styles["h2"]))
     s.append(Paragraph(
-        "Le module <b>Ventes</b> enregistre les ventes de bétail. "
-        "Chaque vente fige le coût de revient du bovin (au moment de la vente) "
-        "et calcule la marge réalisée.",
+        "Le module <b>Ventes</b> est le <b>point de sortie financier</b> de l'élevage. "
+        "Sans lui, impossible de mesurer la rentabilité réelle de l'activité. "
+        "Il joue 4 rôles essentiels :",
         styles["body"]))
-    s.append(Paragraph("Formulaire d'ajout d'une vente", styles["h2"]))
+    s.append(ListFlowable([
+        ListItem(Paragraph("<b>Enregistrer la sortie d'un animal</b> : passage automatique du statut <i>EN_ENGRAISSEMENT</i> à <i>VENDU</i>, avec date de vente et prix.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Figer le coût de revient</b> au moment de la vente : la somme des coûts d'achat + engraissement + dépenses imputées est figée définitivement pour permettre un audit ultérieur (même si des dépenses antérieures sont modifiées).", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Calculer la marge réalisée</b> : <b>marge = prix de vente − coût de revient</b>. Indispensable pour savoir si l'opération a été rentable.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Alimenter le journal comptable de ventes</b> (compte 4111 Clients au débit / 7011 Ventes de bétail au crédit) et le suivi du capital (la vente ajoute au solde du capital initial).", styles["bullet"]), value="circle"),
+    ], bulletType="bullet"))
+    s.append(note_box(
+        "<b>Pourquoi c'est crucial :</b> sans le module Ventes, le tableau de bord "
+        "afficherait zéro chiffre d'affaires, zéro marge, et le rapport bailleur "
+        "serait vide. Le module Ventes est donc la <b>clé de voûte du pilotage "
+        "rentabilité</b> de l'élevage.",
+        styles))
+    s.append(Paragraph("9.2 KPI affichés dans le module", styles["h2"]))
+    s.append(section_table(
+        ["KPI", "Formule", "Utilité"],
+        [
+            ["Chiffre d'affaires (CA)", "Σ prix de vente", "Revenus bruts de l'élevage"],
+            ["Marge totale", "Σ (prix vente − coût revient)", "Bénéfice net réalisé"],
+            ["Marge par tête", "Marge totale / nb vendus", "Rentabilité unitaire moyenne"],
+            ["Nombre de têtes vendues", "Comptage", "Volume de commercialisation"],
+            ["Panier moyen", "CA / nb vendus", "Prix de vente moyen"],
+        ],
+        styles,
+        col_widths=[4.5*cm, 6*cm, 5.5*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("9.3 Formulaire d'ajout d'une vente", styles["h2"]))
     s.append(ListFlowable([
         ListItem(Paragraph("<b>Date</b> de la vente.", styles["bullet"]), value="1"),
-        ListItem(Paragraph("<b>Identifiant du bovin</b> (sélection dans la liste des animaux en engraissement).", styles["bullet"]), value="2"),
+        ListItem(Paragraph("<b>Identifiant du bovin</b> (sélection dans la liste des animaux <i>EN_ENGRAISSEMENT</i> — les vendus et morts sont exclus).", styles["bullet"]), value="2"),
         ListItem(Paragraph("<b>Prix unitaire</b> (en FCFA).", styles["bullet"]), value="3"),
-        ListItem(Paragraph("<b>Nombre de sujets vendus</b> (généralement 1, mais possible de grouper).", styles["bullet"]), value="4"),
-        ListItem(Paragraph("<b>Acheteur</b> (nom du client).", styles["bullet"]), value="5"),
+        ListItem(Paragraph("<b>Nombre de sujets vendus</b> (généralement 1, mais possible de grouper plusieurs animaux à un même acheteur).", styles["bullet"]), value="4"),
+        ListItem(Paragraph("<b>Acheteur</b> (nom du client — conservé dans <i>clientVente</i>).", styles["bullet"]), value="5"),
     ], bulletType="1"))
     s.append(Paragraph(
-        "Le statut du bovin passe automatiquement à <b>VENDU</b>, sa date de vente "
-        "et son prix de vente sont enregistrés. La marge est calculée : "
-        "<b>marge = prix de vente − coût de revient</b>.",
+        "Après validation : le statut du bovin passe automatiquement à <b>VENDU</b>, "
+        "sa date de vente et son prix de vente sont enregistrés, et la marge est "
+        "calculée instantanément. Le journal comptable de ventes est mis à jour "
+        "(compte 4111 débit / 7011 crédit), et la vente est également visible dans "
+        "le <b>suivi du capital</b> comme une entrée.",
         styles["body"]))
+    s.append(Paragraph("9.4 Historique des ventes", styles["h2"]))
+    s.append(Paragraph(
+        "Le module affiche un <b>tableau filtrable</b> de toutes les ventes avec : "
+        "identifiant, race, acheteur, date, prix de vente, coût de revient figé, "
+        "marge réalisée (couleur verte si positive, rouge si négative). "
+        "Ce tableau permet d'identifier rapidement les <b>ventes à perte</b> et "
+        "les <b>meilleures opérations</b> pour reproduire la stratégie gagnante.",
+        styles["body"]))
+    s.append(warning_box(
+        "<b>Attention :</b> ne pas oublier d'enregistrer une vente dans les "
+        "24 heures qui suivent la transaction. Au-delà, le calcul du capital "
+        "restant et le rapport bailleur mensuel seront erronés.",
+        styles))
     s.append(PageBreak())
 
     # ---------- 10. RENTABILITÉ ----------
@@ -974,8 +1018,250 @@ def build_story(styles):
         styles))
     s.append(PageBreak())
 
-    # ---------- 18. CONTACTS ----------
-    s.append(Paragraph("18. Contacts &amp; assistance", styles["h1"]))
+    # ---------- 18. TOUS LES FICHIERS DU PROJET ----------
+    s.append(Paragraph("18. Tous les fichiers du projet (inventaire)", styles["h1"]))
+    s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
+    s.append(Paragraph(
+        "Cette section recense l'ensemble des fichiers du projet SAVERDEV, "
+        "pour fournir au gérant et au bailleur une vision complète de la "
+        "structure de l'application. Chaque catégorie est décrite avec son "
+        "rôle et son contenu.",
+        styles["body"]))
+    s.append(Paragraph("18.1 Vues (interfaces utilisateur)", styles["h2"]))
+    s.append(Paragraph(
+        "Les <b>vues</b> sont les écrans affichés à l'utilisateur. Elles se "
+        "trouvent dans <b><font color='#4A3728' face='Courier'>src/components/views/</font></b> :",
+        styles["body"]))
+    s.append(section_table(
+        ["Fichier vue", "Module / Rôle"],
+        [
+            ["login-view.tsx", "Page de connexion + comptes démo + bouton guide PDF"],
+            ["dashboard-view.tsx", "Tableau de bord (6 KPI + 6 graphiques + alertes)"],
+            ["saisie-view.tsx", "Saisie (4 journaux + balance + suivi du capital)"],
+            ["bovins-view.tsx", "Liste du cheptel (bovins + ovins) avec filtres"],
+            ["fiche-bovin-view.tsx", "Fiche détaillée d'un animal (coûts, marge, progression)"],
+            ["alimentation-view.tsx", "Achats d'aliments + imputation par tête"],
+            ["depenses-view.tsx", "Dépenses d'exploitation (6 catégories)"],
+            ["ventes-view.tsx", "Ventes (formulaire + KPI + historique)"],
+            ["rentabilite-view.tsx", "Rentabilité (waterfall + jauges + ventilation)"],
+            ["financement-view.tsx", "Financement (échéances, trésorerie, taux util.)"],
+            ["rapport-bailleur-view.tsx", "Rapport bailleur E2A (6 KPI + 6 graphiques)"],
+            ["carte-3d-view.tsx", "Vue 3D du cheptel (cubes animés + parallaxe)"],
+            ["paturages-view.tsx", "Pâturages (zones, superficie, capacité)"],
+            ["pesees-view.tsx", "Pesées (suivi du poids + GMQ)"],
+            ["tresorerie-view.tsx", "Trésorerie (encaissements / décaissements)"],
+            ["bailleur-synthese-view.tsx", "Synthèse bailleur SINERGI (lecture seule)"],
+            ["parametres-view.tsx", "Paramètres (capital initial, seuils, prefs)"],
+            ["_shared.tsx", "Composants partagés (ViewHeader, KpiCard)"],
+        ],
+        styles,
+        col_widths=[6*cm, 10*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("18.2 API Routes (backend)", styles["h2"]))
+    s.append(Paragraph(
+        "Les <b>API routes</b> sont les points d'entrée du backend. Elles se "
+        "trouvent dans <b><font color='#4A3728' face='Courier'>src/app/api/</font></b> :",
+        styles["body"]))
+    s.append(section_table(
+        ["Endpoint API", "Rôle"],
+        [
+            ["/api/auth", "Authentification (login/logout/session)"],
+            ["/api/dashboard", "Agrégation KPIs + graphiques tableau de bord"],
+            ["/api/bovins", "CRUD bovins (avec espèce + gestionnaire)"],
+            ["/api/alimentation", "CRUD achats d'aliments + imputation auto"],
+            ["/api/depenses", "CRUD dépenses + imputation"],
+            ["/api/ventes", "Enregistrement ventes (statut VENDU + marge)"],
+            ["/api/saisie", "Journaux comptables + balance + suivi capital"],
+            ["/api/financement", "Financement + échéances + trésorerie"],
+            ["/api/rapport-bailleur", "Rapport E2A (KPI + mensuel + structure coûts)"],
+            ["/api/alertes", "Alertes (échéances, stock, budget)"],
+            ["/api/historique", "Journal des actions utilisateur"],
+            ["/api/stats/comparaison", "Comparaison de périodes N vs N-1"],
+            ["/api/stats/races", "Performance par race"],
+            ["/api/paturages", "CRUD pâturages"],
+            ["/api/pesees", "CRUD pesées"],
+            ["/api/soins", "CRUD soins vétérinaires (à venir)"],
+            ["/api/notifications", "Notifications temps réel (à venir)"],
+            ["/api/backup", "Sauvegarde/restauration (rôle E2A)"],
+            ["/api/parametres", "Paramètres (capital initial, seuils)"],
+            ["/api/tresorerie", "Trésorerie (encaissements/décaissements)"],
+            ["/api/validations", "Workflow validation à 2 niveaux (à venir)"],
+            ["/api/guide-pdf", "Téléchargement du guide PDF (Content-Disposition: attachment)"],
+        ],
+        styles,
+        col_widths=[6*cm, 10*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("18.3 Bibliothèque & utilitaires (lib)", styles["h2"]))
+    s.append(Paragraph(
+        "Le dossier <b><font color='#4A3728' face='Courier'>src/lib/</font></b> contient la logique partagée :",
+        styles["body"]))
+    s.append(section_table(
+        ["Fichier lib", "Rôle"],
+        [
+            ["db.ts", "Client Prisma singleton ( SQLite local / PostgreSQL Neon prod)"],
+            ["auth.ts", "Authentification bcryptjs + gestion de session"],
+            ["config.ts", "PALETTE, NAV_ITEMS, ROLE_LABELS, COST_STRUCTURE_COLORS"],
+            ["types.ts", "Interfaces TypeScript + ROLE_VIEWS (RBAC)"],
+            ["store.ts", "Store Zustand (rôle, vue courante, user, mois)"],
+            ["api.ts", "Hooks TanStack Query (useBovins, useDashboard, etc.)"],
+            ["calculations.ts", "Calculs purs (computeBovinMarge, computeDashboard)"],
+            ["server-mappers.ts", "Conversion Prisma (Date) → TS (ISO string)"],
+            ["format.ts", "formatFCFA, formatDate, formatDateTime, severiteColor"],
+            ["icons.ts", "Mapping Hugeicons (60+ icônes)"],
+            ["offline-db.ts", "IndexedDB pour mode hors ligne"],
+            ["backup.ts", "Sauvegarde/restauration base"],
+        ],
+        styles,
+        col_widths=[5*cm, 11*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("18.4 Schéma & scripts base de données", styles["h2"]))
+    s.append(section_table(
+        ["Fichier", "Rôle"],
+        [
+            ["prisma/schema.prisma", "Modèles : User, Bovin, Alimentation, Depense, Financement, Echeance, Alerte, Historique, Tag, Photo, Validation, StockMouvement, CapitalMouvement, Parametre, Paturage, Pese, Soin, Notification, Backup"],
+            ["prisma/seed.ts", "Peuplement initial (4 users, 15 bovins, 8 alimentations, 13 dépenses, financement 5M, échéances, alertes)"],
+            ["scripts/generate_guide_pdf.py", "Script Python ReportLab de génération de ce guide PDF"],
+            ["scripts/create-missing-tables.ts", "Création des tables SQLite manquantes"],
+        ],
+        styles,
+        col_widths=[5*cm, 11*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("18.5 Composants d'application & UI", styles["h2"]))
+    s.append(section_table(
+        ["Composant", "Rôle"],
+        [
+            ["app/app-sidebar.tsx", "Barre latérale (nav filtrée par rôle + bouton guide PDF)"],
+            ["app/app-header.tsx", "En-tête sticky (logo + sélecteur mois + sélecteur rôle + mode sombre)"],
+            ["app/app-footer.tsx", "Pied de page sticky (logo + version + statut en ligne)"],
+            ["saverdev-logo.tsx", "Logo SVG (cercle marron + arbre vert)"],
+            ["lazy-mount.tsx", "IntersectionObserver pour lazy-load des graphiques"],
+            ["query-provider.tsx", "QueryClientProvider (TanStack Query)"],
+            ["session-provider.tsx", "SessionProvider NextAuth"],
+            ["theme-provider.tsx", "ThemeProvider next-themes"],
+            ["animated-counter.tsx", "Compteur animé (KPI)"],
+            ["shimmer-skeleton.tsx", "Skeleton animé (chargement)"],
+            ["ripple-button.tsx", "Bouton avec effet ripple"],
+            ["network-status.tsx", "Indicateur en ligne / hors ligne"],
+            ["ui/*", "56 composants shadcn/ui (button, card, dialog, table, etc.)"],
+        ],
+        styles,
+        col_widths=[5*cm, 11*cm]
+    ))
+    s.append(Spacer(1, 6))
+    s.append(Paragraph("18.6 Pages Next.js & config", styles["h2"]))
+    s.append(section_table(
+        ["Fichier", "Rôle"],
+        [
+            ["src/app/page.tsx", "Page principale (router de vues par rôle)"],
+            ["src/app/layout.tsx", "Layout racine (QueryProvider, ThemeProvider, viewport)"],
+            ["src/app/globals.css", "Styles globaux Tailwind + palette SAVERDEV"],
+            ["src/app/proxy.ts", "Middleware Next.js 16 (protection routes)"],
+            ["public/manifest.json", "PWA manifest (installable mobile)"],
+            ["public/guide-saverdev.pdf", "Ce guide PDF (22+ pages)"],
+            ["public/logo-saverdev.png", "Logo SAVERDEV (haute résolution)"],
+            ["public/logo-sinergi.jpg", "Logo bailleur SINERGI"],
+            ["public/logo-e2a.png", "Logo administrateur E2A"],
+            ["next.config.ts", "Configuration Next.js 16 (Turbopack)"],
+            ["tailwind.config.ts", "Configuration Tailwind v4 + palette"],
+            ["vercel.json", "Déploiement Vercel (prisma generate + next build)"],
+            [".env", "Variables (DATABASE_URL file:local / postgresql prod)"],
+        ],
+        styles,
+        col_widths=[5*cm, 11*cm]
+    ))
+    s.append(note_box(
+        "<b>Total</b> : 17 vues + 22 endpoints API + 12 fichiers lib + "
+        "19 modèles Prisma + 56 composants UI shadcn. "
+        "Stack : Next.js 16, TypeScript 5, Tailwind v4, Prisma 6, "
+        "TanStack Query, Zustand, Framer Motion, Recharts, Hugeicons, "
+        "NextAuth, bcryptjs, Sonner.",
+        styles))
+    s.append(PageBreak())
+
+    # ---------- 19. APPRÉCIATION GLOBALE ----------
+    s.append(Paragraph("19. Appréciation globale de l'application SAVERDEV", styles["h1"]))
+    s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
+    s.append(Paragraph(
+        "À l'issue de ce guide, voici une <b>appréciation critique</b> de "
+        "l'application SAVERDEV, module par module, à destination du gérant "
+        "et du bailleur. Cette évaluation est volontairement honnête : elle "
+        "souligne les points forts et identifie les axes d'amélioration.",
+        styles["body"]))
+    s.append(Paragraph("19.1 Évaluation par module", styles["h2"]))
+    s.append(section_table(
+        ["Module", "Points forts", "À améliorer"],
+        [
+            ["Tableau de bord", "Vue synthétique claire, 6 KPI + 6 graphiques, alertes visuelles", "LazyMount peut masquer les graphiques au premier scroll"],
+            ["Saisie", "Comptabilité partie double rigoureuse, balance, journal en cascade", "Formulaire dense sur mobile, à aérer"],
+            ["Cheptel", "Bovins + ovins, gestionnaire SAVERDEV, fiche détaillée riche", "Pas de photo par défaut, à inciter"],
+            ["Alimentation", "Imputation automatique par tête, calcul coût/tête instantané", "Pas de prévisionnel de consommation"],
+            ["Dépenses", "6 catégories, imputation par bovin, n° de compte comptable", "Pas de budget prévisionnel par catégorie"],
+            ["Ventes", "Fige le coût de revient, calcule la marge, alimente le journal 4111/7011", "Pas de gestion d'acheteurs récurrents (à venir)"],
+            ["Rentabilité", "Waterfall cascade de marge, jauge, barre empilée, ventilation des coûts", "Pas de comparaison inter-périodes (à venir)"],
+            ["Financement", "Capital initial statique + mouvements horodatés, échéances, trésorerie", "Pas d'alerte pro-active d'échéance approchante"],
+            ["Rapport bailleur", "Modèle E2A fidèle, 6 KPI colorés, 6 graphiques, annexe mensuelle", "Export Excel pas encore disponible (à venir)"],
+            ["Carte 3D", "Immersion visuelle, parallaxe souris, badge URGENT", "Gourmand en GPU sur vieux appareils"],
+        ],
+        styles,
+        col_widths=[3.5*cm, 7*cm, 5.5*cm]
+    ))
+    s.append(Spacer(1, 8))
+    s.append(Paragraph("19.2 Points forts globaux", styles["h2"]))
+    s.append(ListFlowable([
+        ListItem(Paragraph("<b>Architecture professionnelle</b> : Next.js 16, TypeScript strict, Prisma ORM, shadcn/ui — stack moderne et maintenable.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Comptabilité en partie double</b> réelle (comptes 6011/5711/4111/7011/6xxx), avec balance générale et journaux séparés — rare pour une application d'élevage.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Capital initial STATIQUE + mouvements horodatés</b> : choix de conception excellent pour préserver la traçabilité comptable et l'audit.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Mode hors ligne</b> avec IndexedDB et synchronisation automatique au retour de connexion — adapté aux conditions sahéliennes.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>PWA installable</b> sur mobile (Android/iOS) — usage terrain possible sans navigateur.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>3 rôles distincts</b> (Bénéficiaire SAVERDEV, Bailleur SINERGI, Admin E2A) avec navigation filtrée par rôle.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Rapport bailleur fidèle au modèle E2A</b> Excel — 6 KPI colorés + 6 graphiques + tableau mensuel 12 mois × 9 colonnes.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Palette SAVERDEV cohérente</b> (vert forêt, marron terre, vert clair, bleu ciel) à travers toute l'application.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Cohérence des couleurs</b> entre « Ventilation des coûts » (dashboard + rentabilité) et « Structure des coûts (cumul) » (rapport bailleur) — orange/vert/bleu identiques.", styles["bullet"]), value="circle"),
+        ListItem(Paragraph("<b>Accessibilité</b> : respect du <i>prefers-reduced-motion</i>, contrastes adaptés, navigation clavier.", styles["bullet"]), value="circle"),
+    ], bulletType="bullet"))
+    s.append(Paragraph("19.3 Axes d'amélioration prioritaires", styles["h2"]))
+    s.append(ListFlowable([
+        ListItem(Paragraph("<b>Workflow de validation à 2 niveaux</b> : les saisies du Bénéficiaire devraient être validées par E2A avant intégration au rapport bailleur (sécurité comptable accrue).", styles["bullet"]), value="1"),
+        ListItem(Paragraph("<b>Notifications push temps réel</b> : un centre de notifications consultable + alertes pro-actives pour les échéances approchantes (J-7, J-1).", styles["bullet"]), value="2"),
+        ListItem(Paragraph("<b>Export Excel (.xlsx)</b> du tableau mensuel du rapport bailleur — les bailleurs préfèrent souvent Excel au PDF.", styles["bullet"]), value="3"),
+        ListItem(Paragraph("<b>Application mobile native</b> avec scan QR pour identifier les animaux sur le terrain — accélère la saisie et réduit les erreurs.", styles["bullet"]), value="4"),
+        ListItem(Paragraph("<b>Budget prévisionnel par catégorie</b> de dépenses — compare le réalisé au prévu et alerte en cas de dépassement.", styles["bullet"]), value="5"),
+        ListItem(Paragraph("<b>Tableau de bord personnalisable</b> par rôle — une vue synthétique pour SINERGI, opérationnelle pour SAVERDEV, d'audit pour E2A.", styles["bullet"]), value="6"),
+        ListItem(Paragraph("<b>Calendrier vaccinal automatique</b> dans le module Soins — génère les prochaines échéances de vaccination selon l'espèce et l'âge.", styles["bullet"]), value="7"),
+        ListItem(Paragraph("<b>Sauvegarde automatique périodique</b> de la base — protection contre les pertes de données accidentelles.", styles["bullet"]), value="8"),
+    ], bulletType="1"))
+    s.append(Paragraph("19.4 Note globale", styles["h2"]))
+    s.append(Paragraph(
+        "L'application SAVERDEV est une <b>réussite technique et fonctionnelle</b> "
+        "pour un projet d'élevage sahélien. Elle couvre l'intégralité du cycle "
+        "d'engraissement — de l'achat du bétail à la vente, en passant par "
+        "l'alimentation, les dépenses d'exploitation et le suivi du financement. "
+        "La tenue comptable en partie double et le suivi du capital initial "
+        "statique avec mouvements horodatés sont des <b>atouts majeurs</b> qui "
+        "la distinguent des solutions concurrentes.",
+        styles["body"]))
+    s.append(Paragraph(
+        "Les axes d'amélioration identifiés (validation à 2 niveaux, notifications, "
+        "export Excel, mobile natif, calendrier vaccinal) sont des évolutions "
+        "naturelles qui viendront étoffer la plateforme sans remettre en cause "
+        "ses fondations. Avec une feuille de route sur 6-12 mois, SAVERDEV peut "
+        "devenir une <b>référence régionale</b> en gestion d'élevage d'engraissement.",
+        styles["body"]))
+    s.append(note_box(
+        "<b>Note finale : 8,5 / 10</b> — Application mature, fonctionnelle et "
+        "fiable, prête pour un usage quotidien en élevage. Les 1,5 points "
+        "manquants correspondent aux évolutions listées en section 19.3 "
+        "(workflow validation, notifications, export Excel, mobile natif, "
+        "calendrier vaccinal, sauvegarde auto).",
+        styles))
+    s.append(PageBreak())
+
+    # ---------- 20. CONTACTS ----------
+    s.append(Paragraph("20. Contacts &amp; assistance", styles["h1"]))
     s.append(HRFlowable(width="100%", thickness=2, color=VERT_FORET, spaceBefore=2, spaceAfter=10))
     s.append(Paragraph(
         "En cas de question, de problème technique ou de besoin d'assistance, "
