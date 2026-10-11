@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces } from "@/lib/api";
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
+import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -338,18 +339,18 @@ export function DashboardView() {
               <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[
-                  { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: "#F59E0B" },
-                  { poste: "Alimentation", value: dash.alimentation.coutTotal, fill: "#10B981" },
-                  { poste: "Autres coûts", value: dash.rentabilite.coutEngraissement, fill: "#3B82F6" },
+                  { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: COST_STRUCTURE_COLORS.achatBovin },
+                  { poste: "Alimentation", value: dash.alimentation.coutTotal, fill: COST_STRUCTURE_COLORS.alimentation },
+                  { poste: "Autres coûts", value: dash.rentabilite.coutEngraissement, fill: COST_STRUCTURE_COLORS.autresCouts },
                 ]} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.90 0.015 80)" />
                   <XAxis dataKey="poste" tick={{ fontSize: 10 }} stroke="oklch(0.55 0.02 50)" />
                   <YAxis tick={{ fontSize: 9 }} stroke="oklch(0.55 0.02 50)" tickFormatter={(v) => formatFCFAShort(v).replace(" FCFA", "")} />
                   <Tooltip formatter={(v: number) => formatFCFA(v)} contentStyle={{ fontSize: "0.7rem", borderRadius: "0.5rem" }} />
                   <Bar dataKey="value" isAnimationActive animationDuration={1000} radius={[4, 4, 0, 0]}>
-                    <Cell fill="#F59E0B" />
-                    <Cell fill="#10B981" />
-                    <Cell fill="#3B82F6" />
+                    <Cell fill={COST_STRUCTURE_COLORS.achatBovin} />
+                    <Cell fill={COST_STRUCTURE_COLORS.alimentation} />
+                    <Cell fill={COST_STRUCTURE_COLORS.autresCouts} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>

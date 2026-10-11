@@ -6,6 +6,7 @@ import { useBovins, useDashboard } from "@/lib/api";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatFCFAShort, formatDate, CHART_COLORS } from "@/lib/format";
+import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,10 +49,11 @@ export function RentabiliteView() {
   const tauxMarge = dash.rentabilite.ca > 0 ? (margeTotale / dash.rentabilite.ca) * 100 : 0;
 
   // Ventilation des coûts pour le pie chart
+  // Mêmes couleurs que le donut "Structure des coûts (cumul)" du rapport bailleur
   const repartitionCouts = [
-    { name: "Achat bovins", value: dash.rentabilite.coutAchat, fill: CHART_COLORS.marronTerre },
-    { name: "Alimentation", value: vendus.reduce((s, b) => s + b.coutsEngraissement, 0), fill: CHART_COLORS.vertClair },
-    { name: "Autres coûts", value: vendus.reduce((s, b) => s + b.autresCouts, 0), fill: CHART_COLORS.bleuCiel },
+    { name: "Achat bovins", value: dash.rentabilite.coutAchat, fill: COST_STRUCTURE_COLORS.achatBovin },
+    { name: "Alimentation", value: vendus.reduce((s, b) => s + b.coutsEngraissement, 0), fill: COST_STRUCTURE_COLORS.alimentation },
+    { name: "Autres coûts", value: vendus.reduce((s, b) => s + b.autresCouts, 0), fill: COST_STRUCTURE_COLORS.autresCouts },
   ];
   const totalCouts = repartitionCouts.reduce((s, c) => s + c.value, 0);
 

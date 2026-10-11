@@ -417,3 +417,41 @@ Stage Summary:
 - Lint clean (0 erreur sur fichiers modifiés)
 - Le capital initial de 14 775 000 FCFA reste STATIQUE et TOUJOURS VISIBLE, peu importe le nombre d'ajouts/retraits
 - Chaque opération (ENTREE ou SORTIE) est horodatée avec jour + heure + minutes et peut être supprimée individuellement
+
+---
+Task ID: 12
+Agent: main
+Task: Aligner les couleurs de "Ventilation des coûts" sur "Structure des coûts (cumul)"
+
+Work Log:
+- Constat : la vue Rentabilité (rentabilite-view.tsx) utilisait des couleurs divergentes pour son pie chart "Ventilation des coûts" :
+  - Achat bovins → CHART_COLORS.marronTerre (#14B8A6 teal)
+  - Alimentation → CHART_COLORS.vertClair (#34D399 vert clair)
+  - Autres coûts → CHART_COLORS.bleuCiel (#34D399 — même valeur que vertClair !)
+  Tandis que le rapport bailleur (rapport-bailleur-view.tsx) utilisait COST_STRUCTURE_COLORS via DOUGHNUT_COLORS :
+  - Achat des bovins → PALETTE.amber (#F59E0B orange)
+  - Alimentation → PALETTE.primary (#10B981 vert)
+  - Engraissement (autres) → #3B82F6 (bleu)
+- rentabilite-view.tsx : ajout import { COST_STRUCTURE_COLORS } depuis "@/lib/config"
+  - repartitionCouts mis à jour :
+    - Achat bovins → COST_STRUCTURE_COLORS.achatBovin (orange #F59E0B)
+    - Alimentation → COST_STRUCTURE_COLORS.alimentation (vert #10B981)
+    - Autres coûts → COST_STRUCTURE_COLORS.autresCouts (bleu #3B82F6)
+  - Commentaire "Mêmes couleurs que le donut Structure des coûts (cumul) du rapport bailleur"
+- dashboard-view.tsx : ajout import { COST_STRUCTURE_COLORS } depuis "@/lib/config"
+  - BarChart "Ventilation des coûts" refactoré pour utiliser COST_STRUCTURE_COLORS.achatBovin/.alimentation/.autresCouts
+    (au lieu des couleurs hardcodées #F59E0B/#10B981/#3B82F6 — visuellement identique mais source unique)
+  - Cohérence totale : dashboard + rentabilité + rapport bailleur utilisent tous COST_STRUCTURE_COLORS
+- Fix préexistant bonus : la table SQLite Bovin manquait les colonnes espece et gestionnaire (déclarées dans le schéma Prisma mais non créées en DB locale)
+  - Ajout via ALTER TABLE Bovin ADD COLUMN espece TEXT NOT NULL DEFAULT "BOVIN"
+  - Ajout via ALTER TABLE Bovin ADD COLUMN gestionnaire TEXT NOT NULL DEFAULT "SAVERDEV"
+  - → APIs /api/dashboard et /api/bovins retournent à nouveau HTTP 200 (au lieu de 500 PrismaClientKnownRequestError P2022)
+
+Stage Summary:
+- Vérification VLM end-to-end :
+  - Vue Rentabilité → pie chart "Ventilation des coûts" : 3 segments (orange 91% Achat bovins, vert 8% Alimentation, bleu 1% Autres coûts) ✓
+  - Rapport bailleur → donut "Structure des coûts (cumul)" : 3 segments (orange Achat des bovins, vert émeraude Alimentation, bleu vif Engraissement) ✓
+  - Couleurs IDENTIQUES entre les 2 graphiques ✓
+- Lint clean (0 erreur sur fichiers modifiés)
+- Page Rentabilité, Dashboard et Rapport bailleur chargent en 200, aucune erreur runtime/compile
+- Source de vérité unique : COST_STRUCTURE_COLORS dans src/lib/config.ts (orange achatBovin, vert alimentation, bleu autresCouts)
