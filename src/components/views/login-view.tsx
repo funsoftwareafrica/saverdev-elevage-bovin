@@ -14,7 +14,7 @@ import { useAppStore } from "@/lib/store";
 import { ROLE_LABELS, type Role } from "@/lib/types";
 import { PALETTE } from "@/lib/config";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { User, Shield, Menu, Lock, Eye, EyeOff, ArrowRight, Check, AlertTriangle } from "@/lib/icons";
+import { User, Shield, Menu, Lock, Eye, EyeOff, ArrowRight, Check, AlertTriangle, Download } from "@/lib/icons";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -248,6 +248,17 @@ export function LoginView() {
               </motion.button>
             ))}
           </div>
+
+          {/* Lien de téléchargement du guide PDF */}
+          <a
+            href="/api/guide-pdf"
+            download
+            className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+            title="Télécharger le guide d'utilisation PDF complet (19 pages, à destination du gérant Souleymane Zakaria)"
+          >
+            <HugeiconsIcon icon={Download} size={14} />
+            <span>Télécharger le guide d'utilisation (PDF · 19 pages)</span>
+          </a>
 
           {/* Pied de page */}
           <p className="text-center text-[0.6rem] text-muted-foreground mt-5">

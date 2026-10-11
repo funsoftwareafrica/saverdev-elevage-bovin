@@ -9,7 +9,7 @@ import { ROLE_VIEWS, type Role, type ViewKey } from "@/lib/types";
 import { NAV_ITEMS, ROLE_LABELS } from "@/lib/config";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Menu, Logout } from "@/lib/icons";
+import { ChevronRight, Menu, Logout, Download, FileText } from "@/lib/icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -158,6 +158,15 @@ export function AppSidebar({ activeView, role }: Props) {
           <div className="flex flex-col h-full">
             {brand}
             <div className="flex-1 overflow-y-auto scroll-thin-dark py-4">{navList}</div>
+            <a
+              href="/api/guide-pdf"
+              download
+              className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-sidebar-accent/30 bg-sidebar-accent/30 px-3 py-2.5 text-xs font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+              title="Télécharger le guide d'utilisation PDF (19 pages, pour le gérant)"
+            >
+              <HugeiconsIcon icon={Download} size={14} className="text-primary" />
+              <span className="flex-1 text-left">Guide d'utilisation (PDF)</span>
+            </a>
             {roleBadge}
           </div>
         </SheetContent>
@@ -169,6 +178,15 @@ export function AppSidebar({ activeView, role }: Props) {
     <aside className="hidden md:flex flex-col w-64 shrink-0 bg-sidebar text-sidebar-foreground min-h-[calc(100vh-3.5rem)] sticky top-14 self-start">
       {brand}
       <div className="flex-1 overflow-y-auto scroll-thin-dark py-4">{navList}</div>
+      <a
+        href="/api/guide-pdf"
+        download
+        className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-sidebar-accent/30 bg-sidebar-accent/30 px-3 py-2.5 text-xs font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        title="Télécharger le guide d'utilisation PDF (19 pages, pour le gérant)"
+      >
+        <HugeiconsIcon icon={Download} size={14} className="text-primary shrink-0" />
+        <span className="flex-1 text-left">Guide d'utilisation (PDF)</span>
+      </a>
       {roleBadge}
     </aside>
   );

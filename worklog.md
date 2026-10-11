@@ -826,3 +826,47 @@ Stage Summary:
 - PDF accessible via http://localhost:3000/guide-saverdev.pdf
 - QA : 11 checks PASS, métadonnées complètes, fonts embedded, pas d'overflow
 - Le gérant peut télécharger et imprimer ce guide pour la semaine prochaine
+
+---
+Task ID: 15
+Agent: main
+Task: Forcer le téléchargement du guide PDF (utilisateur n'arrivait pas à télécharger)
+
+Work Log:
+- Constat : l'utilisateur n'arrivait pas à télécharger le PDF. Cause probable :
+  - L'URL /guide-saverdev.pdf ouvre le PDF dans le navigateur au lieu de le télécharger (pas de Content-Disposition: attachment)
+  - L'utilisateur ne savait pas où trouver le lien de téléchargement
+- Solution : route API dédiée + 2 boutons visibles dans l'UI
+- Route API créée : src/app/api/guide-pdf/route.ts
+  - Lit le fichier public/guide-saverdev.pdf
+  - Sert le buffer avec headers :
+    - Content-Type: application/pdf
+    - Content-Disposition: attachment; filename="guide-saverdev.pdf" → force le navigateur à proposer "Télécharger" au lieu d'ouvrir
+    - Content-Length: 42358
+    - Cache-Control: public, max-age=3600
+  - Retourne 404 si fichier manquant
+- Bouton ajouté dans src/components/app/app-sidebar.tsx :
+  - En bas de la sidebar (desktop ET mobile Sheet), juste au-dessus du roleBadge "Connecté"
+  - Icône Download (Hugeicons) + texte "Guide d'utilisation (PDF)"
+  - <a href="/api/guide-pdf" download> → déclenche le téléchargement
+  - Title: "Télécharger le guide d'utilisation PDF (19 pages, pour le gérant)"
+- Bouton ajouté dans src/components/views/login-view.tsx :
+  - Sous les comptes démo, juste avant le pied de page
+  - Bordure primary/30 sur fond primary/5, icône Download
+  - Texte: "Télécharger le guide d'utilisation (PDF · 19 pages)"
+  - Accessible SANS connexion (avant login)
+- Imports ajoutés : Download depuis "@/lib/icons" dans les 2 fichiers
+
+Stage Summary:
+- Vérification Agent Browser end-to-end :
+  - ✅ Page de connexion : bouton "Télécharger le guide d'utilisation (PDF · 19 pages)" visible (link ref=e9)
+  - ✅ Clic sur le bouton → déclenche le téléchargement du PDF
+  - ✅ Header HTTP : content-disposition: attachment; filename="guide-saverdev.pdf" (force le téléchargement)
+  - ✅ content-type: application/pdf, content-length: 42358
+  - ✅ Après login Bénéficiaire : bouton "Guide d'utilisation (PDF)" dans la sidebar (link ref=e22)
+- Lint clean (0 erreur sur les 3 fichiers modifiés)
+- Téléchargement curl : HTTP 200, 42358 octets, "PDF document, version 1.4, 19 page(s)"
+- Le guide PDF est désormais téléchargeable en 1 clic depuis :
+  1. La page de connexion (sans authentification nécessaire) — bouton vert sous les comptes démo
+  2. La barre latérale (une fois connecté) — bouton en bas de la sidebar
+- L'utilisateur peut maintenant télécharger le guide sans difficulté
