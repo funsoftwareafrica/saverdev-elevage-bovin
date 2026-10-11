@@ -15,3 +15,14 @@ tsconfig.tsbuildinfo
 .env*
 .env.vercel
 .env.local
+
+# Logs du serveur dev (générés à chaque démarrage)
+dev.log
+server.log
+
+# Base SQLite locale
+db/*.db
+db/*.db-journal
+
+# Cache Next.js
+.next/cache
