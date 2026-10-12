@@ -114,7 +114,7 @@ export function BovinsView() {
       },
       {
         onSuccess: () => {
-          toast.success("Bovin enregistré", { description: "Nouvel achat ajouté au cheptel" });
+          toast.success("Animal enregistré", { description: "Nouvel achat ajouté au cheptel" });
           setOpen(false);
         },
         onError: () => toast.error("Échec de l'enregistrement"),
@@ -136,7 +136,7 @@ export function BovinsView() {
       },
       {
         onSuccess: () => {
-          toast.success("Bovin modifié", { description: editTarget.identifiant });
+          toast.success("Animal modifié", { description: editTarget.identifiant });
           setEditTarget(null);
         },
         onError: () => toast.error("Échec de la modification"),
@@ -148,7 +148,7 @@ export function BovinsView() {
     if (!deleteTarget) return;
     deleteBovin.mutate(deleteTarget.id, {
       onSuccess: () => {
-        toast.success("Bovin supprimé", { description: deleteTarget.identifiant });
+        toast.success("Animal supprimé", { description: deleteTarget.identifiant });
         setDeleteTarget(null);
       },
       onError: () => toast.error("Échec de la suppression"),
@@ -158,8 +158,8 @@ export function BovinsView() {
   return (
     <div className="space-y-6">
       <ViewHeader
-        title="Cheptel — Bovins"
-        description="Liste des bovins, statuts et marges. Cliquez sur un bovin pour ouvrir sa fiche."
+        title="Cheptel (Bovins + Ovins)"
+        description="Liste des animaux (bovins BOE + ovins OVN), statuts et marges. Cliquez sur une ligne pour ouvrir la fiche détaillée."
         icon={Database}
         action={
           !readOnly && (
@@ -226,8 +226,8 @@ export function BovinsView() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <KpiCard label="Bovins actifs" value={actifs.length} icon={Beef} variant="primary" />
-        <KpiCard label="Bovins vendus" value={vendus.length} icon={TrendingUp} variant="success" />
+        <KpiCard label="Animaux actifs" value={actifs.length} icon={Beef} variant="primary" />
+        <KpiCard label="Animaux vendus" value={vendus.length} icon={TrendingUp} variant="success" />
         <KpiCard label="Valeur du cheptel actif" value={formatFCFA(valeurCheptel)} icon={Beef} />
       </div>
 
@@ -277,7 +277,7 @@ export function BovinsView() {
                   {filtered.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={9}>
-                        <EmptyState icon={Beef} title="Aucun bovin trouvé" description="Modifiez votre recherche ou filtre." />
+                        <EmptyState icon={Beef} title="Aucun animal trouvé" description="Modifiez votre recherche ou filtre." />
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -349,7 +349,7 @@ export function BovinsView() {
       <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Modifier le bovin</DialogTitle>
+            <DialogTitle>Modifier l'animal</DialogTitle>
             <DialogDescription className="text-xs">
               {editTarget?.identifiant} — l'identifiant et les cumuls comptables ne sont pas modifiables.
             </DialogDescription>
@@ -378,8 +378,8 @@ export function BovinsView() {
                   <Select name="espece" defaultValue={editTarget.espece}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="BOVIN">Bovin</SelectItem>
-                      <SelectItem value="OVIN">Ovin</SelectItem>
+                      <SelectItem value="BOVIN">Bovin (BOE)</SelectItem>
+                      <SelectItem value="OVIN">Ovin (OVN)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -124,7 +124,7 @@ export function AlimentationView() {
     if (!deleteTarget) return;
     deleteAlim.mutate(deleteTarget.id, {
       onSuccess: () => {
-        toast.success("Alimentation supprimée", { description: "Imputation par tête annulée sur les bovins." });
+        toast.success("Alimentation supprimée", { description: "Imputation par tête annulée sur les animaux." });
         setDeleteTarget(null);
       },
       onError: () => toast.error("Échec de la suppression"),
@@ -302,7 +302,7 @@ export function AlimentationView() {
           <DialogHeader>
             <DialogTitle>Modifier l'achat d'aliment</DialogTitle>
             <DialogDescription className="text-xs">
-              Le coût par tête et l'imputation aux bovins seront recalculés.
+              Le coût par tête et l'imputation aux animaux seront recalculés.
             </DialogDescription>
           </DialogHeader>
           {editTarget && (
@@ -365,7 +365,7 @@ export function AlimentationView() {
               {deleteTarget && (
                 <>
                   L'achat <strong>{deleteTarget.produit}</strong> ({formatFCFA(deleteTarget.coutTotal)}) sera supprimé.
-                  <br />L'imputation de <strong>{formatFCFA(deleteTarget.coutParTete)}/tête</strong> sera annulée sur les {deleteTarget.nbBovinsConcernes} bovins concernés.
+                  <br />L'imputation de <strong>{formatFCFA(deleteTarget.coutParTete)}/tête</strong> sera annulée sur les {deleteTarget.nbBovinsConcernes} animaux concernés.
                 </>
               )}
             </AlertDialogDescription>

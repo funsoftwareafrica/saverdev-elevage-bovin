@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SAVERDEV — Gestion Élevage Bovin",
+  title: "SAVERDEV — Gestion Élevage Bovin & Ovin",
   description:
-    "Application de gestion et reporting d'élevage bovin d'engraissement : cheptel, alimentation, rentabilité, financement bailleur.",
-  keywords: ["élevage bovin", "engraissement", "SAVERDEV", "Sahel", "gestion cheptel", "reporting bailleur"],
+    "Application de gestion et reporting d'élevage bovin & ovin d'engraissement : cheptel, alimentation, rentabilité, financement bailleur.",
+  keywords: ["élevage bovin & ovin", "engraissement", "SAVERDEV", "Sahel", "gestion cheptel", "reporting bailleur"],
   authors: [{ name: "SAVERDEV" }],
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "SAVERDEV" },

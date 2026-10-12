@@ -1,7 +1,7 @@
 {
-  "name": "SAVERDEV — Gestion d'élevage bovin",
+  "name": "SAVERDEV — Gestion d'élevage bovin & ovin",
   "short_name": "SAVERDEV",
-  "description": "Gestion et reporting d'élevage bovin d'engraissement",
+  "description": "Gestion et reporting d'élevage bovin & ovin d'engraissement",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F3F4F6",

@@ -129,7 +129,7 @@ export function BailleurSyntheseView() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-muted/50 p-3">
-                <p className="text-[0.6rem] uppercase text-muted-foreground">Bovins en cheptel</p>
+                <p className="text-[0.6rem] uppercase text-muted-foreground">Animaux en cheptel</p>
                 <p className="text-xl font-bold text-foreground">{nbBovins}</p>
                 <p className="text-[0.65rem] text-muted-foreground">{dash.cheptel.bovinsActifs} actifs · {dash.cheptel.bovinsVendus} vendus</p>
               </div>
