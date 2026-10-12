@@ -26,3 +26,7 @@ db/*.db-journal
 
 # Cache Next.js
 .next/cache
+
+# Tool results and agent context (interne)
+tool-results/
+agent-ctx/

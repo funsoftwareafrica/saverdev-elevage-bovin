@@ -1287,3 +1287,56 @@ Stage Summary:
   - Dashboard (libellés "Animaux") ✓
   - Rapport bailleur ✓
   - Alimentation & Dépenses ✓
+
+---
+Task ID: 22
+Agent: full-stack-developer
+Task: Ajouter boutons Modifier/Supprimer dans les vues listant des données
+
+Work Log:
+- Lecture du worklog (tâches 1–21) et des fichiers concernés (api.ts, server-mappers.ts, schemas, 6 vues cibles, routes API existantes).
+- Pré-requis bloquant : serveur de dev arrêté + incohérence schema.prisma (provider postgresql) vs .env (sqlite). Correction du `provider = "sqlite"` + `bun run db:push` pour régénérer le client Prisma. Serveur de dev redémarré sur le port 3000 — toutes les routes répondent en 200.
+- Création des routes `[id]` pour alimentation, depenses, pesees, paturages, ventes. Extension de la route bovins/[id] (PUT + DELETE).
+  - PUT bovin : met à jour race/sexe/espece/poidsAchat/prixAchat/dateAchat (identifiant et cumuls comptables figés).
+  - PUT alimentation : annule l'ancienne imputation (décrémente coutsEngraissement), supprime AlimentationBovin, recalcule coutParTete, réimpute aux N premiers bovins actifs.
+  - PUT dépense : logique symétrique sur DepenseBovin et autresCouts.
+  - PUT pese : met à jour date/poids/methode.
+  - PUT paturage : met à jour nom/surface/coordonnees/capacite.
+  - DELETE vente : ANNULATION_VENTE — remet le bovin en EN_ENGRAISSEMENT, efface dateVente/prixVente/clientVente, conserve les coûts d'engraissement accumulés. PAS de PUT vente (fige le coût de revient).
+  - Toutes les routes : vérifient l'existence (404 si introuvable) + log Historique.
+- Ajout dans `src/lib/api.ts` des hooks mutations useUpdate*/useDelete* pour les 6 entités (pas de useUpdateVente).
+- Ajout des boutons d'action dans les 6 vues (groupe horizontal de 3 boutons `variant="ghost" size="icon" className="h-8 w-8"`) :
+  - bovins-view : Eye (ouvre fiche via openBovin) + Pencil (Dialog race/sexe/espece/poidsAchat) + Trash (AlertDialog "Supprimer ce bovin ?"). Boutons Modifier/Supprimer conditionnés à `!readOnly`.
+  - alimentation-view : Eye (Dialog détails) + Pencil (formulaire pré-rempli) + Trash. AlertDialog précisant l'annulation de l'imputation coutParTete/tête.
+  - depenses-view : même pattern que alimentation.
+  - ventes-view : Eye (Dialog détails marge + %) + Trash (ANNULATION_VENTE). PAS de Modifier.
+  - pesees-view : Eye + Pencil (date/poids/methode) + Trash.
+  - paturages-view : Pencil (nom/surface/capacite/coordonnees) + Trash. PAS de Voir (ligne déjà complète).
+- Tests curl validés : GET/PUT/DELETE avec id valide (200), id invalide (404), page `/` (200, compile OK). Imputation Prisma vérifiée dans dev.log.
+- Tests `bunx eslint` sur les 12 fichiers modifiés : 0 erreur, 0 warning.
+
+Stage Summary:
+- Fichiers modifiés (12) :
+  - `src/app/api/bovins/[id]/route.ts` (PUT + DELETE ajoutés)
+  - `src/app/api/alimentation/[id]/route.ts` (nouveau : GET/PUT/DELETE)
+  - `src/app/api/depenses/[id]/route.ts` (nouveau : GET/PUT/DELETE)
+  - `src/app/api/pesees/[id]/route.ts` (nouveau : GET/PUT/DELETE)
+  - `src/app/api/paturages/[id]/route.ts` (nouveau : GET/PUT/DELETE)
+  - `src/app/api/ventes/[id]/route.ts` (nouveau : GET/DELETE seulement)
+  - `src/lib/api.ts` (11 hooks mutations ajoutés)
+  - `src/components/views/bovins-view.tsx`
+  - `src/components/views/alimentation-view.tsx`
+  - `src/components/views/depenses-view.tsx`
+  - `src/components/views/ventes-view.tsx`
+  - `src/components/views/pesees-view.tsx`
+  - `src/components/views/paturages-view.tsx`
+  - `prisma/schema.prisma` (correction provider sqlite vs .env — pas de modification du modèle)
+- Nouvelles routes API (16 endpoints nouveaux) :
+  - PUT /api/bovins/[id], DELETE /api/bovins/[id]
+  - GET/PUT/DELETE /api/alimentation/[id]
+  - GET/PUT/DELETE /api/depenses/[id]
+  - GET/PUT/DELETE /api/pesees/[id]
+  - GET/PUT/DELETE /api/paturages/[id]
+  - GET/DELETE /api/ventes/[id]
+- Erreurs résiduelles : aucune sur les fichiers de la tâche. Les seules erreurs ESLint sont dans `mobile/` (DonutChart.tsx, metro.config.js) — hors périmètre (spec interdit d'y toucher).
+- Effet de bord positif : le serveur de dev, auparavant inopérant à cause du mismatch provider sqlite/postgresql, démarre désormais correctement. L'utilisateur peut prévisualiser l'application via le panneau de droite.

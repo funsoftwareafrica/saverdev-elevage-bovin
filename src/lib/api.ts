@@ -69,6 +69,53 @@ export function useCreateBovin() {
   });
 }
 
+export function useUpdateBovin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      race?: string;
+      sexe?: string;
+      espece?: string;
+      gestionnaire?: string;
+      poidsAchat?: number;
+      prixAchat?: number;
+      dateAchat?: string;
+    }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/bovins/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec modification bovin");
+      return r.json();
+    },
+    onSuccess: (_, data) => {
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["bovin", data.id] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
+export function useDeleteBovin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/bovins/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec suppression bovin");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
 // ---------- Alimentation ----------
 export function useAlimentations() {
   return useQuery<Alimentation[]>({
@@ -95,6 +142,54 @@ export function useCreateAlimentation() {
         body: JSON.stringify(data),
       });
       if (!r.ok) throw new Error("Échec création alimentation");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["alimentation"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
+export function useUpdateAlimentation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      date?: string;
+      produit?: string;
+      quantite?: number;
+      unite?: string;
+      coutTotal?: number;
+      nbBovinsConcernes?: number;
+      commentaire?: string | null;
+    }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/alimentation/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec modification alimentation");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["alimentation"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
+export function useDeleteAlimentation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/alimentation/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec suppression alimentation");
       return r.json();
     },
     onSuccess: () => {
@@ -141,6 +236,52 @@ export function useCreateDepense() {
   });
 }
 
+export function useUpdateDepense() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      date?: string;
+      categorie?: string;
+      libelle?: string;
+      montant?: number;
+      nbBovinsConcernes?: number;
+    }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/depenses/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec modification dépense");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["depenses"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
+export function useDeleteDepense() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/depenses/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec suppression dépense");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["depenses"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
 // ---------- Ventes ----------
 export function useVentes() {
   return useQuery<Bovin[]>({
@@ -164,6 +305,25 @@ export function useCreateVente() {
         body: JSON.stringify(data),
       });
       if (!r.ok) throw new Error("Échec enregistrement vente");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ventes"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+
+// ⚠️ Pas de useUpdateVente : une vente fige le coût de revient,
+//    modifier les données casserait la comptabilité historique.
+export function useDeleteVente() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/ventes/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec annulation vente");
       return r.json();
     },
     onSuccess: () => {
@@ -204,6 +364,39 @@ export function useTresorerie() { return useQuery<Tresorerie>({ queryKey: ["tres
 // ---------- Pesees ----------
 export function usePesees(bovinId?: string) { return useQuery<Pese[]>({ queryKey: ["pesees", bovinId], queryFn: () => fetchJson<Pese[]>(`/api/pesees${bovinId ? `?bovinId=${bovinId}` : ""}`) }); }
 export function useCreatePese() { const qc = useQueryClient(); return useMutation({ mutationFn: async (data: { bovinId: string; poids: number; methode?: string }) => { const r = await fetch("/api/pesees", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); if (!r.ok) throw new Error("Échec"); return r.json(); }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["pesees"] }); qc.invalidateQueries({ queryKey: ["dashboard"] }); } }); }
+export function useUpdatePese() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; date?: string; poids?: number; methode?: string }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/pesees/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec modification pesée");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pesees"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+export function useDeletePese() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/pesees/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec suppression pesée");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pesees"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
 // ---------- Parametres ----------
 export function useParams() { return useQuery<Parametre[]>({ queryKey: ["parametres"], queryFn: () => fetchJson<Parametre[]>("/api/parametres") }); }
 export function useUpdateParam() { const qc = useQueryClient(); return useMutation({ mutationFn: async (data: { cle: string; valeur: string }) => { const r = await fetch("/api/parametres", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); if (!r.ok) throw new Error("Échec"); return r.json(); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["parametres"] }) }); }
@@ -220,6 +413,39 @@ export function useStatsRaces() { return useQuery<RaceStat[]>({ queryKey: ["stat
 export function useStatsComparaison() { return useQuery<ComparaisonMois>({ queryKey: ["stats-comparaison"], queryFn: () => fetchJson<ComparaisonMois>("/api/stats/comparaison") }); }
 // ---------- Paturages ----------
 export function usePaturages() { return useQuery<Paturage[]>({ queryKey: ["paturages"], queryFn: () => fetchJson<Paturage[]>("/api/paturages") }); }
+export function useUpdatePaturage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; nom?: string; surface?: number; coordonnees?: string | null; capacite?: number }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/paturages/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec modification pâturage");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["paturages"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+export function useDeletePaturage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/paturages/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec suppression pâturage");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["paturages"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
 
 // ---------- Tags ----------
 export function useTags(bovinId: string | null) {

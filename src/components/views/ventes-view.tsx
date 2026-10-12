@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useVentes, useBovins, useCreateVente } from "@/lib/api";
+import { useVentes, useBovins, useCreateVente, useDeleteVente } from "@/lib/api";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -17,18 +17,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User } from "@/lib/icons";
+import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User, Eye, Trash } from "@/lib/icons";
 // Note: ShoppingCart reste pour les KPI cards (ventes/CA), TrendingUp pour l'en-tête (aligné sur cattly.io)
 import { ViewHeader, KpiCard } from "./_shared";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import type { Bovin } from "@/lib/types";
 
 export function VentesView() {
   const role = useAppStore((s) => s.role);
   const readOnly = role === "SINERGI";
   const [open, setOpen] = useState(false);
+  const [viewTarget, setViewTarget] = useState<Bovin | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Bovin | null>(null);
   const { data: vendus, isLoading } = useVentes();
   const { data: allBovins } = useBovins();
   const createVente = useCreateVente();
+  const deleteVente = useDeleteVente();
 
   const vendusList = vendus ?? [];
   const actifs = (allBovins ?? []).filter((b) => b.statut === "EN_ENGRAISSEMENT");
@@ -57,6 +71,17 @@ export function VentesView() {
         onError: () => toast.error("Échec de l'enregistrement"),
       }
     );
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteVente.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success("Vente annulée", { description: `${deleteTarget.identifiant} remis en engraissement.` });
+        setDeleteTarget(null);
+      },
+      onError: () => toast.error("Échec de l'annulation"),
+    });
   };
 
   return (
@@ -143,12 +168,13 @@ export function VentesView() {
                   <TableHead className="text-right">Prix vente</TableHead>
                   <TableHead className="text-right hidden lg:table-cell">Coût revient</TableHead>
                   <TableHead className="text-right">Marge</TableHead>
+                  <TableHead className="w-[100px] text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
+                    <TableRow key={i}><TableCell colSpan={7}><Skeleton className="h-8 w-full" /></TableCell></TableRow>
                   ))
                 ) : vendusList.map((b) => {
                   const { coutRevient, marge } = computeBovinMarge(b);
@@ -172,6 +198,18 @@ export function VentesView() {
                           <span className="text-red-700 flex items-center justify-end gap-0.5"><HugeiconsIcon icon={TrendingDown} size={12} />{formatFCFA(marge ?? 0, false)}</span>
                         )}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 justify-center">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Voir les détails" onClick={() => setViewTarget(b)}>
+                            <HugeiconsIcon icon={Eye} size={16} />
+                          </Button>
+                          {!readOnly && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" title="Annuler la vente" onClick={() => setDeleteTarget(b)}>
+                              <HugeiconsIcon icon={Trash} size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -180,6 +218,72 @@ export function VentesView() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog de visualisation */}
+      <Dialog open={!!viewTarget} onOpenChange={(o) => !o && setViewTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Détails de la vente</DialogTitle>
+            <DialogDescription className="text-xs">
+              {viewTarget && `Vendu le ${formatDate(viewTarget.dateVente ?? viewTarget.dateAchat)}`}
+            </DialogDescription>
+          </DialogHeader>
+          {viewTarget && (() => {
+            const { coutRevient, marge } = computeBovinMarge(viewTarget);
+            return (
+              <div className="space-y-2 text-sm">
+                <div><span className="text-muted-foreground text-xs">Animal :</span> <br /><strong className="font-mono text-primary">{viewTarget.identifiant}</strong> <span className="text-xs text-muted-foreground">{viewTarget.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"}</span></div>
+                <div><span className="text-muted-foreground text-xs">Race :</span> <br /><strong>{viewTarget.race}</strong></div>
+                <div><span className="text-muted-foreground text-xs">Client :</span> <br /><strong>{viewTarget.clientVente ?? "—"}</strong></div>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <span className="text-muted-foreground text-xs">Prix vente :</span>
+                    <p className="font-bold text-primary tabular-nums">{formatFCFA(viewTarget.prixVente)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground text-xs">Coût revient :</span>
+                    <p className="font-bold tabular-nums text-muted-foreground">{formatFCFA(coutRevient)}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground text-xs">Marge :</span>
+                    <p className={`font-bold tabular-nums ${marge !== null && marge >= 0 ? "text-emerald-700" : "text-red-700"}`}>
+                      {formatFCFA(marge ?? 0)} ({marge !== null && viewTarget.prixVente > 0 ? Math.round((marge / viewTarget.prixVente) * 100) : 0}%)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation d'annulation de vente */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Annuler cette vente ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget && (
+                <>
+                  La vente de <strong>{deleteTarget.identifiant}</strong> ({formatFCFA(deleteTarget.prixVente)}) sera annulée.
+                  <br />Le bovin sera remis en <strong>engraissement</strong> (statut, prix de vente et client effacés).
+                  <br />Les coûts d'engraissement accumulés sont conservés.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteVente.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteVente.isPending ? "Annulation..." : "Confirmer l'annulation"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

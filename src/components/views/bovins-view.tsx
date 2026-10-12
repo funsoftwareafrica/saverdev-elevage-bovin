@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useBovins, useCreateBovin } from "@/lib/api";
+import { useBovins, useCreateBovin, useUpdateBovin, useDeleteBovin } from "@/lib/api";
 import { computeBovinMarge } from "@/lib/calculations";
 import { formatFCFA, formatDate, statutBovinColor, joursEntre } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
@@ -40,10 +40,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Beef, Search, Eye, Plus, TrendingUp, TrendingDown, Database, Download } from "@/lib/icons";
+import { Beef, Search, Eye, Plus, Pencil, Trash, TrendingUp, TrendingDown, Database, Download } from "@/lib/icons";
 import { ViewHeader, EmptyState, KpiCard } from "./_shared";
 import { exportCSV } from "@/lib/export";
-import type { StatutBovin } from "@/lib/types";
+import type { Bovin, StatutBovin } from "@/lib/types";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import { toast } from "sonner";
 
@@ -54,9 +55,13 @@ export function BovinsView() {
   const readOnly = role === "SINERGI";
   const { data: bovins, isLoading } = useBovins();
   const createBovin = useCreateBovin();
+  const updateBovin = useUpdateBovin();
+  const deleteBovin = useDeleteBovin();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"TOUS" | StatutBovin>("TOUS");
   const [open, setOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Bovin | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Bovin | null>(null);
 
   const allBovins = bovins ?? [];
   const filtered = useMemo(() => {
@@ -115,6 +120,39 @@ export function BovinsView() {
         onError: () => toast.error("Échec de l'enregistrement"),
       }
     );
+  };
+
+  const onEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editTarget) return;
+    const fd = new FormData(e.currentTarget);
+    updateBovin.mutate(
+      {
+        id: editTarget.id,
+        race: String(fd.get("race") || editTarget.race),
+        sexe: String(fd.get("sexe") || editTarget.sexe),
+        espece: String(fd.get("espece") || editTarget.espece),
+        poidsAchat: Number(fd.get("poidsAchat") ?? editTarget.poidsAchat),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Bovin modifié", { description: editTarget.identifiant });
+          setEditTarget(null);
+        },
+        onError: () => toast.error("Échec de la modification"),
+      }
+    );
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteBovin.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success("Bovin supprimé", { description: deleteTarget.identifiant });
+        setDeleteTarget(null);
+      },
+      onError: () => toast.error("Échec de la suppression"),
+    });
   };
 
   return (
@@ -232,7 +270,7 @@ export function BovinsView() {
                     <TableHead className="text-right hidden lg:table-cell">Coût revient</TableHead>
                     <TableHead className="text-right">Marge</TableHead>
                     <TableHead className="text-center">Statut</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[130px] text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -278,10 +316,22 @@ export function BovinsView() {
                               {b.statut === "EN_ENGRAISSEMENT" ? "En engrais." : b.statut === "VENDU" ? "Vendu" : "Mort"}
                             </Badge>
                           </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <HugeiconsIcon icon={Eye} size={16} />
-                            </Button>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" title="Voir la fiche" onClick={() => openBovin(b.id)}>
+                                <HugeiconsIcon icon={Eye} size={16} />
+                              </Button>
+                              {!readOnly && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Modifier" onClick={() => setEditTarget(b)}>
+                                    <HugeiconsIcon icon={Pencil} size={16} />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" title="Supprimer" onClick={() => setDeleteTarget(b)}>
+                                    <HugeiconsIcon icon={Trash} size={16} />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
@@ -294,6 +344,87 @@ export function BovinsView() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog de modification */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Modifier le bovin</DialogTitle>
+            <DialogDescription className="text-xs">
+              {editTarget?.identifiant} — l'identifiant et les cumuls comptables ne sont pas modifiables.
+            </DialogDescription>
+          </DialogHeader>
+          {editTarget && (
+            <form onSubmit={onEditSubmit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="race" className="text-xs">Race</Label>
+                  <Input id="race" name="race" defaultValue={editTarget.race} required />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="sexe" className="text-xs">Sexe</Label>
+                  <Select name="sexe" defaultValue={editTarget.sexe}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Mâle">Mâle</SelectItem>
+                      <SelectItem value="Femelle">Femelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="espece" className="text-xs">Espèce</Label>
+                  <Select name="espece" defaultValue={editTarget.espece}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BOVIN">Bovin</SelectItem>
+                      <SelectItem value="OVIN">Ovin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="poidsAchat" className="text-xs">Poids d'achat (kg)</Label>
+                  <Input id="poidsAchat" name="poidsAchat" type="number" defaultValue={editTarget.poidsAchat} required />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setEditTarget(null)}>Annuler</Button>
+                <Button type="submit" size="sm" className="bg-primary" disabled={updateBovin.isPending}>
+                  {updateBovin.isPending ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmation de suppression */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce bovin ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget && (
+                <>
+                  Le bovin <strong>{deleteTarget.identifiant}</strong> ({deleteTarget.race}) sera supprimé définitivement.
+                  <br />Cette action est irréversible.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteBovin.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteBovin.isPending ? "Suppression..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
