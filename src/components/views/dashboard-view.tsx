@@ -30,10 +30,18 @@ import {
 } from "recharts";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useAppStore } from "@/lib/store";
+import { useValidations } from "@/lib/api";
+import { Shield } from "@/lib/icons";
 
 export function DashboardView() {
   const { data: dash, isLoading } = useDashboard();
   const { data: historique } = useHistorique();
+  const role = useAppStore((s) => s.role);
+  const dashboardMode = useAppStore((s) => s.dashboardMode);
+  // Mode effectif : "auto" → on prend le rôle de l'utilisateur
+  const mode: "BENEFICIAIRE" | "SINERGI" | "E2A" =
+    dashboardMode === "auto" ? role : dashboardMode;
 
   if (isLoading || !dash) return <DashboardSkeleton />;
 
@@ -44,10 +52,21 @@ export function DashboardView() {
   const tauxMarge = dash.rentabilite.ca > 0
     ? Math.round((dash.rentabilite.margeTotale / dash.rentabilite.ca) * 100)
     : 0;
+  // Marqueurs de visibilité par mode (cahier des charges §9 — dashboard par rôle)
+  const showOperational = mode === "BENEFICIAIRE" || mode === "E2A"; // cheptel + engrais. + alim.
+  const showSynthese = mode === "SINERGI" || mode === "E2A";        // rentabilité + financement
+  const showAudit = mode === "E2A";                                  // validations en attente + alertes audit
 
   return (
     <div className="space-y-6">
       <DashboardHeader3D />
+
+      {/* Bandeau de mode — affiche le mode courant (vue opérationnelle / synthétique / audit) */}
+      <div className="no-print flex items-center gap-2 text-xs text-muted-foreground">
+        <HugeiconsIcon icon={BarChart3} size={14} className="text-primary" />
+        Mode : <strong className="text-foreground">{mode === "BENEFICIAIRE" ? "Vue opérationnelle (SAVERDEV)" : mode === "SINERGI" ? "Vue synthétique (bailleur)" : "Vue d'audit (E2A)"}</strong>
+        {dashboardMode === "auto" && <span className="text-[0.65rem]">(selon votre rôle {role})</span>}
+      </div>
 
       {/* === BANDEAU ALERTE CRITIQUE — 3D animé === */}
       {alertesActives.some((a) => a.severite === "CRITICAL") && (
@@ -56,6 +75,9 @@ export function DashboardView() {
           message={alertesActives.find((a) => a.severite === "CRITICAL")?.message ?? ""}
         />
       )}
+
+      {/* === Audit E2A — validations en attente (vue d'audit) === */}
+      {showAudit && <ValidationsEnAttenteWidget />}
 
       {/* === HERO KPI STRIP — 4 grosses tuiles animées === */}
       <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -82,7 +104,8 @@ export function DashboardView() {
         />
       </section>
 
-      {/* === SECTION CHEPTEL === */}
+      {/* === SECTION CHEPTEL (vue opérationnelle + audit) === */}
+      {showOperational && (
       <section>
         <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau et mouvements" />
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -133,8 +156,10 @@ export function DashboardView() {
           </Card>
         </div>
       </section>
+      )}
 
-      {/* === SECTION ENGRAISSEMENT + ALIMENTATION === */}
+      {/* === SECTION ENGRAISSEMENT + ALIMENTATION (vue opérationnelle + audit) === */}
+      {showOperational && (
       <section className="grid gap-4 lg:grid-cols-2">
         <Card className="hover-lift">
           <CardHeader>
@@ -189,8 +214,10 @@ export function DashboardView() {
           </CardContent>
         </Card>
       </section>
+      )}
 
-      {/* === SECTION RENTABILITÉ — graphismes avancés === */}
+      {/* === SECTION RENTABILITÉ — graphismes avancés (synthèse + audit) === */}
+      {showSynthese && (
       <RentabiliteSection
         ca={dash.rentabilite.ca}
         coutAchat={dash.rentabilite.coutAchat}
@@ -198,8 +225,9 @@ export function DashboardView() {
         margeTotale={dash.rentabilite.margeTotale}
         margeParTete={dash.rentabilite.margeParTete}
       />
+      )}
 
-      {/* === GRAPHIQUES PRINCIPAUX === */}
+      {/* === GRAPHIQUES PRINCIPAUX (toutes vues — synthèse commune) === */}
       <section className="grid gap-4 lg:grid-cols-3" style={{ perspective: "1000px" }}>
         {/* Évolution mensuelle — AIRE avec dégradés */}
         <Card className="hover-lift lg:col-span-2" style={{ transformStyle: "preserve-3d" }}>
@@ -491,6 +519,54 @@ export function DashboardView() {
         </Card>
       </section>
     </div>
+  );
+}
+
+// ============================================================
+//   Widget Validations en attente — pour la vue d'audit E2A
+// ============================================================
+function ValidationsEnAttenteWidget() {
+  const { data: vals } = useValidations();
+  const enAttente = (vals ?? []).filter((v) => v.statut === "EN_ATTENTE");
+
+  return (
+    <Card className="border-amber-200 bg-amber-50/50">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <HugeiconsIcon icon={Shield} size={16} className="text-amber-700" />
+          Validations en attente — file E2A
+        </CardTitle>
+        <CardDescription className="text-xs">
+          Saisies du Bénéficiaire en attente de validation (workflow à 2 niveaux).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-1">
+        {enAttente.length === 0 ? (
+          <div className="flex items-center gap-2 text-xs text-emerald-700 py-2">
+            <HugeiconsIcon icon={Activity} size={16} /> Aucune saisie en attente de validation.
+          </div>
+        ) : (
+          <ul className="space-y-1.5 max-h-48 overflow-y-auto scroll-thin">
+            {enAttente.slice(0, 6).map((v) => (
+              <li key={v.id} className="flex items-center gap-2 text-xs border border-border/60 rounded-md px-2 py-1.5 bg-card/60">
+                <Badge variant="outline" className="text-[0.6rem] border-amber-300 text-amber-700 bg-amber-50">
+                  {v.entiteType}
+                </Badge>
+                <span className="flex-1 truncate text-muted-foreground">
+                  {formatDate(v.dateSaisie)}
+                </span>
+                <span className="text-[0.65rem] text-muted-foreground">en attente</span>
+              </li>
+            ))}
+            {enAttente.length > 6 && (
+              <li className="text-[0.65rem] text-muted-foreground text-center pt-1">
+                + {enAttente.length - 6} autre(s) — voir la vue "Validations"
+              </li>
+            )}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

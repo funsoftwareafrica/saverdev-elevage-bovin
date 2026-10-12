@@ -78,6 +78,8 @@ import {
   Wifi01Icon as Wifi,
   ChevronDownIcon as ChevronDown,
   ChevronUpIcon as ChevronUp,
+  BellRingIcon as Bell,
+  CheckmarkBadgeIcon as CheckBadge,
 } from "@hugeicons/core-free-icons";
 
 // Export groupé pour usage direct
@@ -96,6 +98,7 @@ export {
   EyeOff,
   Sun, Moon, Sparkles, Bolt,
   Wifi, ChevronDown, ChevronUp,
+  Bell, CheckBadge,
 };
 
 // Type utilitaire pour les props d'icône

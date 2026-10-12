@@ -52,6 +52,19 @@ export function RapportBailleurView() {
     setTimeout(() => window.print(), 300);
   };
 
+  const handleExportXlsx = () => {
+    const url = `/api/rapport-bailleur/export-xlsx?annee=${year}`;
+    toast.info("Génération Excel en cours…", { description: `rapport-bailleur-${year}.xlsx` });
+    // Ouvre le lien en téléchargement direct (Content-Disposition: attachment)
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rapport-bailleur-${year}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => toast.success("Excel téléchargé"), 800);
+  };
+
   return (
     <div className="space-y-6">
       {/* Bandeau d'actions (non imprimé) */}
@@ -65,6 +78,9 @@ export function RapportBailleurView() {
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint}>
             <HugeiconsIcon icon={Printer} size={16} /> Imprimer
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportXlsx} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
+            <HugeiconsIcon icon={Download} size={16} /> Export Excel
           </Button>
           <Button size="sm" className="bg-primary" onClick={handlePrint}>
             <HugeiconsIcon icon={Download} size={16} /> Export PDF

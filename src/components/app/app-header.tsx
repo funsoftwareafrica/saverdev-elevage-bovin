@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, User, Logout } from "@/lib/icons";
+import { Calendar, User, Logout, LayoutGrid } from "@/lib/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationCenter } from "@/components/app/notification-center";
 import { toast } from "sonner";
 
 interface Props {
@@ -26,9 +27,19 @@ interface Props {
 
 const ROLES: Role[] = ["BENEFICIAIRE", "SINERGI", "E2A"];
 
+const DASHBOARD_MODE_LABELS: Record<string, string> = {
+  auto: "Vue auto",
+  BENEFICIAIRE: "Vue opérationnelle",
+  SINERGI: "Vue synthétique",
+  E2A: "Vue d'audit",
+};
+
 export function AppHeader({ title, subtitle }: Props) {
   const role = useAppStore((s) => s.role);
   const setRole = useAppStore((s) => s.setRole);
+  const view = useAppStore((s) => s.view);
+  const dashboardMode = useAppStore((s) => s.dashboardMode);
+  const setDashboardMode = useAppStore((s) => s.setDashboardMode);
   const user = useAppStore((s) => s.user);
   const logout = useAppStore((s) => s.logout);
   const selectedMonth = useAppStore((s) => s.selectedMonth);
@@ -94,6 +105,24 @@ export function AppHeader({ title, subtitle }: Props) {
           </Select>
         </div>
 
+        {/* Sélecteur de vue dashboard (apparait uniquement sur la vue Tableau de bord) */}
+        {view === "dashboard" && (
+          <div className="hidden md:flex items-center gap-1.5">
+            <HugeiconsIcon icon={LayoutGrid} size={16} className="text-muted-foreground" />
+            <Select value={dashboardMode} onValueChange={(v) => setDashboardMode(v as typeof dashboardMode)}>
+              <SelectTrigger className="h-8 w-[150px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto" className="text-xs">Vue auto (rôle)</SelectItem>
+                <SelectItem value="BENEFICIAIRE" className="text-xs">{DASHBOARD_MODE_LABELS.BENEFICIAIRE}</SelectItem>
+                <SelectItem value="SINERGI" className="text-xs">{DASHBOARD_MODE_LABELS.SINERGI}</SelectItem>
+                <SelectItem value="E2A" className="text-xs">{DASHBOARD_MODE_LABELS.E2A}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {/* Badge lecture seule pour bailleur */}
         {role === "SINERGI" && (
           <Badge
@@ -106,6 +135,9 @@ export function AppHeader({ title, subtitle }: Props) {
 
         {/* Toggle mode sombre/clair */}
         <ThemeToggle />
+
+        {/* Centre de notifications (cloche + badge non-lu) */}
+        <NotificationCenter />
 
         {/* Bouton déconnexion */}
         <Button

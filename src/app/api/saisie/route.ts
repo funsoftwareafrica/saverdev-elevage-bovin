@@ -1,8 +1,24 @@
 // API Saisie — journaux comptables (partie double) + balance + financement
 // POST : créer une entrée (achat, vente, dépense, stock, capital_mouvement)
 // GET  : récupérer un journal, la balance, ou le suivi financement
+//
+// Workflow de validation à 2 niveaux (cahier des charges §9) :
+//  - Le Bénéficiaire (SAVERDEV) saisit → l'opération est mise EN_ATTENTE
+//    dans la table Validation. L'opération n'est PAS appliquée en base.
+//  - L'E2A (admin) valide ou rejette depuis la vue Validations.
+//  - À la validation, l'opération est réellement appliquée via
+//    applySaisieOperation() (cf. lib/saisie-ops.ts).
+//  - L'E2A et la SINERGI saisissent directement (pas de file d'attente).
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireRole } from "@/lib/auth";
+import {
+  applySaisieOperation,
+  serializeSaisie,
+  saisieResultToResponse,
+  type SaisiePayload,
+} from "@/lib/saisie-ops";
 
 // Capital initial par défaut (utilisé si aucun Parametre "capital_initial" en DB)
 const CAPITAL_INITIAL_DEFAUT = 14_775_000;
@@ -27,13 +43,6 @@ function formatDateTimeFR(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-// Comptes comptables
-const COMPTES = {
-  achat_bovin: { debit: "6011", credit: "5711", libelle: "Achat de bétail" },
-  vente_bovin: { debit: "4111", credit: "7011", libelle: "Vente de bétail" },
-  depense: { debit: "6", credit: "5711", libelle: "Dépense" },
-};
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
@@ -280,123 +289,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { type, ...data } = body;
 
-  if (type === "achat") {
-    const especeVal = (data.espece as string) || "BOVIN";
-    const prefix = especeVal === "OVIN" ? "OVN" : "BOE";
-    const gestionnaire = (data.gestionnaire as string) || "SAVERDEV";
-    const countEspece = await db.bovin.count({ where: { espece: especeVal } });
-    const bovin = await db.bovin.create({
-      data: {
-        identifiant: `${prefix}-${String(countEspece + 1).padStart(3, "0")}`,
-        espece: especeVal,
-        gestionnaire,
-        race: data.race ?? "Zébu", sexe: data.sexe ?? "Mâle",
-        dateAchat: new Date(data.date),
-        prixAchat: Number(data.prixUnitaire) * Number(data.nbSujets ?? 1),
-        poidsAchat: Number(data.poids ?? 0), statut: "EN_ENGRAISSEMENT",
-        coutsEngraissement: 0, autresCouts: 0, prixVente: 0,
-      },
-    });
-    return NextResponse.json({ ok: true, id: bovin.id, identifiant: bovin.identifiant });
-  }
-
-  if (type === "vente") {
-    // Résolution du bovin à vendre :
-    //  1) Si `bovinId` fourni → on vend l'animal précis sélectionné par l'utilisateur.
-    //  2) Sinon, si `espece` ("BOVIN" | "OVIN") fournie → on prend le 1er animal
-    //     en engraissement de cette espèce (ordre chronologique d'achat).
-    //  3) Sinon (fallback) → on prend le 1er animal en engraissement sans filtre.
-    let bovin = null;
-    const bovinId = data.bovinId ? String(data.bovinId) : null;
-    const especeVal = data.espece ? String(data.espece) : null;
-
-    if (bovinId) {
-      bovin = await db.bovin.findUnique({ where: { id: bovinId } });
-    } else if (especeVal === "BOVIN" || especeVal === "OVIN") {
-      bovin = await db.bovin.findFirst({
-        where: { statut: "EN_ENGRAISSEMENT", espece: especeVal },
-        orderBy: { dateAchat: "asc" },
-      });
-    } else {
-      bovin = await db.bovin.findFirst({
-        where: { statut: "EN_ENGRAISSEMENT" },
-        orderBy: { dateAchat: "asc" },
-      });
-    }
-
-    if (!bovin) {
-      const label = especeVal === "OVIN" ? "ovin" : especeVal === "BOVIN" ? "bovin" : "animal";
-      return NextResponse.json(
-        { ok: false, error: `Aucun ${label} disponible à la vente` },
-        { status: 400 }
-      );
-    }
-    // Sécurité : ne vendre que les animaux réellement en engraissement.
-    if (bovin.statut !== "EN_ENGRAISSEMENT") {
-      return NextResponse.json(
-        { ok: false, error: `Cet animal n'est pas en engraissement (statut: ${bovin.statut})` },
-        { status: 400 }
-      );
-    }
-
-    const updated = await db.bovin.update({
-      where: { id: bovin.id },
-      data: {
-        statut: "VENDU",
-        dateVente: new Date(data.date),
-        prixVente: Number(data.prixUnitaire) * Number(data.nbSujets ?? 1),
-        clientVente: data.acheteur ?? "Client",
-      },
-    });
-    return NextResponse.json({ ok: true, id: updated.id, identifiant: updated.identifiant, espece: updated.espece });
-  }
-
-  if (type === "depense") {
-    const depense = await db.depense.create({
-      data: { date: new Date(data.date), categorie: data.categorie ?? "Autre", libelle: data.libelle ?? "", montant: Number(data.montant ?? 0), nbBovinsConcernes: 0 },
-    });
-    return NextResponse.json({ ok: true, id: depense.id });
-  }
-
-  if (type === "stock") {
-    const mvt = await db.stockMouvement.create({
-      data: { date: new Date(data.date), typeAliment: data.typeAliment ?? "Son", entree: Number(data.entree ?? 0), sortie: Number(data.sortie ?? 0), prixParSac: Number(data.prixParSac ?? 0), observations: data.observations ?? null },
-    });
-    return NextResponse.json({ ok: true, id: mvt.id });
-  }
-
-  if (type === "capital_mouvement") {
-    // Nouveau mouvement manuel sur le capital initial.
-    // Le capital initial reste STATIQUE : on ne fait que créer un mouvement
-    // (ENTREE ou SORTIE) horodaté avec heure + minutes.
-    // Note : `type` = "capital_mouvement" (type d'opération API), le sens
-    // réel du mouvement est lu dans `data.typeMvt` (ENTREE/SORTIE).
-    const typeMvt = (data.typeMvt === "ENTREE" ? "ENTREE" : "SORTIE") as "ENTREE" | "SORTIE";
-    const montant = Number(data.montant);
-    if (!montant || montant <= 0) {
-      return NextResponse.json({ ok: false, error: "Montant invalide" }, { status: 400 });
-    }
-    // Accepter une date/heure ISO (datetime-local). Si absente → maintenant.
-    const dateMvt = data.date ? new Date(data.date) : new Date();
-    if (isNaN(dateMvt.getTime())) {
-      return NextResponse.json({ ok: false, error: "Date invalide" }, { status: 400 });
-    }
-    const mvt = await db.capitalMouvement.create({
-      data: {
-        date: dateMvt,
-        libelle: String(data.libelle ?? "").slice(0, 200) || (typeMvt === "ENTREE" ? "Ajout de capital" : "Retrait de capital"),
-        type: typeMvt,
-        montant,
-        saisiePar: (data.saisiePar as string) ?? null,
-      },
-    });
-    return NextResponse.json({ ok: true, id: mvt.id });
-  }
-
+  // --- Types non soumis à validation (gestion directe) ---
   if (type === "capital_initial_update") {
-    // Permet de mettre à jour la valeur du capital initial (rare, opération
-    // de paramétrage). Aucun mouvement existant n'est affecté — la nouvelle
-    // valeur sera utilisée pour le calcul du solde restant.
     const montant = Number(data.montant);
     if (isNaN(montant) || montant < 0) {
       return NextResponse.json({ ok: false, error: "Montant invalide" }, { status: 400 });
@@ -411,7 +305,6 @@ export async function POST(req: NextRequest) {
   }
 
   if (type === "capital_mouvement_delete") {
-    // Supprimer un mouvement de capital (sans toucher au capital initial).
     const id = String(data.id ?? "");
     if (!id) return NextResponse.json({ ok: false, error: "ID requis" }, { status: 400 });
     try {
@@ -422,5 +315,67 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  return NextResponse.json({ ok: false, error: "Type inconnu" }, { status: 400 });
+  // --- Types soumis à validation (achat, vente, depense, stock, capital_mouvement) ---
+  const { session, forbidden } = await requireRole(["BENEFICIAIRE", "E2A", "SINERGI"]);
+  if (forbidden) {
+    return NextResponse.json({ ok: false, error: "Authentification requise" }, { status: 401 });
+  }
+
+  const saisieType = type as SaisiePayload["type"];
+  const validTypes: SaisiePayload["type"][] = ["achat", "vente", "depense", "stock", "capital_mouvement"];
+  if (!validTypes.includes(saisieType)) {
+    return NextResponse.json({ ok: false, error: "Type inconnu" }, { status: 400 });
+  }
+
+  const payload: SaisiePayload = { type: saisieType, data };
+
+  // Le Bénéficiaire passe par le workflow de validation : on crée une entrée
+  // EN_ATTENTE dans la table Validation sans appliquer l'opération en base.
+  if (session?.user?.role === "BENEFICIAIRE") {
+    const action = serializeSaisie(payload);
+    const entiteType = saisieType.toUpperCase(); // "ACHAT" | "VENTE" | "DEPENSE" | "STOCK" | "CAPITAL_MOUVEMENT"
+    const val = await db.validation.create({
+      data: {
+        entiteType,
+        entiteId: "pending",
+        action,
+        statut: "EN_ATTENTE",
+        saisiePar: session.user.id,
+        dateSaisie: new Date(),
+      },
+    });
+    await db.historique.create({
+      data: {
+        action: "VALIDATION_PENDING",
+        entiteType: "Validation",
+        entiteId: val.id,
+        userId: session.user.id,
+        details: `Saisie ${saisieType} en attente de validation E2A`,
+      },
+    });
+    return NextResponse.json(
+      {
+        ok: true,
+        pending: true,
+        validationId: val.id,
+        message: "Saisie soumise à validation E2A",
+      },
+      { status: 202 }
+    );
+  }
+
+  // E2A / SINERGI → application directe
+  const result = await applySaisieOperation(payload);
+  if (result.ok && session?.user?.id) {
+    await db.historique.create({
+      data: {
+        action: `SAISIE_DIRECTE_${saisieType.toUpperCase()}`,
+        entiteType: saisieType === "achat" || saisieType === "vente" ? "Bovin" : saisieType === "depense" ? "Depense" : saisieType === "stock" ? "StockMouvement" : "CapitalMouvement",
+        entiteId: result.id,
+        userId: session.user.id,
+        details: `Saisie directe (${saisieType}) par ${session.user.email}`,
+      },
+    }).catch(() => null);
+  }
+  return saisieResultToResponse(result);
 }

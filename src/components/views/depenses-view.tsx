@@ -2,16 +2,19 @@
 
 // Vue Dépenses — soins vétérinaires, transport, main-d'œuvre, autres charges.
 // Boutons d'action : Voir (détails), Modifier, Supprimer.
+// Inclut le budget prévisionnel par catégorie (évolution 5) avec barres de
+// progression + alerte visuelle si dépassement.
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useDepenses, useCreateDepense, useUpdateDepense, useDeleteDepense } from "@/lib/api";
+import { useDepenses, useCreateDepense, useUpdateDepense, useDeleteDepense, useBudgets, useUpdateBudget } from "@/lib/api";
 import { formatFCFA, formatDate } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -28,11 +31,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Receipt, Plus, Beef, Wallet, CreditCard, Eye, Pencil, Trash } from "@/lib/icons";
+import { Receipt, Plus, Beef, Wallet, CreditCard, Eye, Pencil, Trash, AlertTriangle } from "@/lib/icons";
 import { Stethoscope, Truck, Wrench, Users } from "lucide-react";
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
-import type { Depense } from "@/lib/types";
+import type { Depense, BudgetItem } from "@/lib/types";
 
 const CATEGORIES = [
   { key: "Soins vétérinaires", icon: Stethoscope, color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
@@ -48,13 +51,18 @@ export function DepensesView() {
   const createDepense = useCreateDepense();
   const updateDepense = useUpdateDepense();
   const deleteDepense = useDeleteDepense();
+  const { data: budgets } = useBudgets();
+  const updateBudget = useUpdateBudget();
   const [filter, setFilter] = useState<string>("TOUS");
   const [open, setOpen] = useState(false);
   const [viewTarget, setViewTarget] = useState<Depense | null>(null);
   const [editTarget, setEditTarget] = useState<Depense | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Depense | null>(null);
+  const [budgetDialog, setBudgetDialog] = useState(false);
+  const [budgetValues, setBudgetValues] = useState<Record<string, string>>({});
 
   const allDepenses = depenses ?? [];
+  const budgetList: BudgetItem[] = budgets ?? [];
   const filtered = filter === "TOUS" ? allDepenses : allDepenses.filter((d) => d.categorie === filter);
   const total = allDepenses.reduce((s, d) => s + d.montant, 0);
 
@@ -188,6 +196,126 @@ export function DepensesView() {
           );
         })}
       </div>
+
+      {/* Budget prévisionnel par catégorie (évolution 5) */}
+      <Card className="border-border">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <HugeiconsIcon icon={Wallet} size={16} className="text-primary" />
+              Budget prévisionnel — mois en cours
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Dépenses réalisées vs budget prévu. Alerte rouge si dépassement.
+            </CardDescription>
+          </div>
+          {!readOnly && (
+            <Dialog
+              open={budgetDialog}
+              onOpenChange={(o) => {
+                setBudgetDialog(o);
+                if (o) {
+                  const v: Record<string, string> = {};
+                  budgetList.forEach((b) => { v[b.cle] = String(b.budget); });
+                  setBudgetValues(v);
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <HugeiconsIcon icon={Pencil} size={14} /> Modifier le budget
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Modifier les budgets</DialogTitle>
+                  <DialogDescription className="text-xs">
+                    Les montants sont en FCFA. Affectés au mois en cours.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3">
+                  {budgetList.map((b) => (
+                    <div key={b.cle} className="space-y-1.5">
+                      <Label htmlFor={`budget-${b.cle}`} className="text-xs">{b.categorie}</Label>
+                      <Input
+                        id={`budget-${b.cle}`}
+                        type="number"
+                        value={budgetValues[b.cle] ?? ""}
+                        onChange={(e) => setBudgetValues({ ...budgetValues, [b.cle]: e.target.value })}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setBudgetDialog(false)}>Annuler</Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="bg-primary"
+                    disabled={updateBudget.isPending}
+                    onClick={() => {
+                      const updates = Object.entries(budgetValues);
+                      const promises = updates.map(([cle, valeur]) =>
+                        fetch("/api/budget", {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ cle, valeur }),
+                        })
+                      );
+                      Promise.all(promises)
+                        .then(() => {
+                          toast.success("Budgets mis à jour");
+                          setBudgetDialog(false);
+                          // Invalide le cache budgets via une re-fetch explicite
+                          updateBudget.mutate({ cle: updates[0]?.[0] ?? "", valeur: updates[0]?.[1] ?? "" });
+                        })
+                        .catch(() => toast.error("Échec de la mise à jour"));
+                    }}
+                  >
+                    {updateBudget.isPending ? "Enregistrement…" : "Enregistrer"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </CardHeader>
+        <CardContent className="p-4 space-y-3">
+          {budgetList.length === 0 ? (
+            <Skeleton className="h-16 w-full" />
+          ) : (
+            budgetList.map((b) => {
+              const pct = Math.min(100, Math.round(b.taux));
+              const depasse = b.depasse;
+              return (
+                <div key={b.cle} className={`rounded-lg border p-3 ${depasse ? "border-red-300 bg-red-50/40" : "border-border bg-card"}`}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold">{b.categorie}</span>
+                      {depasse && (
+                        <Badge variant="outline" className="text-[0.6rem] text-red-700 border-red-200 bg-red-50 gap-1">
+                          <HugeiconsIcon icon={AlertTriangle} size={10} /> Dépassement
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs tabular-nums text-muted-foreground">
+                      <span className={depasse ? "text-red-700 font-semibold" : ""}>
+                        {formatFCFA(b.realise, false)}
+                      </span>
+                      {" / "}
+                      {formatFCFA(b.budget, false)} FCFA
+                    </div>
+                  </div>
+                  <Progress value={pct} className={depasse ? "[&>div]:bg-red-500 h-2" : "h-2"} />
+                  <p className="text-[0.65rem] text-muted-foreground mt-1">
+                    {Math.round(b.taux)}% du budget utilisé
+                    {depasse && ` — dépassement de ${formatFCFA(b.realise - b.budget, false)} FCFA`}
+                  </p>
+                </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">

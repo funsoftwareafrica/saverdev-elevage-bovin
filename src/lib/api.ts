@@ -10,7 +10,7 @@ import type {
   Alerte,
   Historique,
   Tresorerie, Pese, Parametre, NotificationItem, Backup, Soin, RaceStat, ComparaisonMois, Paturage,
-  Dashboard, Tag, Validation, RapportBailleur,
+  Dashboard, Tag, Validation, RapportBailleur, BudgetItem,
 } from "@/lib/types";
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -401,13 +401,181 @@ export function useDeletePese() {
 export function useParams() { return useQuery<Parametre[]>({ queryKey: ["parametres"], queryFn: () => fetchJson<Parametre[]>("/api/parametres") }); }
 export function useUpdateParam() { const qc = useQueryClient(); return useMutation({ mutationFn: async (data: { cle: string; valeur: string }) => { const r = await fetch("/api/parametres", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); if (!r.ok) throw new Error("Échec"); return r.json(); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["parametres"] }) }); }
 // ---------- Notifications ----------
-export function useNotifications() { return useQuery<NotificationItem[]>({ queryKey: ["notifications"], queryFn: () => fetchJson<NotificationItem[]>("/api/notifications") }); }
+interface NotifResponse { items: NotificationItem[]; nonLues: number; }
+export function useNotifications() {
+  return useQuery<NotifResponse>({
+    queryKey: ["notifications"],
+    queryFn: () => fetchJson<NotifResponse>("/api/notifications"),
+    refetchInterval: 60_000, // polling 1min — refresh badge non-lu
+  });
+}
+export function useMarkAllNotificationsRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+}
+export function useMarkNotificationRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; lu?: boolean }) => {
+      const r = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: data.id, lu: data.lu ?? true }),
+      });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+}
+export function useCheckNotifications() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/notifications/check");
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+}
 // ---------- Backups ----------
 export function useBackups() { return useQuery<Backup[]>({ queryKey: ["backups"], queryFn: () => fetchJson<Backup[]>("/api/backup") }); }
 export function useCreateBackup() { const qc = useQueryClient(); return useMutation({ mutationFn: async () => { const r = await fetch("/api/backup", { method: "POST" }); if (!r.ok) throw new Error("Échec"); return r.json(); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["backups"] }) }); }
+
+export interface AutoBackupResponse {
+  due: boolean;
+  created: boolean;
+  lastBackupDate: string | null;
+  nextBackupDue: string | null;
+  backup?: Backup;
+  error?: string;
+}
+export function useCheckAutoBackup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/backup/auto");
+      if (!r.ok) throw new Error("Échec");
+      return (await r.json()) as AutoBackupResponse;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["backups"] }),
+  });
+}
+// ---------- Budgets prévisionnels ----------
+export function useBudgets() {
+  return useQuery<BudgetItem[]>({
+    queryKey: ["budgets"],
+    queryFn: () => fetchJson<BudgetItem[]>("/api/budget"),
+  });
+}
+export function useUpdateBudget() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { cle: string; valeur: string }) => {
+      const r = await fetch("/api/budget", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["budgets"] });
+      qc.invalidateQueries({ queryKey: ["parametres"] });
+    },
+  });
+}
 // ---------- Soins ----------
 export function useSoins(bovinId?: string) { return useQuery<Soin[]>({ queryKey: ["soins", bovinId], queryFn: () => fetchJson<Soin[]>(`/api/soins${bovinId ? `?bovinId=${bovinId}` : ""}`) }); }
-export function useCreateSoin() { const qc = useQueryClient(); return useMutation({ mutationFn: async (data: { bovinId: string; type: string; libelle: string; cout?: number; prochainRappel?: string; notes?: string }) => { const r = await fetch("/api/soins", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); if (!r.ok) throw new Error("Échec"); return r.json(); }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["soins"] }); qc.invalidateQueries({ queryKey: ["dashboard"] }); } }); }
+
+export interface SoinAVenirItem {
+  id: string;
+  bovinId: string;
+  bovinIdentifiant: string;
+  bovinEspece: string;
+  bovinStatut: string;
+  date: string;
+  type: string;
+  libelle: string;
+  cout: number;
+  prochainRappel: string | null;
+  notes: string | null;
+  isLate: boolean;
+  joursAvantEcheance: number | null;
+}
+export interface SoinsAVenirResponse {
+  aVenir: SoinAVenirItem[];
+  enRetard: SoinAVenirItem[];
+  total: number;
+}
+export function useSoinsAVenir() {
+  return useQuery<SoinsAVenirResponse>({
+    queryKey: ["soins", "a-venir"],
+    queryFn: () => fetchJson<SoinsAVenirResponse>("/api/soins/a-venir"),
+    refetchInterval: 60_000,
+  });
+}
+export function useCreateSoin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { bovinId: string; type: string; libelle: string; cout?: number; prochainRappel?: string; notes?: string; date?: string }) => {
+      const r = await fetch("/api/soins", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["soins"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+export function useUpdateSoin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; date?: string; type?: string; libelle?: string; cout?: number; prochainRappel?: string | null; notes?: string | null }) => {
+      const { id, ...payload } = data;
+      const r = await fetch(`/api/soins/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["soins"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
+export function useDeleteSoin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/soins/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Échec");
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["soins"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+    },
+  });
+}
 // ---------- Stats ----------
 export function useStatsRaces() { return useQuery<RaceStat[]>({ queryKey: ["stats-races"], queryFn: () => fetchJson<RaceStat[]>("/api/stats/races") }); }
 export function useStatsComparaison() { return useQuery<ComparaisonMois>({ queryKey: ["stats-comparaison"], queryFn: () => fetchJson<ComparaisonMois>("/api/stats/comparaison") }); }

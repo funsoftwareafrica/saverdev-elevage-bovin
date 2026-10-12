@@ -155,9 +155,9 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 
 // Vues accessibles par rôle
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
-  BENEFICIAIRE: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages"],
+  BENEFICIAIRE: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","soins"],
   SINERGI: ["dashboard","rentabilite","financement","rapport","bailleur-synthese"],
-  E2A: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese"],
+  E2A: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese","validations","soins","backups"],
 };
 
 export type ViewKey =
@@ -177,21 +177,64 @@ export type ViewKey =
   | "paturages"
   | "bailleur-synthese"
   | "carte-3d"
-  | "saisie";
+  | "saisie"
+  | "validations"
+  | "soins"
+  | "backups";
 
 export interface Pese { id: string; bovinId: string; identifiant: string; race: string; espece: string; date: string; poids: number; methode: string; }
 export interface Parametre { id: string; cle: string; valeur: string; description: string | null; }
-export interface NotificationItem { id: string; date: string; type: string; titre: string; message: string; lu: boolean; lien: string | null; }
+export interface NotificationItem {
+  id: string;
+  date: string;
+  type: string;
+  titre: string;
+  message: string;
+  lu: boolean;
+  lien: string | null;
+  source?: "notification" | "alerte";
+}
 export interface TresorerieProjection { mois: string; date: string; entrees: number; sorties: number; solde: number; soldeCumule: number; enRisque: boolean; }
 export interface Tresorerie { soldeInitial: number; depenseMensuelleMoy: number; projection: TresorerieProjection[]; moisARisque: number; totalEntrees: number; totalSorties: number; }
 export interface Backup { id: string; date: string; filename: string; size: number; type: string; entities: number; }
-export interface Soin { id: string; bovinId: string; date: string; type: string; libelle: string; cout: number; prochainRappel: string | null; notes: string | null; }
+export interface Soin {
+  id: string;
+  bovinId: string;
+  date: string;
+  type: string;
+  libelle: string;
+  cout: number;
+  prochainRappel: string | null;
+  notes: string | null;
+  // Champs dérivés (calendrier vaccinal)
+  bovinIdentifiant?: string;
+  bovinEspece?: string;
+}
 export interface RaceStat { race: string; total: number; actifs: number; vendus: number; margeTotale: number; margeMoyenne: number; dureeMoyenne: number; poidsMoyen: number; }
 export interface ComparaisonMois { moisCourant: string; moisPrecedent: string; ventes: { courant: number; prec: number; delta: { abs: number; pct: number } }; ca: { courant: number; prec: number; delta: { abs: number; pct: number } }; marge: { courant: number; prec: number; delta: { abs: number; pct: number } }; depenses: { courant: number; prec: number; delta: { abs: number; pct: number } }; alimentation: { courant: number; prec: number; delta: { abs: number; pct: number } }; }
+export interface BudgetItem {
+  cle: string;
+  categorie: string;
+  budget: number;       // budget prévu (FCFA)
+  realise: number;      // dépenses réelles du mois en cours (FCFA)
+  taux: number;          // realise / budget * 100
+  depasse: boolean;      // realise > budget
+}
 export interface Paturage { id: string; nom: string; surface: number; coordonnees: string | null; capacite: number; createdAt: string; }
 
 export interface Tag { id: string; tag: string; color: string; }
-export interface Validation { id: string; entiteType: string; entiteId: string; action: string; statut: string; dateSaisie: string; dateValidation: string | null; commentaire: string | null; }
+export interface Validation {
+  id: string;
+  entiteType: string;
+  entiteId: string;
+  action: string; // JSON sérialisé de l'opération (cf. lib/saisie-ops.ts)
+  statut: "EN_ATTENTE" | "VALIDEE" | "REJETEE";
+  saisiePar: string | null;
+  validePar: string | null;
+  dateSaisie: string;
+  dateValidation: string | null;
+  commentaire: string | null;
+}
 
 // ---------- Rapport Bailleur (modèle Excel E2A) ----------
 

@@ -6,7 +6,7 @@ import type { IconSvgElement } from "@hugeicons/react";
 import {
   Activity, Database, Package, CreditCard, BarChart3,
   Clock, FileText, Box, Plus, Wallet, Scale, Settings, Map, Landmark,
-  ShoppingCart, Beef,
+  ShoppingCart, Beef, Shield, CalendarClock,
 } from "@/lib/icons";
 import type { ViewKey } from "@/lib/types";
 
@@ -112,10 +112,13 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "financement", label: "Financement", icon: Clock },
   { key: "tresorerie", label: "Trésorerie", icon: Wallet },
   { key: "pesees", label: "Pesées", icon: Scale },
+  { key: "soins", label: "Soins & vaccins", icon: CalendarClock },
   { key: "paturages", label: "Pâturages", icon: Map },
   { key: "rapport", label: "Rapport bailleur", icon: FileText },
   { key: "bailleur-synthese", label: "Synthèse bailleur", icon: Landmark },
+  { key: "validations", label: "Validations", icon: Shield },
   { key: "parametres", label: "Paramètres", icon: Settings },
+  { key: "backups", label: "Sauvegardes", icon: Database },
   { key: "carte-3d", label: "Carte 3D", icon: Box },
 ];
 
