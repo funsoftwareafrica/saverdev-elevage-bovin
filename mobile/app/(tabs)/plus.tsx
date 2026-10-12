@@ -1,16 +1,22 @@
-// Vue Plus — menu des vues secondaires + accès profil
+// Vue Plus — menu des vues secondaires + accès profil + raccourcis terrain
 import * as React from "react";
 import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { theme } from "@/constants/theme";
 import { SaverdevLogo } from "@/components/SaverdevLogo";
-import { Wheat, Receipt, Banknote, ChevronRight, User, QrCode } from "lucide-react-native";
+import { Wheat, Receipt, Banknote, ChevronRight, User, QrCode, Plus as PlusIcon, Bell } from "lucide-react-native";
 
 const ITEMS = [
   { label: "Alimentation", desc: "Achats d'aliments + imputation", icon: Wheat, route: "/(tabs)/alimentation" },
   { label: "Dépenses", desc: "Soins, transport, main-d'œuvre", icon: Receipt, route: "/(tabs)/depenses" },
   { label: "Ventes", desc: "Enregistrement + marge auto", icon: Banknote, route: "/(tabs)/ventes" },
+];
+
+const RACCOURCIS = [
+  { label: "Scanner un QR", desc: "Caméra + saisie manuelle BOE/OVN", icon: QrCode, route: "/scan" },
+  { label: "Saisie rapide", desc: "Achat / vente / dépense / pesée", icon: PlusIcon, route: "/saisie-rapide" },
+  { label: "Notifications", desc: "Centre d'alertes temps réel", icon: Bell, route: "/notifications" },
 ];
 
 export default function PlusScreen() {
@@ -26,6 +32,20 @@ export default function PlusScreen() {
         </View>
       </View>
 
+      {/* Raccourcis terrain */}
+      <Text style={styles.sectionTitle}>Raccourcis terrain</Text>
+      {RACCOURCIS.map((item) => (
+        <Pressable key={item.label} onPress={() => router.push(item.route as any)} style={({ pressed }) => [styles.row, pressed && { transform: [{ scale: 0.98 }] }]}>
+          <View style={styles.rowIcon}><item.icon size={20} color={theme.colors.primary} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowLabel}>{item.label}</Text>
+            <Text style={styles.rowDesc}>{item.desc}</Text>
+          </View>
+          <ChevronRight size={18} color={theme.colors.muted} />
+        </Pressable>
+      ))}
+
+      <Text style={styles.sectionTitle}>Modules</Text>
       {ITEMS.map((item) => (
         <Pressable key={item.label} onPress={() => router.push(item.route as any)} style={({ pressed }) => [styles.row, pressed && { transform: [{ scale: 0.98 }] }]}>
           <View style={styles.rowIcon}><item.icon size={20} color={theme.colors.primary} /></View>
@@ -50,6 +70,7 @@ export default function PlusScreen() {
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: { fontSize: 11, fontWeight: "700" as const, color: theme.colors.muted, textTransform: "uppercase", letterSpacing: 0.5, marginTop: 8 },
   row: { flexDirection: "row", alignItems: "center", gap: 12, padding: 16, backgroundColor: theme.colors.card, borderRadius: 14, ...theme.shadows.card },
   rowIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.primaryFaint, justifyContent: "center", alignItems: "center" },
   rowLabel: { fontSize: 15, fontWeight: "600" as const, color: theme.colors.foreground },

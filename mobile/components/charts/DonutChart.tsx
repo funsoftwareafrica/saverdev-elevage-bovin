@@ -43,14 +43,15 @@ export function DonutChart({ data, size = 180, thickness = 28 }: Props) {
   const rOut = size / 2 - 2;
   const rIn = rOut - thickness;
 
-  let angle = 0;
-  const slices = data.map((d) => {
-    const start = angle;
+  const slices = data.reduce<
+    Array<DonutSlice & { start: number; end: number }>
+  >((acc, d) => {
+    const start = acc.length > 0 ? acc[acc.length - 1].end : 0;
     const sweep = (d.value / total) * 360;
-    angle += sweep;
     const end = start + sweep;
-    return { ...d, start, end };
-  });
+    acc.push({ ...d, start, end });
+    return acc;
+  }, []);
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>

@@ -21,3 +21,14 @@ export interface Dashboard {
 export const ROLE_LABELS: Record<Role, string> = {
   ELEVEUR: "Éleveur", GERANT: "Gérant", BAILLEUR: "Bailleur", ADMIN: "Admin",
 };
+
+export interface NotificationItem {
+  id: string;
+  date: string;
+  type: string;
+  titre: string;
+  message: string;
+  lu: boolean;
+  lien: string | null;
+  source?: "notification" | "alerte";
+}

@@ -1,8 +1,14 @@
-// Scanner QR (simulé) — viseur caméra + bouton "Simuler un scan" qui
-// choisit un bovin au hasard dans useBovins() et navigue vers /bovin/[id].
-// Aucune dépendance expo-camera : viseur purement visuel (View + bordures).
+// Scanner QR — viseur caméra + saisie manuelle d'un identifiant BOE-xxx ou OVN-xxx.
+//
+// Sans expo-camera (non installé), la lecture caméra réelle n'est pas
+// disponible — l'utilisateur peut soit :
+//   - saisir manuellement l'identifiant lu sur un collier / étiquette
+//   - "simuler" un scan qui choisit un bovin au hasard
+//
+// En production, il faudrait installer expo-camera et brancher un reader
+// de QR code (e.g. barcodescanner).
 import * as React from "react";
-import { ScrollView, View, Text, StyleSheet, Pressable, ActivityIndicator, Alert } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useBovins } from "@/lib/api";
@@ -10,7 +16,7 @@ import { theme } from "@/constants/theme";
 import { SaverdevLogo } from "@/components/SaverdevLogo";
 import { Skeleton } from "@/components/Skeleton";
 import { Button } from "@/components/Button";
-import { ScanLine, ArrowLeft, QrCode, Camera, ChevronRight } from "lucide-react-native";
+import { ScanLine, ArrowLeft, QrCode, Camera, ChevronRight, Search } from "lucide-react-native";
 import type { Bovin } from "@/lib/types";
 
 export default function ScanScreen() {
@@ -18,8 +24,8 @@ export default function ScanScreen() {
   const insets = useSafeAreaInsets();
   const { data: bovins, isLoading, isFetching } = useBovins();
 
-  // Petit effet de "scan" : pendant X ms on affiche un spinner, puis on redirige.
   const [scanning, setScanning] = React.useState(false);
+  const [manualId, setManualId] = React.useState("");
 
   const simulateScan = React.useCallback(() => {
     if (!bovins || bovins.length === 0) {
@@ -27,13 +33,36 @@ export default function ScanScreen() {
       return;
     }
     setScanning(true);
-    // Simule la durée de lecture d'un QR (600 ms)
     const pick: Bovin = bovins[Math.floor(Math.random() * bovins.length)]!;
     setTimeout(() => {
       setScanning(false);
       router.push({ pathname: "/bovin/[id]", params: { id: pick.id } });
     }, 600);
   }, [bovins, router]);
+
+  const onManualSubmit = React.useCallback(() => {
+    const q = manualId.trim().toUpperCase();
+    if (!q || !bovins) return;
+    // Recherche par identifiant exact (BOE-001 ou OVN-001)
+    let match = bovins.find((b) => b.identifiant.toUpperCase() === q);
+    // Sinon : recherche par identifiant partiel (préfixe + numéro)
+    if (!match) {
+      const m = /^(BOE|OVN)[-_\s]?(\d{1,4})$/i.exec(q);
+      if (m) {
+        const num = parseInt(m[2]!, 10);
+        const prefix = m[1]!.toUpperCase();
+        const formatted = `${prefix}-${String(num).padStart(3, "0")}`;
+        match = bovins.find((b) => b.identifiant.toUpperCase() === formatted) ??
+          bovins.find((b) => b.identifiant.toUpperCase().includes(`${prefix}-${num}`));
+      }
+    }
+    if (!match) {
+      Alert.alert("Introuvable", `Aucun animal ne correspond à « ${manualId} ».`);
+      return;
+    }
+    setManualId("");
+    router.push({ pathname: "/bovin/[id]", params: { id: match.id } });
+  }, [manualId, bovins, router]);
 
   if (isLoading || !bovins) {
     return (
@@ -52,37 +81,30 @@ export default function ScanScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ padding: 16, paddingTop: 16 + insets.top, paddingBottom: 40, gap: 18 }}
     >
-      {/* Bouton retour inline */}
       <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
         <ArrowLeft size={16} color={theme.colors.muted} />
         <Text style={styles.backLabel}>Retour</Text>
       </Pressable>
 
-      {/* En-tête */}
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Scanner un bovin</Text>
-          <Text style={styles.subtitle}>Scannez le QR code d'un bovin pour ouvrir sa fiche</Text>
+          <Text style={styles.title}>Scanner un animal</Text>
+          <Text style={styles.subtitle}>Scannez le QR code d'un bovin (BOE-xxx) ou d'un ovin (OVN-xxx) pour ouvrir sa fiche</Text>
         </View>
         <SaverdevLogo size={40} />
       </View>
 
-      {/* Viseur caméra (placeholder) */}
       <View style={styles.viewfinderWrap}>
         <View style={styles.viewfinder}>
-          {/* Coins en émeraude (4 accents) */}
           <View style={[styles.corner, styles.cornerTL]} />
           <View style={[styles.corner, styles.cornerTR]} />
           <View style={[styles.corner, styles.cornerBL]} />
           <View style={[styles.corner, styles.cornerBR]} />
-          {/* Ligne de scan animée (simulée) */}
           <View style={styles.scanLine} />
-          {/* Réticule central */}
           <View style={styles.reticle}>
             <View style={styles.reticleH} />
             <View style={styles.reticleV} />
           </View>
-          {/* Indicateur central */}
           {scanning ? (
             <View style={styles.centerOverlay}>
               <ActivityIndicator color={theme.colors.primary} size="large" />
@@ -97,28 +119,53 @@ export default function ScanScreen() {
         </View>
       </View>
 
-      {/* Bouton simulation */}
+      <View style={styles.manualBox}>
+        <Text style={styles.manualLabel}>Saisie manuelle</Text>
+        <Text style={styles.manualHelp}>Entrez un identifiant BOE-xxx ou OVN-xxx</Text>
+        <View style={styles.manualRow}>
+          <View style={styles.manualInputWrap}>
+            <Search size={16} color={theme.colors.muted} />
+            <TextInput
+              style={styles.manualInput}
+              placeholder="BOE-001"
+              autoCapitalize="characters"
+              autoCorrect={false}
+              value={manualId}
+              onChangeText={setManualId}
+              onSubmitEditing={onManualSubmit}
+              returnKeyType="search"
+            />
+          </View>
+          <Button
+            label="Ouvrir"
+            variant="primary"
+            size="md"
+            disabled={!manualId.trim()}
+            onPress={onManualSubmit}
+          />
+        </View>
+      </View>
+
       <Button
         label={scanning ? "Lecture en cours…" : "Simuler un scan"}
-        variant="primary"
+        variant="outline"
         size="lg"
-        icon={<ScanLine size={18} color={theme.colors.primaryFg} />}
+        icon={<ScanLine size={18} color={theme.colors.primary} />}
         onPress={simulateScan}
         disabled={scanning || bovins.length === 0 || isFetching}
       />
 
-      {/* Note technique */}
       <View style={styles.noteBox}>
         <Camera size={14} color={theme.colors.muted} />
         <Text style={styles.noteText}>
           La capture caméra réelle nécessite expo-camera (à configurer en production).
-          Cette vue simule la lecture et redirige vers une fiche bovin existante.
+          Cette vue simule la lecture et redirige vers une fiche bovin existante,
+          ou utilise la saisie manuelle de l'identifiant.
         </Text>
       </View>
 
-      {/* Aperçu bovins scannables */}
       <View style={styles.previewSection}>
-        <Text style={styles.previewTitle}>{bovins.length} bovin(s) scannable(s)</Text>
+        <Text style={styles.previewTitle}>{bovins.length} animal(aux) scannable(s)</Text>
         <View style={styles.previewList}>
           {bovins.slice(0, 5).map((b) => (
             <Pressable
@@ -150,7 +197,7 @@ const styles = StyleSheet.create({
   backLabel: { fontSize: 13, color: theme.colors.muted, fontWeight: "500" },
 
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  title: { fontSize: 22, fontWeight: "700", color: theme.colors.foreground, letterSpacing: -0.3 },
+  title: { fontSize: 22, fontWeight: "700" as const, color: theme.colors.foreground, letterSpacing: -0.3 },
   subtitle: { fontSize: 12, color: theme.colors.muted, marginTop: 2 },
 
   viewfinderWrap: {
@@ -167,10 +214,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    // léger shadow pour le côté "caméra"
     ...theme.shadows.cardLifted,
   },
-  // Coins : 4 accents L-shaped (60x60, bordure 4px primary)
   corner: {
     position: "absolute",
     width: 56,
@@ -182,7 +227,6 @@ const styles = StyleSheet.create({
   cornerBL: { bottom: 16, left: 16, borderBottomWidth: 4, borderLeftWidth: 4, borderBottomLeftRadius: 12 },
   cornerBR: { bottom: 16, right: 16, borderBottomWidth: 4, borderRightWidth: 4, borderBottomRightRadius: 12 },
 
-  // Ligne de scan (horizontale, translucide)
   scanLine: {
     position: "absolute",
     left: 24,
@@ -203,9 +247,16 @@ const styles = StyleSheet.create({
 
   centerOverlay: { alignItems: "center", gap: 10, padding: 16 },
   scanLabel: {
-    fontSize: 12, fontWeight: "600", color: theme.colors.muted,
+    fontSize: 12, fontWeight: "600" as const, color: theme.colors.muted,
     textTransform: "uppercase", letterSpacing: 0.5, marginTop: 4,
   },
+
+  manualBox: { backgroundColor: theme.colors.card, borderRadius: theme.radius.md, borderWidth: 1, borderColor: theme.colors.border, padding: 14, gap: 8, ...theme.shadows.card },
+  manualLabel: { fontSize: 13, fontWeight: "700" as const, color: theme.colors.foreground },
+  manualHelp: { fontSize: 11, color: theme.colors.muted },
+  manualRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  manualInputWrap: { flex: 1, flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.sm, paddingHorizontal: 10, paddingVertical: 8, backgroundColor: theme.colors.background },
+  manualInput: { flex: 1, fontSize: 14, color: theme.colors.foreground },
 
   noteBox: {
     flexDirection: "row", alignItems: "flex-start", gap: 10,
@@ -216,7 +267,7 @@ const styles = StyleSheet.create({
 
   previewSection: { gap: 8, marginTop: 4 },
   previewTitle: {
-    fontSize: 11, fontWeight: "600", color: theme.colors.muted,
+    fontSize: 11, fontWeight: "600" as const, color: theme.colors.muted,
     textTransform: "uppercase", letterSpacing: 0.5,
   },
   previewList: { gap: 6 },
@@ -231,6 +282,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primaryFaint,
     justifyContent: "center", alignItems: "center",
   },
-  previewId: { fontSize: 14, fontWeight: "700", color: theme.colors.primary, letterSpacing: 0.2 },
+  previewId: { fontSize: 14, fontWeight: "700" as const, color: theme.colors.primary, letterSpacing: 0.2 },
   previewMeta: { fontSize: 11, color: theme.colors.muted, marginTop: 2 },
 });

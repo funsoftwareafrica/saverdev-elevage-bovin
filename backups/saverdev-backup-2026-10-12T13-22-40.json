@@ -1,0 +1,1683 @@
+{
+  "meta": {
+    "app": "SAVERDEV Élevage Bovin",
+    "version": "1.0.0",
+    "exportedAt": "2026-10-12T13:22:40.704Z"
+  },
+  "users": [
+    {
+      "id": "cmv4548s10000ms9jdf7o3k25",
+      "email": "beneficiaire@saverdev.org",
+      "name": "Bénéficiaire 1",
+      "role": "BENEFICIAIRE",
+      "password": "***REDACTED***",
+      "createdAt": "2026-10-11T18:12:03.314Z",
+      "updatedAt": "2026-10-11T18:12:03.314Z"
+    },
+    {
+      "id": "cmv4548s10001ms9j7ahu658p",
+      "email": "e2a@saverdev.org",
+      "name": "E2A",
+      "role": "E2A",
+      "password": "***REDACTED***",
+      "createdAt": "2026-10-11T18:12:03.314Z",
+      "updatedAt": "2026-10-11T18:12:03.314Z"
+    },
+    {
+      "id": "cmv4548s30002ms9j7psy4g6l",
+      "email": "sinergi@saverdev.org",
+      "name": "SINERGI SA",
+      "role": "SINERGI",
+      "password": "***REDACTED***",
+      "createdAt": "2026-10-11T18:12:03.315Z",
+      "updatedAt": "2026-10-11T18:12:03.315Z"
+    }
+  ],
+  "bovins": [
+    {
+      "id": "cmv4548s50003ms9jdi4z1x71",
+      "identifiant": "BOE-001",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-01-15T00:00:00.000Z",
+      "prixAchat": 450000,
+      "poidsAchat": 300,
+      "statut": "VENDU",
+      "dateVente": "2025-05-20T00:00:00.000Z",
+      "prixVente": 620000,
+      "coutsEngraissement": -47714,
+      "autresCouts": 6000,
+      "clientVente": "Boucherie Niamey",
+      "createdAt": "2026-10-11T18:12:03.317Z",
+      "updatedAt": "2026-10-12T11:49:39.667Z"
+    },
+    {
+      "id": "cmv4548s60004ms9jagiuarvh",
+      "identifiant": "BOE-002",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Gobra",
+      "sexe": "Mâle",
+      "dateAchat": "2025-01-15T00:00:00.000Z",
+      "prixAchat": 445000,
+      "poidsAchat": 275,
+      "statut": "VENDU",
+      "dateVente": "2025-06-02T00:00:00.000Z",
+      "prixVente": 590000,
+      "coutsEngraissement": -43714,
+      "autresCouts": 6000,
+      "clientVente": "Restaurant Le Sahel",
+      "createdAt": "2026-10-11T18:12:03.318Z",
+      "updatedAt": "2026-10-12T11:49:09.622Z"
+    },
+    {
+      "id": "cmv4548s70005ms9jhp9gyamr",
+      "identifiant": "BOE-003",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-02-03T00:00:00.000Z",
+      "prixAchat": 430000,
+      "poidsAchat": 265,
+      "statut": "VENDU",
+      "dateVente": "2025-06-10T00:00:00.000Z",
+      "prixVente": 565000,
+      "coutsEngraissement": -46714,
+      "autresCouts": 5500,
+      "clientVente": "Marché à bétail Tahoua",
+      "createdAt": "2026-10-11T18:12:03.319Z",
+      "updatedAt": "2026-10-12T11:49:09.623Z"
+    },
+    {
+      "id": "cmv4548s80006ms9j22os1dhv",
+      "identifiant": "BOE-004",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Azaouak",
+      "sexe": "Mâle",
+      "dateAchat": "2025-03-10T00:00:00.000Z",
+      "prixAchat": 465000,
+      "poidsAchat": 290,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 28000,
+      "autresCouts": 4000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.320Z",
+      "updatedAt": "2026-10-12T11:49:40.355Z"
+    },
+    {
+      "id": "cmv4548sa0007ms9j32pz8bwn",
+      "identifiant": "BOE-005",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Azaouak",
+      "sexe": "Mâle",
+      "dateAchat": "2025-03-10T00:00:00.000Z",
+      "prixAchat": 470000,
+      "poidsAchat": 295,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 28000,
+      "autresCouts": 4000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.322Z",
+      "updatedAt": "2026-10-12T11:49:40.356Z"
+    },
+    {
+      "id": "cmv4548sa0008ms9jscd3nd9w",
+      "identifiant": "BOE-006",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-03-22T00:00:00.000Z",
+      "prixAchat": 420000,
+      "poidsAchat": 270,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 24000,
+      "autresCouts": 3500,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.323Z",
+      "updatedAt": "2026-10-12T11:49:40.357Z"
+    },
+    {
+      "id": "cmv4548sc0009ms9j7nou0snj",
+      "identifiant": "BOE-007",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Gobra",
+      "sexe": "Mâle",
+      "dateAchat": "2025-04-01T00:00:00.000Z",
+      "prixAchat": 440000,
+      "poidsAchat": 280,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 21000,
+      "autresCouts": 3000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.325Z",
+      "updatedAt": "2026-10-12T11:49:40.358Z"
+    },
+    {
+      "id": "cmv4548sd000ams9jclx3m0ks",
+      "identifiant": "BOE-008",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-04-18T00:00:00.000Z",
+      "prixAchat": 410000,
+      "poidsAchat": 260,
+      "statut": "VENDU",
+      "dateVente": "2025-08-12T00:00:00.000Z",
+      "prixVente": 540000,
+      "coutsEngraissement": 36000,
+      "autresCouts": 5000,
+      "clientVente": "Boucherie Maradi",
+      "createdAt": "2026-10-11T18:12:03.326Z",
+      "updatedAt": "2026-10-11T18:12:03.326Z"
+    },
+    {
+      "id": "cmv4548se000bms9j95183hkq",
+      "identifiant": "BOE-009",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Azaouak",
+      "sexe": "Mâle",
+      "dateAchat": "2025-05-05T00:00:00.000Z",
+      "prixAchat": 480000,
+      "poidsAchat": 300,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 103714,
+      "autresCouts": 2500,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.327Z",
+      "updatedAt": "2026-10-12T11:49:40.361Z"
+    },
+    {
+      "id": "cmv4548sf000cms9jw3tr3cyk",
+      "identifiant": "BOE-010",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Gobra",
+      "sexe": "Mâle",
+      "dateAchat": "2025-05-05T00:00:00.000Z",
+      "prixAchat": 475000,
+      "poidsAchat": 298,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 103714,
+      "autresCouts": 2500,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.328Z",
+      "updatedAt": "2026-10-12T11:49:40.359Z"
+    },
+    {
+      "id": "cmv4548sh000dms9j2xdjqmpc",
+      "identifiant": "BOE-011",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-06-12T00:00:00.000Z",
+      "prixAchat": 415000,
+      "poidsAchat": 268,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 97714,
+      "autresCouts": 2000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.330Z",
+      "updatedAt": "2026-10-12T11:49:40.360Z"
+    },
+    {
+      "id": "cmv4548si000ems9julw218e5",
+      "identifiant": "BOE-012",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Gobra",
+      "sexe": "Mâle",
+      "dateAchat": "2025-06-12T00:00:00.000Z",
+      "prixAchat": 450000,
+      "poidsAchat": 282,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 12000,
+      "autresCouts": 2000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.331Z",
+      "updatedAt": "2026-10-11T18:12:03.331Z"
+    },
+    {
+      "id": "cmv4548sj000fms9j8rux9ktg",
+      "identifiant": "BOE-013",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Azaouak",
+      "sexe": "Mâle",
+      "dateAchat": "2025-07-01T00:00:00.000Z",
+      "prixAchat": 490000,
+      "poidsAchat": 305,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 6000,
+      "autresCouts": 1000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.331Z",
+      "updatedAt": "2026-10-11T18:12:03.331Z"
+    },
+    {
+      "id": "cmv4548sk000gms9j227o9uat",
+      "identifiant": "BOE-014",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-07-20T00:00:00.000Z",
+      "prixAchat": 425000,
+      "poidsAchat": 272,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 3000,
+      "autresCouts": 500,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.332Z",
+      "updatedAt": "2026-10-11T18:12:03.332Z"
+    },
+    {
+      "id": "cmv4548sl000hms9jwa3sfxe4",
+      "identifiant": "BOE-015",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu Gobra",
+      "sexe": "Mâle",
+      "dateAchat": "2025-02-15T00:00:00.000Z",
+      "prixAchat": 435000,
+      "poidsAchat": 278,
+      "statut": "MORT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 22000,
+      "autresCouts": 8000,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:12:03.333Z",
+      "updatedAt": "2026-10-11T18:12:03.333Z"
+    },
+    {
+      "id": "cmv459pag0000msoi6ip77vqi",
+      "identifiant": "OVN-001",
+      "espece": "OVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Mouton Sokoto",
+      "sexe": "Mâle",
+      "dateAchat": "2025-10-11T00:00:00.000Z",
+      "prixAchat": 120000,
+      "poidsAchat": 45,
+      "statut": "EN_ENGRAISSEMENT",
+      "dateVente": null,
+      "prixVente": 0,
+      "coutsEngraissement": 0,
+      "autresCouts": 0,
+      "clientVente": null,
+      "createdAt": "2026-10-11T18:16:17.993Z",
+      "updatedAt": "2026-10-12T11:49:11.315Z"
+    },
+    {
+      "id": "cmv459xtk0001msoilqzd8asi",
+      "identifiant": "BOE-016",
+      "espece": "BOVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Zébu",
+      "sexe": "Mâle",
+      "dateAchat": "2025-10-11T00:00:00.000Z",
+      "prixAchat": 350000,
+      "poidsAchat": 280,
+      "statut": "VENDU",
+      "dateVente": "2025-10-11T00:00:00.000Z",
+      "prixVente": 450000,
+      "coutsEngraissement": 0,
+      "autresCouts": 0,
+      "clientVente": "TestBovinId",
+      "createdAt": "2026-10-11T18:16:29.048Z",
+      "updatedAt": "2026-10-11T18:16:29.094Z"
+    },
+    {
+      "id": "cmv45b86z0002msoijrjqqbok",
+      "identifiant": "OVN-002",
+      "espece": "OVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Mouton Sokoto",
+      "sexe": "Mâle",
+      "dateAchat": "2025-10-11T00:00:00.000Z",
+      "prixAchat": 120000,
+      "poidsAchat": 45,
+      "statut": "VENDU",
+      "dateVente": "2025-10-11T00:00:00.000Z",
+      "prixVente": 150000,
+      "coutsEngraissement": 0,
+      "autresCouts": 0,
+      "clientVente": "FinalAudit19",
+      "createdAt": "2026-10-11T18:17:29.147Z",
+      "updatedAt": "2026-10-11T18:17:29.169Z"
+    },
+    {
+      "id": "cmv45glf10003msoi992a05i6",
+      "identifiant": "OVN-003",
+      "espece": "OVIN",
+      "gestionnaire": "SAVERDEV",
+      "race": "Mouton Sokoto",
+      "sexe": "Mâle",
+      "dateAchat": "2025-10-10T00:00:00.000Z",
+      "prixAchat": 75000,
+      "poidsAchat": 25,
+      "statut": "VENDU",
+      "dateVente": "2025-10-11T00:00:00.000Z",
+      "prixVente": 120000,
+      "coutsEngraissement": 0,
+      "autresCouts": 0,
+      "clientVente": "Boucherie Test",
+      "createdAt": "2026-10-11T18:21:39.565Z",
+      "updatedAt": "2026-10-11T18:21:45.154Z"
+    }
+  ],
+  "alimentations": [
+    {
+      "id": "cmv4548sl000ims9jj6bmuxga",
+      "date": "2025-01-20T00:00:00.000Z",
+      "produit": "Son de blé",
+      "quantite": 50,
+      "unite": "sac",
+      "coutTotal": 600000,
+      "nbBovinsConcernes": 3,
+      "coutParTete": 200000,
+      "commentaire": "Lot initial BOV-001/002/003",
+      "createdAt": "2026-10-11T18:12:03.334Z"
+    },
+    {
+      "id": "cmv4548sn000mms9jlxdgx7ig",
+      "date": "2025-02-10T00:00:00.000Z",
+      "produit": "Tourteau de coton",
+      "quantite": 30,
+      "unite": "sac",
+      "coutTotal": 540000,
+      "nbBovinsConcernes": 4,
+      "coutParTete": 135000,
+      "commentaire": "Complément protéique",
+      "createdAt": "2026-10-11T18:12:03.335Z"
+    },
+    {
+      "id": "cmv4548so000rms9jg6s23kya",
+      "date": "2025-03-15T00:00:00.000Z",
+      "produit": "Son de blé",
+      "quantite": 60,
+      "unite": "sac",
+      "coutTotal": 720000,
+      "nbBovinsConcernes": 6,
+      "coutParTete": 120000,
+      "commentaire": "BOV-001 à 006",
+      "createdAt": "2026-10-11T18:12:03.337Z"
+    },
+    {
+      "id": "cmv4548sr000yms9j7zx9uc9x",
+      "date": "2025-04-05T00:00:00.000Z",
+      "produit": "Tourteau de coton",
+      "quantite": 40,
+      "unite": "sac",
+      "coutTotal": 720000,
+      "nbBovinsConcernes": 7,
+      "coutParTete": 102857,
+      "commentaire": "Lots engraissement actif",
+      "createdAt": "2026-10-11T18:12:03.339Z"
+    },
+    {
+      "id": "cmv4548st0016ms9jr1aghqt2",
+      "date": "2025-05-08T00:00:00.000Z",
+      "produit": "Son de blé",
+      "quantite": 55,
+      "unite": "sac",
+      "coutTotal": 660000,
+      "nbBovinsConcernes": 8,
+      "coutParTete": 82500,
+      "commentaire": null,
+      "createdAt": "2026-10-11T18:12:03.341Z"
+    },
+    {
+      "id": "cmv4548su001fms9jguvnjf59",
+      "date": "2025-06-10T00:00:00.000Z",
+      "produit": "Foin de luzerne",
+      "quantite": 80,
+      "unite": "botte",
+      "coutTotal": 320000,
+      "nbBovinsConcernes": 8,
+      "coutParTete": 40000,
+      "commentaire": "Fourrage grossier",
+      "createdAt": "2026-10-11T18:12:03.343Z"
+    },
+    {
+      "id": "cmv4548sv001oms9jh3x2pen4",
+      "date": "2025-07-12T00:00:00.000Z",
+      "produit": "Tourteau de coton",
+      "quantite": 45,
+      "unite": "sac",
+      "coutTotal": 810000,
+      "nbBovinsConcernes": 7,
+      "coutParTete": 115714,
+      "commentaire": "Relance engraissement",
+      "createdAt": "2026-10-11T18:12:03.344Z"
+    },
+    {
+      "id": "cmv4548sy001wms9juzlqx1z4",
+      "date": "2025-08-15T00:00:00.000Z",
+      "produit": "Son de blé",
+      "quantite": 50,
+      "unite": "sac",
+      "coutTotal": 600000,
+      "nbBovinsConcernes": 7,
+      "coutParTete": 85714,
+      "commentaire": null,
+      "createdAt": "2026-10-11T18:12:03.346Z"
+    }
+  ],
+  "alimentationBovins": [
+    {
+      "id": "cmv4548sm000jms9jla5m7tc8",
+      "alimentationId": "cmv4548sl000ims9jj6bmuxga",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 200000
+    },
+    {
+      "id": "cmv4548sm000kms9jccig0xas",
+      "alimentationId": "cmv4548sl000ims9jj6bmuxga",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 200000
+    },
+    {
+      "id": "cmv4548sm000lms9j13bjv7c3",
+      "alimentationId": "cmv4548sl000ims9jj6bmuxga",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 200000
+    },
+    {
+      "id": "cmv4548sn000nms9jxsg7s7r5",
+      "alimentationId": "cmv4548sn000mms9jlxdgx7ig",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 135000
+    },
+    {
+      "id": "cmv4548sn000oms9j3n6qts2c",
+      "alimentationId": "cmv4548sn000mms9jlxdgx7ig",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 135000
+    },
+    {
+      "id": "cmv4548sn000pms9jb5tsbozp",
+      "alimentationId": "cmv4548sn000mms9jlxdgx7ig",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 135000
+    },
+    {
+      "id": "cmv4548sn000qms9j7row5xg0",
+      "alimentationId": "cmv4548sn000mms9jlxdgx7ig",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 135000
+    },
+    {
+      "id": "cmv4548sp000sms9jdmx0am3o",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548sp000tms9jgu0tnlcj",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548sp000ums9jjky3tg0g",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548sp000vms9jouumi0fr",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548sp000wms9j90wl83mq",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548sp000xms9jcgtkl2al",
+      "alimentationId": "cmv4548so000rms9jg6s23kya",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 120000
+    },
+    {
+      "id": "cmv4548ss000zms9j029sy9a4",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0010ms9js4s3qdxm",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0011ms9jjw4b74yx",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0012ms9jooz2cjie",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0013ms9jdz3gelpf",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0014ms9jx82jt6p3",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548ss0015ms9jg16a8vbq",
+      "alimentationId": "cmv4548sr000yms9j7zx9uc9x",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 102857
+    },
+    {
+      "id": "cmv4548st0017ms9j12gtxg59",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st0018ms9jxf2upna9",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st0019ms9j4w4lzdj2",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st001ams9jsdwyo8o8",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st001bms9j1gl7t3fd",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st001cms9janlfnptl",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st001dms9jl7vj6t2a",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548st001ems9jxcaoaxxe",
+      "alimentationId": "cmv4548st0016ms9jr1aghqt2",
+      "bovinId": "cmv4548sd000ams9jclx3m0ks",
+      "partImputee": 82500
+    },
+    {
+      "id": "cmv4548sv001gms9j8wzebzvs",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001hms9jmkosu0gf",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001ims9jyg3llfg3",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001jms9jdduy2x15",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001kms9jbkyowlb3",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001lms9jm7qnxkpn",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001mms9jd8ejylu2",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sv001nms9j5741u6op",
+      "alimentationId": "cmv4548su001fms9jguvnjf59",
+      "bovinId": "cmv4548sd000ams9jclx3m0ks",
+      "partImputee": 40000
+    },
+    {
+      "id": "cmv4548sw001pms9j5kzgfv8k",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001qms9jjaxmx9ab",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001rms9jf66yhd1g",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001sms9jn5ck6c7r",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001tms9jagm1afdv",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001ums9j7p8wyq7g",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv4548sw001vms9jov1e5126",
+      "alimentationId": "cmv4548sv001oms9jh3x2pen4",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 115714
+    },
+    {
+      "id": "cmv56wcjl0001savmjetddczp",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0002savmqrls0ev2",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0003savmoosbu2j9",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0004savmg15nztpw",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0005savmz1kbtfnx",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548se000bms9j95183hkq",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0006savmhsd0ez36",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548sf000cms9jw3tr3cyk",
+      "partImputee": 85714
+    },
+    {
+      "id": "cmv56wcjl0007savmhkkcx7ku",
+      "alimentationId": "cmv4548sy001wms9juzlqx1z4",
+      "bovinId": "cmv4548sh000dms9j2xdjqmpc",
+      "partImputee": 85714
+    }
+  ],
+  "depenses": [
+    {
+      "id": "cmv4548sz0024ms9jfo05xav5",
+      "date": "2025-01-15T00:00:00.000Z",
+      "categorie": "Transport",
+      "libelle": "Transport lot initial (3 têtes)",
+      "montant": 45000,
+      "nbBovinsConcernes": 3,
+      "createdAt": "2026-10-11T18:12:03.348Z"
+    },
+    {
+      "id": "cmv4548t10028ms9j4u2uupof",
+      "date": "2025-02-01T00:00:00.000Z",
+      "categorie": "Soins vétérinaires",
+      "libelle": "Vaccination fièvre aphteuse + vermifuge",
+      "montant": 35000,
+      "nbBovinsConcernes": 4,
+      "createdAt": "2026-10-11T18:12:03.349Z"
+    },
+    {
+      "id": "cmv4548t2002dms9jg4vttn2c",
+      "date": "2025-03-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel mars",
+      "montant": 60000,
+      "nbBovinsConcernes": 6,
+      "createdAt": "2026-10-11T18:12:03.351Z"
+    },
+    {
+      "id": "cmv4548t4002kms9jgrrjmuvq",
+      "date": "2025-03-18T00:00:00.000Z",
+      "categorie": "Soins vétérinaires",
+      "libelle": "Déparasitage + complément vitamine",
+      "montant": 28000,
+      "nbBovinsConcernes": 6,
+      "createdAt": "2026-10-11T18:12:03.353Z"
+    },
+    {
+      "id": "cmv4548t7002rms9jaczdax5r",
+      "date": "2025-04-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel avril",
+      "montant": 60000,
+      "nbBovinsConcernes": 7,
+      "createdAt": "2026-10-11T18:12:03.355Z"
+    },
+    {
+      "id": "cmv4548t9002zms9jbr1y9fjs",
+      "date": "2025-04-20T00:00:00.000Z",
+      "categorie": "Soins vétérinaires",
+      "libelle": "Soin BOV-015 (incident sanitaire)",
+      "montant": 32000,
+      "nbBovinsConcernes": 1,
+      "createdAt": "2026-10-11T18:12:03.357Z"
+    },
+    {
+      "id": "cmv4548ta0031ms9j317kl4in",
+      "date": "2025-05-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel mai",
+      "montant": 60000,
+      "nbBovinsConcernes": 8,
+      "createdAt": "2026-10-11T18:12:03.358Z"
+    },
+    {
+      "id": "cmv4548tb003ams9jfz69nt0i",
+      "date": "2025-05-15T00:00:00.000Z",
+      "categorie": "Transport",
+      "libelle": "Transport foin",
+      "montant": 18000,
+      "nbBovinsConcernes": 0,
+      "createdAt": "2026-10-11T18:12:03.359Z"
+    },
+    {
+      "id": "cmv4548tb003bms9jncod03p7",
+      "date": "2025-06-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel juin",
+      "montant": 65000,
+      "nbBovinsConcernes": 8,
+      "createdAt": "2026-10-11T18:12:03.360Z"
+    },
+    {
+      "id": "cmv4548tc003kms9jisdvrxjo",
+      "date": "2025-07-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel juillet",
+      "montant": 65000,
+      "nbBovinsConcernes": 7,
+      "createdAt": "2026-10-11T18:12:03.361Z"
+    },
+    {
+      "id": "cmv4548te003sms9joocyddhf",
+      "date": "2025-07-10T00:00:00.000Z",
+      "categorie": "Soins vétérinaires",
+      "libelle": "Vaccination préventive lot nouveau",
+      "montant": 42000,
+      "nbBovinsConcernes": 3,
+      "createdAt": "2026-10-11T18:12:03.362Z"
+    },
+    {
+      "id": "cmv4548tg003wms9jbd9nn3s8",
+      "date": "2025-08-01T00:00:00.000Z",
+      "categorie": "Main-d'œuvre",
+      "libelle": "Gardien mensuel août",
+      "montant": 65000,
+      "nbBovinsConcernes": 7,
+      "createdAt": "2026-10-11T18:12:03.364Z"
+    },
+    {
+      "id": "cmv4548th0044ms9j78k0qe2h",
+      "date": "2025-08-05T00:00:00.000Z",
+      "categorie": "Autres",
+      "libelle": "Frais vétérinaires lot 1",
+      "montant": 25000,
+      "nbBovinsConcernes": 0,
+      "createdAt": "2026-10-11T18:12:03.365Z"
+    }
+  ],
+  "depenseBovins": [
+    {
+      "id": "cmv4548t00025ms9jnca9fqgy",
+      "depenseId": "cmv4548sz0024ms9jfo05xav5",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 15000
+    },
+    {
+      "id": "cmv4548t00026ms9jpprvr3gf",
+      "depenseId": "cmv4548sz0024ms9jfo05xav5",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 15000
+    },
+    {
+      "id": "cmv4548t00027ms9jkgl4iwvx",
+      "depenseId": "cmv4548sz0024ms9jfo05xav5",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 15000
+    },
+    {
+      "id": "cmv4548t10029ms9joo53t2z8",
+      "depenseId": "cmv4548t10028ms9j4u2uupof",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 8750
+    },
+    {
+      "id": "cmv4548t1002ams9jo1ptd11f",
+      "depenseId": "cmv4548t10028ms9j4u2uupof",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 8750
+    },
+    {
+      "id": "cmv4548t1002bms9jnhyad0t9",
+      "depenseId": "cmv4548t10028ms9j4u2uupof",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 8750
+    },
+    {
+      "id": "cmv4548t1002cms9jtsevx28x",
+      "depenseId": "cmv4548t10028ms9j4u2uupof",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 8750
+    },
+    {
+      "id": "cmv4548t3002ems9jsuhse5mk",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t3002fms9jcmw3n3pg",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t3002gms9j5rh5lhug",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t3002hms9j3k6gkaqw",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t3002ims9jtu01m8xs",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t3002jms9j05enle63",
+      "depenseId": "cmv4548t2002dms9jg4vttn2c",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 10000
+    },
+    {
+      "id": "cmv4548t5002lms9jjtvakthu",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t5002mms9jol1ttccp",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t5002nms9j2886uth7",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t5002oms9j4v09gqj3",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t5002pms9jol56sxtx",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t5002qms9jdc5twzrv",
+      "depenseId": "cmv4548t4002kms9jgrrjmuvq",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 4666.666666666667
+    },
+    {
+      "id": "cmv4548t8002sms9jye9gicx3",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002tms9j22nfiqmb",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002ums9jkaskeexx",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002vms9jn5h3xdnj",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002wms9jma0df03s",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002xms9jp99xn9rh",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t8002yms9j99b9xoic",
+      "depenseId": "cmv4548t7002rms9jaczdax5r",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 8571.42857142857
+    },
+    {
+      "id": "cmv4548t90030ms9j5bimzutu",
+      "depenseId": "cmv4548t9002zms9jbr1y9fjs",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 32000
+    },
+    {
+      "id": "cmv4548ta0032ms9j8w1sevkd",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0033ms9jk9ldp4lb",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0034ms9j8t8q91xt",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0035ms9j70bzyhaw",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0036ms9jrx1zruwz",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0037ms9jt9h8si9y",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0038ms9j2frdnp34",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548ta0039ms9j2cpmrk46",
+      "depenseId": "cmv4548ta0031ms9j317kl4in",
+      "bovinId": "cmv4548sd000ams9jclx3m0ks",
+      "partImputee": 7500
+    },
+    {
+      "id": "cmv4548tc003cms9jq0mr9v5w",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003dms9jd2e9skco",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003ems9jhjy4wd7g",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003fms9jveq0vqgr",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003gms9jddi30hcr",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003hms9j0dbld4fc",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003ims9j9c292ae3",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548tc003jms9jd5ao1vze",
+      "depenseId": "cmv4548tb003bms9jncod03p7",
+      "bovinId": "cmv4548sd000ams9jclx3m0ks",
+      "partImputee": 8125
+    },
+    {
+      "id": "cmv4548td003lms9j0mzjd573",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003mms9jbt7jt5k3",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003nms9jdl903ki9",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003oms9juc6tr1oc",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003pms9j634mii7b",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003qms9jvt3um7sx",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548td003rms9j2cehzhr8",
+      "depenseId": "cmv4548tc003kms9jisdvrxjo",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548tf003tms9j8n4s31xj",
+      "depenseId": "cmv4548te003sms9joocyddhf",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 14000
+    },
+    {
+      "id": "cmv4548tf003ums9j4tseoze4",
+      "depenseId": "cmv4548te003sms9joocyddhf",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 14000
+    },
+    {
+      "id": "cmv4548tf003vms9jvm6kacsw",
+      "depenseId": "cmv4548te003sms9joocyddhf",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 14000
+    },
+    {
+      "id": "cmv4548th003xms9jrwazqvbw",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548s50003ms9jdi4z1x71",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th003yms9jkkt8769g",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548s60004ms9jagiuarvh",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th003zms9jyjc5iqvk",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548s70005ms9jhp9gyamr",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th0040ms9jsvarrt9f",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548s80006ms9j22os1dhv",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th0041ms9jsty6lclz",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548sa0007ms9j32pz8bwn",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th0042ms9jbzt84f9p",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548sa0008ms9jscd3nd9w",
+      "partImputee": 9285.714285714286
+    },
+    {
+      "id": "cmv4548th0043ms9jugzunxhz",
+      "depenseId": "cmv4548tg003wms9jbd9nn3s8",
+      "bovinId": "cmv4548sc0009ms9j7nou0snj",
+      "partImputee": 9285.714285714286
+    }
+  ],
+  "financements": [
+    {
+      "id": "cmv4548th0045ms9jj5sib1j3",
+      "bailleur": "SAVERDEV",
+      "montantFinance": 5000000,
+      "dateOctroi": "2025-01-10T00:00:00.000Z",
+      "tauxInteret": 5,
+      "dureeMois": 10,
+      "createdAt": "2026-10-11T18:12:03.366Z"
+    }
+  ],
+  "echeances": [
+    {
+      "id": "cmv4548ti0047ms9jah3efnpq",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 1,
+      "datePrevue": "2025-02-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "PAYEE",
+      "datePayee": "2025-02-08T00:00:00.000Z"
+    },
+    {
+      "id": "cmv4548tj0049ms9jq01ddy04",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 2,
+      "datePrevue": "2025-03-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "PAYEE",
+      "datePayee": "2025-03-08T00:00:00.000Z"
+    },
+    {
+      "id": "cmv4548tk004bms9ji00ih1eq",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 3,
+      "datePrevue": "2025-04-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "PAYEE",
+      "datePayee": "2025-04-08T00:00:00.000Z"
+    },
+    {
+      "id": "cmv4548tl004dms9j5n1dxui8",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 4,
+      "datePrevue": "2025-05-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "PAYEE",
+      "datePayee": "2025-05-08T00:00:00.000Z"
+    },
+    {
+      "id": "cmv4548tl004fms9jqxebx9u1",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 5,
+      "datePrevue": "2025-06-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    },
+    {
+      "id": "cmv4548tn004hms9jd7zm2w9j",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 6,
+      "datePrevue": "2025-07-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    },
+    {
+      "id": "cmv4548tn004jms9j95ez9cyx",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 7,
+      "datePrevue": "2025-08-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    },
+    {
+      "id": "cmv4548to004lms9jd992binv",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 8,
+      "datePrevue": "2025-09-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    },
+    {
+      "id": "cmv4548to004nms9j8gsr80gc",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 9,
+      "datePrevue": "2025-10-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    },
+    {
+      "id": "cmv4548tp004pms9jukccuum1",
+      "financementId": "cmv4548th0045ms9jj5sib1j3",
+      "numero": 10,
+      "datePrevue": "2025-11-10T00:00:00.000Z",
+      "montant": 525000,
+      "statut": "EN_RETARD",
+      "datePayee": null
+    }
+  ],
+  "alertes": [
+    {
+      "id": "cmv4548tp004qms9j73z5nq35",
+      "date": "2026-10-08T18:12:03.286Z",
+      "type": "ECHEANCE",
+      "severite": "CRITICAL",
+      "message": "Échéance n°5 SAVERDEV (525 000 FCFA) en retard depuis 12 jours",
+      "resolved": false
+    },
+    {
+      "id": "cmv4548tq004rms9j94ugef4l",
+      "date": "2026-10-03T18:12:03.286Z",
+      "type": "MORTALITE",
+      "severite": "WARNING",
+      "message": "BOV-015 décédé — incident sanitaire enregistré le 15/02/2025",
+      "resolved": false
+    },
+    {
+      "id": "cmv4548tq004sms9jie49jv8s",
+      "date": "2026-09-26T18:12:03.286Z",
+      "type": "MARGE",
+      "severite": "WARNING",
+      "message": "Marge BOV-003 (53 500 FCFA) sous le seuil de 60 000 FCFA",
+      "resolved": false
+    },
+    {
+      "id": "cmv4548tr004tms9jggs2qpmh",
+      "date": "2026-09-21T18:12:03.286Z",
+      "type": "BUDGET",
+      "severite": "INFO",
+      "message": "Coût alimentation juillet à 115 714 FCFA/tête (stable vs juin)",
+      "resolved": false
+    },
+    {
+      "id": "cmv4548tr004ums9jrruickf0",
+      "date": "2026-09-13T18:12:03.286Z",
+      "type": "ECHEANCE",
+      "severite": "INFO",
+      "message": "Prochaine échéance n°6 prévue le 10/09/2025 (525 000 FCFA)",
+      "resolved": false
+    }
+  ],
+  "historiques": [
+    {
+      "id": "cmv4548tt004wms9jdmwtmjym",
+      "date": "2026-10-09T18:12:03.286Z",
+      "userId": null,
+      "action": "VENTE",
+      "entiteType": "Bovin",
+      "entiteId": "b8",
+      "details": "Vente BOV-008 à Boucherie Maradi — 540 000 FCFA"
+    },
+    {
+      "id": "cmv4548tv004yms9j9n2v3pfp",
+      "date": "2026-10-06T18:12:03.286Z",
+      "userId": null,
+      "action": "ALIMENTATION",
+      "entiteType": "Alimentation",
+      "entiteId": "a8",
+      "details": "Achat 50 sacs son de blé — 600 000 FCFA imputés à 7 bovins"
+    },
+    {
+      "id": "cmv4548tw0050ms9jhm4efvuq",
+      "date": "2026-09-29T18:12:03.286Z",
+      "userId": null,
+      "action": "DEPENSE",
+      "entiteType": "Depense",
+      "entiteId": "d12",
+      "details": "Salaire gardien août — 65 000 FCFA"
+    },
+    {
+      "id": "cmv4548tw0052ms9j3fawlzf4",
+      "date": "2026-09-23T18:12:03.286Z",
+      "userId": null,
+      "action": "CREATE_BOVIN",
+      "entiteType": "Bovin",
+      "entiteId": "b14",
+      "details": "Nouvel achat BOV-014 (425 000 FCFA, 272 kg)"
+    },
+    {
+      "id": "cmv4548tx0054ms9j04lw29k7",
+      "date": "2026-09-16T18:12:03.286Z",
+      "userId": null,
+      "action": "ALIMENTATION",
+      "entiteType": "Alimentation",
+      "entiteId": "a7",
+      "details": "Achat 45 sacs tourteau coton — 810 000 FCFA imputés à 7 bovins"
+    },
+    {
+      "id": "cmv4548tx0056ms9jixgrswea",
+      "date": "2026-09-06T18:12:03.286Z",
+      "userId": null,
+      "action": "VENTE",
+      "entiteType": "Bovin",
+      "entiteId": "b3",
+      "details": "Vente BOV-003 — 565 000 FCFA (marge 53 500 FCFA)"
+    },
+    {
+      "id": "cmv56tsfc0000sacci82ane3p",
+      "date": "2026-10-12T11:47:40.969Z",
+      "userId": null,
+      "action": "UPDATE_BOVIN",
+      "entiteType": "Bovin",
+      "entiteId": "cmv4548s50003ms9jdi4z1x71",
+      "details": "Modification BOE-001 — champs : race, poidsAchat"
+    },
+    {
+      "id": "cmv56vo4r0000saq67jfffqoy",
+      "date": "2026-10-12T11:49:08.715Z",
+      "userId": null,
+      "action": "UPDATE_BOVIN",
+      "entiteType": "Bovin",
+      "entiteId": "cmv4548s50003ms9jdi4z1x71",
+      "details": "Modification BOE-001 — champs : poidsAchat"
+    },
+    {
+      "id": "cmv56voui0008saq60xkmyswp",
+      "date": "2026-10-12T11:49:09.643Z",
+      "userId": null,
+      "action": "UPDATE_ALIMENTATION",
+      "entiteType": "Alimentation",
+      "entiteId": "cmv4548sy001wms9juzlqx1z4",
+      "details": "Modification achat Son de blé — 600000 FCFA / 7 têtes (85714/tête)"
+    },
+    {
+      "id": "cmv56vpf50009saq636xu93sw",
+      "date": "2026-10-12T11:49:10.386Z",
+      "userId": null,
+      "action": "UPDATE_DEPENSE",
+      "entiteType": "Depense",
+      "entiteId": "cmv4548th0044ms9j78k0qe2h",
+      "details": "Modification Autres — Test edit task22 (25000 FCFA)"
+    },
+    {
+      "id": "cmv56vq50000asaq6wl9ev45q",
+      "date": "2026-10-12T11:49:11.316Z",
+      "userId": null,
+      "action": "ANNULATION_VENTE",
+      "entiteType": "Bovin",
+      "entiteId": "cmv459pag0000msoi6ip77vqi",
+      "details": "Annulation vente OVN-001 — vente du 2025-10-11T00:00:00.000Z (150000 FCFA) remise en engraissement"
+    },
+    {
+      "id": "cmv56wc0k0000savmb18qwczx",
+      "date": "2026-10-12T11:49:39.669Z",
+      "userId": null,
+      "action": "UPDATE_BOVIN",
+      "entiteType": "Bovin",
+      "entiteId": "cmv4548s50003ms9jdi4z1x71",
+      "details": "Modification BOE-001 — champs : race, poidsAchat"
+    },
+    {
+      "id": "cmv56wcjt0008savmiovrae0m",
+      "date": "2026-10-12T11:49:40.362Z",
+      "userId": null,
+      "action": "UPDATE_ALIMENTATION",
+      "entiteType": "Alimentation",
+      "entiteId": "cmv4548sy001wms9juzlqx1z4",
+      "details": "Modification achat Son de blé — 600000 FCFA / 7 têtes (85714/tête)"
+    },
+    {
+      "id": "cmv56wd0k0009savma8e5hnpf",
+      "date": "2026-10-12T11:49:40.964Z",
+      "userId": null,
+      "action": "UPDATE_DEPENSE",
+      "entiteType": "Depense",
+      "entiteId": "cmv4548th0044ms9j78k0qe2h",
+      "details": "Modification Autres — Frais vétérinaires lot 1 (25000 FCFA)"
+    }
+  ],
+  "pesees": [],
+  "parametres": [
+    {
+      "id": "0264af725ea5a049ad8af13514c220b4",
+      "cle": "capital_initial",
+      "valeur": "14775000",
+      "description": null,
+      "updatedAt": "2026-10-11T08:13:14.000Z"
+    },
+    {
+      "id": "cmv3m6eto0000q4vo84q1dykk",
+      "cle": "margeMin",
+      "valeur": "60000",
+      "description": "Marge minimale par bovin vendu (FCFA) — en dessous, alerte",
+      "updatedAt": "2026-10-11T09:21:51.756Z"
+    },
+    {
+      "id": "cmv3m6etq0001q4voozsfijqp",
+      "cle": "budgetAlimentationMax",
+      "valeur": "150000",
+      "description": "Coût alimentation max par tête (FCFA) — au-dessus, alerte",
+      "updatedAt": "2026-10-11T09:21:51.758Z"
+    },
+    {
+      "id": "cmv3m6ets0002q4vo28cqib4u",
+      "cle": "dureeEngraissementMax",
+      "valeur": "180",
+      "description": "Durée d'engraissement max (jours) — au-dessus, alerte",
+      "updatedAt": "2026-10-11T09:21:51.760Z"
+    },
+    {
+      "id": "cmv3m6ett0003q4vooqes5g8s",
+      "cle": "tauxUtilisationAlerte",
+      "valeur": "80",
+      "description": "Taux d'utilisation financement déclenchant une alerte (%)",
+      "updatedAt": "2026-10-11T09:21:51.762Z"
+    },
+    {
+      "id": "cmv5a7vfh0001safrh9k5akr1",
+      "cle": "budget_veto",
+      "valeur": "200000",
+      "description": "Budget mensuel — Soins vétérinaires (FCFA)",
+      "updatedAt": "2026-10-12T13:22:36.893Z"
+    },
+    {
+      "id": "cmv5a7vfj0002safrkzl3l0hh",
+      "cle": "budget_transport",
+      "valeur": "100000",
+      "description": "Budget mensuel — Transport (FCFA)",
+      "updatedAt": "2026-10-12T13:22:36.895Z"
+    },
+    {
+      "id": "cmv5a7vfl0003safraexed5do",
+      "cle": "budget_salariat",
+      "valeur": "300000",
+      "description": "Budget mensuel — Main-d'œuvre (FCFA)",
+      "updatedAt": "2026-10-12T13:22:36.897Z"
+    },
+    {
+      "id": "cmv5a7vfn0004safr4bqsgip6",
+      "cle": "budget_aliment",
+      "valeur": "1000000",
+      "description": "Budget mensuel — Aliment bétail (FCFA)",
+      "updatedAt": "2026-10-12T13:22:36.899Z"
+    },
+    {
+      "id": "cmv5a7vfo0005safr0nnn5cxr",
+      "cle": "budget_autres",
+      "valeur": "50000",
+      "description": "Budget mensuel — Autres (FCFA)",
+      "updatedAt": "2026-10-12T13:22:36.901Z"
+    }
+  ],
+  "paturages": [],
+  "notifications": [
+    {
+      "id": "cmv5a7v8r0000safrawcwmrp7",
+      "date": "2026-10-12T13:22:36.651Z",
+      "type": "MORTALITE",
+      "titre": "Mortalité récente",
+      "message": "1 mortalité(s) récente(s) sur les 30 derniers jours — à surveiller",
+      "lu": false,
+      "lien": "auto:MORTALITE:6226b72a",
+      "userId": null
+    }
+  ],
+  "backups": [],
+  "capitalMouvements": [
+    {
+      "id": "cmv3jz3k30002q4w4u06ozia1",
+      "date": "2025-10-15T09:30:00.000Z",
+      "libelle": "Achat 5 sacs son",
+      "type": "SORTIE",
+      "montant": 150000,
+      "saisiePar": null,
+      "createdAt": "2026-10-11T08:20:11.331Z"
+    },
+    {
+      "id": "cmv3jz3kk0003q4w4lwfuedek",
+      "date": "2025-10-16T14:45:00.000Z",
+      "libelle": "Vente 2 bovins",
+      "type": "ENTREE",
+      "montant": 350000,
+      "saisiePar": null,
+      "createdAt": "2026-10-11T08:20:11.349Z"
+    },
+    {
+      "id": "cmv3jz3l20004q4w4e16hjsis",
+      "date": "2025-10-17T11:15:00.000Z",
+      "libelle": "Vétérinaire",
+      "type": "SORTIE",
+      "montant": 75000,
+      "saisiePar": null,
+      "createdAt": "2026-10-11T08:20:11.366Z"
+    },
+    {
+      "id": "cmv486q9i0000msmqybrd42gw",
+      "date": "2026-10-11T19:37:58.133Z",
+      "libelle": "Test post-schema-swap",
+      "type": "ENTREE",
+      "montant": 1,
+      "saisiePar": null,
+      "createdAt": "2026-10-11T19:37:58.135Z"
+    }
+  ],
+  "stockMouvements": [],
+  "validations": [],
+  "soins": [],
+  "tags": [],
+  "photos": []
+}
