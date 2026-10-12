@@ -1617,3 +1617,35 @@ Stage Summary:
   - GET / → 200 (page d'accueil)
 - Logs Prisma observés dans dev.log : `WHERE main.Bovin.espece = ?` bien appliqué avant calcul du prochain identifiant.
 - Erreurs résiduelles : aucune sur les 4 fichiers de la tâche (lint clean). `bun run lint` full projet signale 2 erreurs préexistantes sur `scripts/clear_prod.cjs` et `scripts/init_capital.cjs` (fichiers .cjs non touchés, hors scope).
+
+---
+Task ID: 27-D
+Agent: full-stack-developer
+Task: Correction Fiche Bovin + Dashboard conformité bovins/ovins (audit 27-C)
+
+Work Log:
+- Bug 1 (icône espèce Fiche Bovin) : ajout d'un emoji 🐄/🐑 + Badge "Bovin"/"Ovin" (variant outline, couleurs amber pour bovin / violet pour ovin) juste avant l'identifiant dans l'en-tête de la fiche (fiche-bovin-view.tsx ~l.67-75). L'icône Beef reste en fallback visuel dans le carré principal.
+- Bug 2 (sous-titre Fiche Bovin) : sous-titre passé de `race · sexe · poidsAchat` à `Espèce · race · sexe · poidsAchat` (préfixe dynamique "Bovin"/"Ovin" selon `bovin.espece`).
+- Bug 3 (carte Identification) : ajout d'une ligne `<Row icon={Beef} label="Espèce" value={bovin.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"} />` en tête de carte (fiche-bovin-view.tsx ~l.102).
+- Bug 4 (message engraissement) : remplacé "Bovin en cours d'engraissement..." par `{bovin.espece === "OVIN" ? "Ovin" : "Bovin"} en cours d'engraissement — la marge sera calculée à la vente.` (~l.151).
+- Bug 5 (textes "ce bovin") : CardDescription "Étiquettes personnalisées pour ce bovin" → "pour cet animal" (~l.163) ; empty state "Aucun tag pour ce bovin." → "Aucun tag pour cet animal." (~l.178).
+- Bug 6 (commentaire fichier) : commentaire d'en-tête modifié en `// Vue Fiche animal — détail complet d'un animal (bovin ou ovin) : identification, achat, coûts, marge.` (fiche-bovin-view.tsx ~l.3).
+- Bug 7 (badge espèce en-tête) : couvert par Bug 1 — emoji 🐄/🐑 + Badge "Bovin"/"Ovin" visibles juste avant l'identifiant mono. Bonus : étiquette imprimée (print window) et QR card affichent également l'emoji + label espèce pour cohérence (l.216-219, 230-233).
+- Bug 9 (2e donut par espèce) : ajout d'une nouvelle section "Répartition par espèce" (dashboard-view.tsx ~l.187-225) avec un 2e PieChart donut 🐄 Bovins vs 🐑 Ovins (couleurs amber/violet, gradients `gBovinEsp`/`gOvinEsp`), placé juste après la section Cheptel existante. Calcul client-side via `(bovinsList ?? []).filter((b) => b.espece !== "OVIN").length`.
+- Bug 10 (mini-KPIs par espèce) : ajout d'une ligne de 2 `<Badge>` juste après le SectionTitle de la section Cheptel (~l.128-136) : "🐄 Bovins actifs : X" (amber) et "🐑 Ovins actifs : Y" (violet). Calculs client-side `bovinsActifsByEspece = { bovin, ovin }` via filtre `b.espece !== "OVIN" && b.statut === "EN_ENGRAISSEMENT"`. Pas de modification backend — conformément à l'approche autorisée par la task.
+- Bug 11 (badge race 🐄/🐑) : `RacePerformanceSection` reçoit une prop `raceToEspece: Map<string, "BOVIN" | "OVIN">` construite côté client dans `DashboardView` à partir de `useBovins()`. Helper interne `especeEmoji(race)` retourne "🐑" si la race est identifiée comme OVIN, sinon "🐄". Badge emoji ajouté devant le nom de race dans les 2 zones : top performers (~l.1309) et barres horizontales marge moyenne (~l.1327).
+- Bug 12 (label cascade marge) : label `"Achat bovin"` → `"Achat d'animaux"` dans le BarChart "Ventilation des coûts" (dashboard-view.tsx ~l.436). Clé `COST_STRUCTURE_COLORS.achatBovin` conservée inchangée côté config (couleur orange inchangée) — seul le label affiché change, conformément à la consigne.
+- Bug 13 (sous-titre Cheptel) : `subtitle="État du troupeau et mouvements"` → `subtitle="État du troupeau (bovins + ovins)"` (dashboard-view.tsx ~l.127).
+
+Stage Summary:
+- Fichiers modifiés :
+  1. `src/components/views/fiche-bovin-view.tsx` — commentaire fichier, badge espèce en-tête, sous-titre espèce-aware, Row Espèce, message engraissement dynamique, "cet animal" au lieu de "ce bovin", QR/étiquette imprimée espèce-aware.
+  2. `src/components/views/dashboard-view.tsx` — import `useBovins`, calculs client-side `raceToEspece` + `bovinsActifsByEspece`, sous-titre Cheptel "(bovins + ovins)", mini-KPIs 🐄/🐑, 2e donut "Répartition par espèce", label "Achat d'animaux", badge 🐄/🐑 dans `RacePerformanceSection`.
+- Tests curl effectués :
+  - `curl http://localhost:3000/` → HTTP 200
+  - `curl http://localhost:3000/api/bovins` → HTTP 200
+  - `curl http://localhost:3000/api/dashboard` → HTTP 200
+  - POST /api/bovins BOVIN → 201 `{"identifiant":"BOE-003","espece":"BOVIN",...}` (compteur indépendant respecté)
+  - POST /api/bovins OVIN → 201 `{"identifiant":"OVN-003","espece":"OVIN",...}` (compteur indépendant respecté)
+- ESLint : `bunx eslint src/components/views/fiche-bovin-view.tsx src/components/views/dashboard-view.tsx` → exit 0, 0 erreur, 0 warning sur les 2 fichiers modifiés.
+- Aucune modification du schéma Prisma, du dossier mobile/, ni backend (calculations.ts/types.ts/route.ts inchangés — choix UI-only pour Bugs 9-11 conformément à l'approche autorisée).

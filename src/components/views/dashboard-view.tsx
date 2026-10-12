@@ -6,7 +6,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces } from "@/lib/api";
+import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBovins } from "@/lib/api";
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
 import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
@@ -37,11 +37,28 @@ import { Shield } from "@/lib/icons";
 export function DashboardView() {
   const { data: dash, isLoading } = useDashboard();
   const { data: historique } = useHistorique();
+  const { data: bovinsList } = useBovins();
   const role = useAppStore((s) => s.role);
   const dashboardMode = useAppStore((s) => s.dashboardMode);
   // Mode effectif : "auto" → on prend le rôle de l'utilisateur
   const mode: "BENEFICIAIRE" | "SINERGI" | "E2A" =
     dashboardMode === "auto" ? role : dashboardMode;
+
+  // Cartographie race → espèce (construite côté client à partir de la liste des animaux).
+  // Utilisée par la section "Performance par race" pour afficher 🐄/🐑 devant chaque race.
+  const raceToEspece = new Map<string, "BOVIN" | "OVIN">();
+  for (const b of bovinsList ?? []) {
+    if (!raceToEspece.has(b.race)) {
+      raceToEspece.set(b.race, b.espece === "OVIN" ? "OVIN" : "BOVIN");
+    }
+  }
+
+  // Comptage des animaux actifs par espèce (calculé côté client à partir de la liste).
+  // dash.cheptel.bovinsActifs est le total ; on segmente ci-dessous.
+  const bovinsActifsByEspece = {
+    bovin: (bovinsList ?? []).filter((b) => b.espece !== "OVIN" && b.statut === "EN_ENGRAISSEMENT").length,
+    ovin: (bovinsList ?? []).filter((b) => b.espece === "OVIN" && b.statut === "EN_ENGRAISSEMENT").length,
+  };
 
   if (isLoading || !dash) return <DashboardSkeleton />;
 
@@ -107,7 +124,16 @@ export function DashboardView() {
       {/* === SECTION CHEPTEL (vue opérationnelle + audit) === */}
       {showOperational && (
       <section>
-        <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau et mouvements" />
+        <SectionTitle icon={Beef} title="Cheptel" subtitle="État du troupeau (bovins + ovins)" />
+        {/* Bug 10 — mini-KPIs par espèce (breakdown des animaux actifs) */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <Badge variant="outline" className="border-amber-300 text-amber-800 bg-amber-50/70 text-[0.7rem]">
+            🐄 Bovins actifs : <span className="font-bold tabular-nums ml-1">{bovinsActifsByEspece.bovin}</span>
+          </Badge>
+          <Badge variant="outline" className="border-violet-300 text-violet-700 bg-violet-50/70 text-[0.7rem]">
+            🐑 Ovins actifs : <span className="font-bold tabular-nums ml-1">{bovinsActifsByEspece.ovin}</span>
+          </Badge>
+        </div>
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
           {/* KPI cards */}
           <div className="grid gap-3 sm:grid-cols-2">
@@ -155,6 +181,46 @@ export function DashboardView() {
             </CardContent>
           </Card>
         </div>
+      </section>
+      )}
+
+      {/* === SECTION RÉPARTITION PAR ESPÈCE — 2e donut (vue opérationnelle + audit) === */}
+      {showOperational && (
+      <section>
+        <SectionTitle icon={Beef} title="Répartition par espèce" subtitle="Bovins (🐄) vs Ovins (🐑)" />
+        <Card className="hover-lift">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2"><PieChart className="h-4 w-4 text-primary" />Bovins vs Ovins</CardTitle>
+            <CardDescription className="text-xs">Nombre total d'animaux par espèce</CardDescription>
+          </CardHeader>
+          <CardContent className="h-56">
+            <LazyMount height={224} fallback={<Skeleton className="h-full w-full rounded-md" />}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <defs>
+                  <linearGradient id="gBovinEsp" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#F59E0B" /><stop offset="100%" stopColor="#FBBF24" />
+                  </linearGradient>
+                  <linearGradient id="gOvinEsp" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#8B5CF6" /><stop offset="100%" stopColor="#A78BFA" />
+                  </linearGradient>
+                </defs>
+                <Pie
+                  data={[
+                    { name: "🐄 Bovins", value: (bovinsList ?? []).filter((b) => b.espece !== "OVIN").length, fill: "url(#gBovinEsp)" },
+                    { name: "🐑 Ovins", value: (bovinsList ?? []).filter((b) => b.espece === "OVIN").length, fill: "url(#gOvinEsp)" },
+                  ]}
+                  dataKey="value" nameKey="name" cx="50%" cy="50%"
+                  outerRadius={75} innerRadius={45} paddingAngle={3}
+                  isAnimationActive animationDuration={1000}
+                />
+                <Tooltip contentStyle={{ fontSize: "0.75rem", borderRadius: "0.5rem" }} />
+                <Legend wrapperStyle={{ fontSize: "0.65rem" }} iconSize={8} />
+              </PieChart>
+            </ResponsiveContainer>
+            </LazyMount>
+          </CardContent>
+        </Card>
       </section>
       )}
 
@@ -367,7 +433,7 @@ export function DashboardView() {
               <LazyMount height={176} fallback={<Skeleton className="h-full w-full rounded-md" />}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[
-                  { poste: "Achat bovin", value: dash.rentabilite.coutAchat, fill: COST_STRUCTURE_COLORS.achatBovin },
+                  { poste: "Achat d'animaux", value: dash.rentabilite.coutAchat, fill: COST_STRUCTURE_COLORS.achatBovin },
                   { poste: "Alimentation", value: dash.alimentation.coutTotal, fill: COST_STRUCTURE_COLORS.alimentation },
                   { poste: "Autres coûts", value: dash.rentabilite.coutEngraissement, fill: COST_STRUCTURE_COLORS.autresCouts },
                 ]} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
@@ -392,7 +458,7 @@ export function DashboardView() {
       <ComparaisonSection />
 
       {/* === PERFORMANCE PAR RACE === */}
-      <RacePerformanceSection />
+      <RacePerformanceSection raceToEspece={raceToEspece} />
 
       {/* === RADAR + VENTES === */}
       <section className="grid gap-4 lg:grid-cols-2" style={{ perspective: "1000px" }}>
@@ -1213,12 +1279,14 @@ function ComparaisonSection() {
 }
 
 // === PERFORMANCE PAR RACE ===
-function RacePerformanceSection() {
+function RacePerformanceSection({ raceToEspece }: { raceToEspece: Map<string, "BOVIN" | "OVIN"> }) {
   const { data: races, isLoading } = useStatsRaces();
   if (isLoading || !races || races.length === 0) return <Skeleton className="h-64 rounded-xl" />;
 
   const maxMarge = Math.max(...races.map((r) => r.margeMoyenne), 1);
   const top3 = races.slice(0, 3);
+  // Emoji espèce pour une race donnée (🐄 par défaut, 🐑 pour les ovins).
+  const especeEmoji = (race: string) => raceToEspece.get(race) === "OVIN" ? "🐑" : "🐄";
 
   return (
     <section>
@@ -1238,6 +1306,7 @@ function RacePerformanceSection() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-[0.65rem] font-bold ${i === 0 ? "bg-amber-400 text-white" : i === 1 ? "bg-slate-300 text-slate-700" : "bg-orange-300 text-white"}`}>{i + 1}</span>
+                  <span className="text-base" aria-hidden>{especeEmoji(r.race)}</span>
                   <span className="text-sm font-semibold">{r.race}</span>
                 </div>
                 {i === 0 && <HugeiconsIcon icon={Trophy} size={16} className="text-amber-500" />}
@@ -1255,6 +1324,7 @@ function RacePerformanceSection() {
           <div className="space-y-3">
             {races.map((r, i) => (
               <div key={r.race} className="flex items-center gap-3">
+                <span className="text-sm" aria-hidden>{especeEmoji(r.race)}</span>
                 <span className="text-xs font-medium w-28 truncate">{r.race}</span>
                 <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden relative">
                   <motion.div
