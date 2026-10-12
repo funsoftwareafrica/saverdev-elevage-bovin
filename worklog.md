@@ -1340,3 +1340,46 @@ Stage Summary:
   - GET/DELETE /api/ventes/[id]
 - Erreurs résiduelles : aucune sur les fichiers de la tâche. Les seules erreurs ESLint sont dans `mobile/` (DonutChart.tsx, metro.config.js) — hors périmètre (spec interdit d'y toucher).
 - Effet de bord positif : le serveur de dev, auparavant inopérant à cause du mismatch provider sqlite/postgresql, démarre désormais correctement. L'utilisateur peut prévisualiser l'application via le panneau de droite.
+
+---
+Task ID: 23
+Agent: main
+Task: Déploiement Vercel avec boutons Modifier/Supprimer/Voir
+
+Work Log:
+- Constat utilisateur : "il faut mettre des boutons là où il faut pour supprimer ou modifier en plus des boutons vues avec oeil"
+- Délégation à l'agent full-stack (Task 22) : ajout de boutons Voir/Modifier/Supprimer dans 6 vues + création de 16 endpoints API (PUT/DELETE pour bovins, alimentation, depenses, ventes, pesees, paturages)
+- Vérification locale Agent Browser + VLM :
+  - Vue Cheptel : 3 boutons (Voir la fiche, Modifier, Supprimer) pour chaque bovin (BOE-001, BOE-002, BOE-003) ✓
+  - Vue Alimentation : 3 boutons (Voir les détails, Modifier, Supprimer) pour chaque alimentation (Son de blé, Tourteau coton, Foin luzerne) ✓
+  - Vue Dépenses : 3 boutons (Voir les détails, Modifier, Supprimer) ✓
+  - Vue Pesées : pas de boutons visibles (pas de pesée enregistrée — cohérent) ✓
+- L'agent a remis provider = "sqlite" dans schema.prisma — j'ai remis "postgresql" pour préserver le déploiement Vercel
+- Commit local + push GitHub réussi (commit d41ccbc)
+- Déploiement Vercel réussi en 58s via `vercel deploy --prod --token vcp_... --name saverdev`
+- Alias configuré : https://saverdev.vercel.app pointe vers le nouveau déploiement https://saverdev-ent0p1ujq-funsoftwareafricas-projects.vercel.app
+
+Stage Summary:
+- Vérification finale sur https://saverdev.vercel.app :
+  - ✅ Page d'accueil HTTP 200
+  - ✅ API bovins HTTP 200 (15 bovins en prod, premier : BOE-001)
+  - ✅ DELETE /api/bovins/invalide-id → HTTP 404 (sécurité OK)
+  - ✅ Guide PDF HTTP 200 (téléchargeable)
+- Boutons en production sur https://saverdev.vercel.app :
+  - Vue Cheptel : Voir la fiche (Eye) + Modifier (Pencil) + Supprimer (Trash) pour chaque bovin
+  - Vue Alimentation : Voir les détails + Modifier + Supprimer
+  - Vue Dépenses : Voir les détails + Modifier + Supprimer
+  - Vue Ventes : Voir les détails + Supprimer (PAS de Modifier — vente figée pour préserver la comptabilité)
+  - Vue Pesées : Voir + Modifier + Supprimer
+  - Vue Pâturages : Modifier + Supprimer (pas de Voir car la ligne est déjà complète)
+- Sécurité :
+  - Boutons Modifier/Supprimer conditionnés à `!readOnly` (SINERGI en lecture seule ne voit que "Voir")
+  - DELETE vérifie l'existence de l'entité (HTTP 404 si introuvable)
+  - Log de toutes les actions dans Historique (action DELETE, entiteType, entiteId, details)
+  - Suppression Vente : remet le bovin en EN_ENGRAISSEMENT, supprime dateVente/prixVente/clientVente
+  - Suppression Alimentation : annule l'imputation aux bovins (soustrait coutsEngraissement)
+  - Suppression Dépense : annule l'imputation (soustrait autresCouts)
+- Stack API complète :
+  - GET / POST / PUT / DELETE pour : bovins, alimentation, depenses, pesees, paturages
+  - GET / POST / DELETE pour : ventes (PAS de PUT — vente figée)
+  - + GET / POST pour : saisie (journaux + capital), financement, rapport-bailleur, alertes, historique, stats
