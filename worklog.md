@@ -1383,3 +1383,49 @@ Stage Summary:
   - GET / POST / PUT / DELETE pour : bovins, alimentation, depenses, pesees, paturages
   - GET / POST / DELETE pour : ventes (PAS de PUT — vente figée)
   - + GET / POST pour : saisie (journaux + capital), financement, rapport-bailleur, alertes, historique, stats
+
+---
+Task ID: 24
+Agent: main
+Task: Étendre labels "bovins" → "animaux (bovins + ovins)" partout + appréciation
+
+Work Log:
+- Constat utilisateur : "partout où il y a bovins seulement ajoute ovins"
+- Audit complet via grep : identifié tous les libellés "bovins" qui deviennent "animaux (bovins + ovins)"
+- Corrections effectuées (5 fichiers) :
+  1. **src/components/views/bovins-view.tsx** (8 corrections) :
+     - Titre : "Cheptel — Bovins" → "Cheptel (Bovins + Ovins)"
+     - Description : "Liste des bovins" → "Liste des animaux (bovins BOE + ovins OVN)"
+     - KpiCard "Bovins actifs" → "Animaux actifs"
+     - KpiCard "Bovins vendus" → "Animaux vendus"
+     - EmptyState "Aucun bovin trouvé" → "Aucun animal trouvé"
+     - DialogTitle "Modifier le bovin" → "Modifier l'animal"
+     - SelectItem "Bovin" → "Bovin (BOE)" et "Ovin" → "Ovin (OVN)"
+     - Toasts : "Bovin enregistré/modifié/supprimé" → "Animal enregistré/modifié/supprimé"
+  2. **src/components/views/alimentation-view.tsx** (3 corrections) :
+     - Toast "Imputation par tête annulée sur les bovins" → "sur les animaux"
+     - Description "imputation aux bovins seront recalculés" → "aux animaux"
+     - AlertDialog "annulée sur les {n} bovins concernés" → "animaux concernés"
+  3. **src/components/views/bailleur-synthese-view.tsx** (1 correction) :
+     - "Bovins en cheptel" → "Animaux en cheptel"
+  4. **src/app/layout.tsx** (3 corrections) :
+     - Title "SAVERDEV — Gestion Élevage Bovin" → "SAVERDEV — Gestion Élevage Bovin & Ovin"
+     - Description "élevage bovin d'engraissement" → "élevage bovin & ovin d'engraissement"
+     - Keywords "élevage bovin" → "élevage bovin & ovin"
+  5. **public/manifest.json** (2 corrections) :
+     - name "Gestion d'élevage bovin" → "Gestion d'élevage bovin & ovin"
+     - description "élevage bovin d'engraissement" → "élevage bovin & ovin d'engraissement"
+- Commit + push GitHub (a703318) + déploiement Vercel réussi (saverdev-mc8rips0m-...)
+- Vérification production :
+  - ✅ Title de la page : "SAVERDEV — Gestion Élevage Bovin & Ovin" (visible dans <title>)
+  - ✅ Manifest PWA : "SAVERDEV — Gestion d'élevage bovin & ovin"
+
+Stage Summary:
+- L'application reconnaît maintenant explicitement les DEUX espèces dans tous les libellés visibles :
+  - Titre navigateur, manifest PWA, métadonnées SEO
+  - Vue Cheptel (titre + KPIs + descriptions + dialogs + toasts)
+  - Vue Alimentation (toasts + descriptions + dialogs)
+  - Vue Bailleur-synthese (carte "Animaux en cheptel")
+- Lint clean (0 erreur)
+- Déploiement Vercel OK en 58s
+- Maintenant cohérent à tous les niveaux : Achats, Ventes, Pesées, Dashboard, Rapport bailleur, Alimentation, Dépenses, Bailleur-synthese, metadata, manifest
