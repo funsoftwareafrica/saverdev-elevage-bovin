@@ -90,10 +90,8 @@ async function exportAllData(): Promise<{ data: Record<string, unknown>; totalEn
   return { data, totalEntities };
 }
 
-/** Crée une sauvegarde (JSON sur disque + enregistrement Backup en DB). */
+/** Crée une sauvegarde (metadata en DB + optionnellement JSON sur disque si filesystem writable). */
 export async function createBackup(type: "auto" | "manual" = "manual") {
-  await fs.mkdir(BACKUPS_DIR, { recursive: true });
-
   const { data, totalEntities } = await exportAllData();
   const json = JSON.stringify(data, null, 2);
   const size = Buffer.byteLength(json, "utf-8");
@@ -101,9 +99,17 @@ export async function createBackup(type: "auto" | "manual" = "manual") {
   const now = new Date();
   const ts = now.toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const filename = `saverdev-backup-${ts}.json`;
-  const filepath = path.join(BACKUPS_DIR, filename);
 
-  await fs.writeFile(filepath, json, "utf-8");
+  // Tente d'écrire sur disque (marche en dev local, échoue en prod Vercel serverless — read-only fs).
+  // En cas d'échec, on continue quand même : la métadonnée reste en DB et le download régénère le JSON à la volée.
+  try {
+    await fs.mkdir(BACKUPS_DIR, { recursive: true });
+    const filepath = path.join(BACKUPS_DIR, filename);
+    await fs.writeFile(filepath, json, "utf-8");
+  } catch (fsErr) {
+    // Filesystem read-only (Vercel serverless) — on ignore, le download régénérera le JSON à la volée
+    console.warn("Backup : écriture disque impossible (serverless?), fallback DB-only :", (fsErr as Error).message);
+  }
 
   const backup = await db.backup.create({
     data: {
