@@ -13,7 +13,7 @@ function iso(d: Date | null | undefined): string | null {
 }
 
 /** Exporte toutes les tables en un objet JSON sérialisable. */
-async function exportAllData(): Promise<{ data: Record<string, unknown>; totalEntities: number }> {
+export async function exportAllData(): Promise<{ data: Record<string, unknown>; totalEntities: number }> {
   const [
     users, bovins, alimentations, alimentationBovins, depenses, depenseBovins,
     financements, echeances, alertes, historiques, pesees, parametres, paturages, notifications, backups,
