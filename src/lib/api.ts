@@ -52,6 +52,7 @@ export function useCreateBovin() {
       dateAchat: string;
       prixAchat: number;
       poidsAchat: number;
+      espece?: "BOVIN" | "OVIN";
     }) => {
       const r = await fetch("/api/bovins", {
         method: "POST",

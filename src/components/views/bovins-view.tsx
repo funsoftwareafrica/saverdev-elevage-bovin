@@ -1,7 +1,7 @@
 "use client";
 
-// Vue Bovins — liste du cheptel avec filtres par statut + accès à la fiche détaillée.
-// Bouton "Nouvel achat" avec Dialog form fonctionnel.
+// Vue Cheptel (Bovins + Ovins) — liste des animaux avec filtres par espèce + statut + accès à la fiche détaillée.
+// Bouton "Nouvel achat" avec Dialog form fonctionnel (sélecteur Espèce + race par défaut dynamique).
 
 import { useMemo, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -48,9 +48,28 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { toast } from "sonner";
 
+// Race par défaut selon l'espèce (utilisé dans le formulaire de nouvel achat).
+const RACE_PAR_DEFAUT: Record<"BOVIN" | "OVIN", string> = {
+  BOVIN: "Zébu",
+  OVIN: "Mouton Sokoto",
+};
+
+// Classement Tailwind du badge Espèce (orange pour bovin, violet pour ovin).
+function especeBadgeClass(espece: string): string {
+  return espece === "OVIN"
+    ? "text-violet-700 bg-violet-50 border-violet-200"
+    : "text-orange-700 bg-orange-50 border-orange-200";
+}
+
+function especeLabel(espece: string): { emoji: string; label: string } {
+  return espece === "OVIN"
+    ? { emoji: "🐑", label: "Ovin" }
+    : { emoji: "🐄", label: "Bovin" };
+}
+
 export function BovinsView() {
   const openBovin = useAppStore((s) => s.openBovin);
-  
+
   const role = useAppStore((s) => s.role);
   const readOnly = role === "SINERGI";
   const { data: bovins, isLoading } = useBovins();
@@ -59,20 +78,56 @@ export function BovinsView() {
   const deleteBovin = useDeleteBovin();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"TOUS" | StatutBovin>("TOUS");
+  const [especeFilter, setEspeceFilter] = useState<"ALL" | "BOVIN" | "OVIN">("ALL");
   const [open, setOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Bovin | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Bovin | null>(null);
+
+  // --- État du formulaire de nouvel achat (espèce + race dynamique) ---
+  const [formEspece, setFormEspece] = useState<"BOVIN" | "OVIN">("BOVIN");
+  const [formRace, setFormRace] = useState<string>(RACE_PAR_DEFAUT.BOVIN);
+
+  // Handler espèce : change l'espèce et adapte la race par défaut.
+  // On ne réécrit la race que si elle valait l'ancienne valeur par défaut,
+  // pour ne pas écraser une saisie personnalisée de l'utilisateur.
+  const handleEspeceChange = (next: "BOVIN" | "OVIN") => {
+    setFormEspece((prevEspece) => {
+      // Si la race actuelle était la valeur par défaut de l'ancienne espèce,
+      // on la remplace par la valeur par défaut de la nouvelle espèce.
+      setFormRace((prevRace) => {
+        const defautPrecedente = RACE_PAR_DEFAUT[prevEspece];
+        if (prevRace === defautPrecedente || prevRace === "") {
+          return RACE_PAR_DEFAUT[next];
+        }
+        return prevRace;
+      });
+      return next;
+    });
+  };
+
+  // Réinitialisation du formulaire quand on ferme le Dialog nouvel achat.
+  const resetForm = () => {
+    setFormEspece("BOVIN");
+    setFormRace(RACE_PAR_DEFAUT.BOVIN);
+  };
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) resetForm();
+    setOpen(nextOpen);
+  };
 
   const allBovins = bovins ?? [];
   const filtered = useMemo(() => {
     return allBovins.filter((b) => {
       if (filter !== "TOUS" && b.statut !== filter) return false;
+      if (especeFilter !== "ALL" && b.espece !== especeFilter) return false;
       if (search && !b.identifiant.toLowerCase().includes(search.toLowerCase()) && !b.race.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [search, filter, allBovins]);
+  }, [search, filter, especeFilter, allBovins]);
 
   const actifs = allBovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
+  const actifsBovins = actifs.filter((b) => b.espece !== "OVIN");
+  const actifsOvins = actifs.filter((b) => b.espece === "OVIN");
   const vendus = allBovins.filter((b) => b.statut === "VENDU");
   const valeurCheptel = actifs.reduce((s, b) => s + b.prixAchat + b.coutsEngraissement, 0);
 
@@ -80,10 +135,11 @@ export function BovinsView() {
     exportCSV(
       filtered.map((b) => {
         const { coutRevient, marge } = computeBovinMarge(b);
-        return { identifiant: b.identifiant, race: b.race, sexe: b.sexe, dateAchat: formatDate(b.dateAchat), prixAchat: b.prixAchat, poidsAchat: b.poidsAchat, statut: b.statut, coutsEngraissement: b.coutsEngraissement, autresCouts: b.autresCouts, prixVente: b.prixVente, coutRevient, marge: marge ?? "" };
+        return { identifiant: b.identifiant, espece: b.espece, race: b.race, sexe: b.sexe, dateAchat: formatDate(b.dateAchat), prixAchat: b.prixAchat, poidsAchat: b.poidsAchat, statut: b.statut, coutsEngraissement: b.coutsEngraissement, autresCouts: b.autresCouts, prixVente: b.prixVente, coutRevient, marge: marge ?? "" };
       }),
       [
         { key: "identifiant", label: "Identifiant" },
+        { key: "espece", label: "Espèce" },
         { key: "race", label: "Race" },
         { key: "sexe", label: "Sexe" },
         { key: "dateAchat", label: "Date achat" },
@@ -96,9 +152,9 @@ export function BovinsView() {
         { key: "coutRevient", label: "Coût revient" },
         { key: "marge", label: "Marge" },
       ],
-      "bovins.csv"
+      "animaux.csv"
     );
-    toast.success("Export CSV", { description: `${filtered.length} bovin(s) exporté(s)` });
+    toast.success("Export CSV", { description: `${filtered.length} animal(s) exporté(s)` });
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -106,7 +162,8 @@ export function BovinsView() {
     const fd = new FormData(e.currentTarget);
     createBovin.mutate(
       {
-        race: String(fd.get("race") || "Zébu"),
+        espece: formEspece,
+        race: formRace || RACE_PAR_DEFAUT[formEspece],
         sexe: String(fd.get("sexe") || "Mâle"),
         dateAchat: String(fd.get("dateAchat") || new Date().toISOString().slice(0, 10)),
         prixAchat: Number(fd.get("prixAchat") || 0),
@@ -114,7 +171,7 @@ export function BovinsView() {
       },
       {
         onSuccess: () => {
-          toast.success("Animal enregistré", { description: "Nouvel achat ajouté au cheptel" });
+          toast.success("Animal enregistré", { description: `Nouvel ${formEspece === "OVIN" ? "ovin" : "bovin"} ajouté au cheptel` });
           setOpen(false);
         },
         onError: () => toast.error("Échec de l'enregistrement"),
@@ -167,7 +224,7 @@ export function BovinsView() {
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <HugeiconsIcon icon={Download} size={16} /> Export CSV
               </Button>
-              <Dialog open={open} onOpenChange={setOpen}>
+              <Dialog open={open} onOpenChange={handleOpenChange}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-primary">
                     <HugeiconsIcon icon={Plus} size={16} /> Nouvel achat
@@ -177,13 +234,34 @@ export function BovinsView() {
                   <DialogHeader>
                     <DialogTitle>Enregistrer un nouvel achat</DialogTitle>
                     <DialogDescription className="text-xs">
-                      Un identifiant BOV-XXX sera généré automatiquement.
+                      Un identifiant BOE-XXX (bovin) ou OVN-XXX (ovin) sera généré selon l'espèce.
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={onSubmit} className="space-y-3">
                     <div className="space-y-1.5">
+                      <Label htmlFor="espece" className="text-xs">Espèce</Label>
+                      <Select
+                        name="espece"
+                        value={formEspece}
+                        onValueChange={(v) => handleEspeceChange(v as "BOVIN" | "OVIN")}
+                      >
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="BOVIN">Bovin (BOE)</SelectItem>
+                          <SelectItem value="OVIN">Ovin (OVN)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
                       <Label htmlFor="race" className="text-xs">Race</Label>
-                      <Input id="race" name="race" placeholder="Zébu Gobra" defaultValue="Zébu" required />
+                      <Input
+                        id="race"
+                        name="race"
+                        placeholder={formEspece === "OVIN" ? "Mouton Sokoto" : "Zébu Gobra"}
+                        value={formRace}
+                        onChange={(e) => setFormRace(e.target.value)}
+                        required
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
@@ -204,11 +282,11 @@ export function BovinsView() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label htmlFor="prixAchat" className="text-xs">Prix d'achat (FCFA)</Label>
-                        <Input id="prixAchat" name="prixAchat" type="number" placeholder="450000" required />
+                        <Input id="prixAchat" name="prixAchat" type="number" placeholder={formEspece === "OVIN" ? "50000" : "450000"} required />
                       </div>
                       <div className="space-y-1.5">
                         <Label htmlFor="poidsAchat" className="text-xs">Poids d'achat (kg)</Label>
-                        <Input id="poidsAchat" name="poidsAchat" type="number" placeholder="280" required />
+                        <Input id="poidsAchat" name="poidsAchat" type="number" placeholder={formEspece === "OVIN" ? "20" : "280"} required />
                       </div>
                     </div>
                     <DialogFooter>
@@ -225,31 +303,41 @@ export function BovinsView() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         <KpiCard label="Animaux actifs" value={actifs.length} icon={Beef} variant="primary" />
+        <KpiCard label="🐄 Bovins actifs" value={actifsBovins.length} icon={Beef} />
+        <KpiCard label="🐑 Ovins actifs" value={actifsOvins.length} icon={Beef} variant="warning" />
         <KpiCard label="Animaux vendus" value={vendus.length} icon={TrendingUp} variant="success" />
-        <KpiCard label="Valeur du cheptel actif" value={formatFCFA(valeurCheptel)} icon={Beef} />
       </div>
 
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-[180px]">
               <HugeiconsIcon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Rechercher (BOV-001, Zébu...)"
+                placeholder="Rechercher (BOE-001 / OVN-001, Zébu...)"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-9"
               />
             </div>
-            <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-              <TabsList className="h-9">
-                <TabsTrigger value="TOUS" className="text-xs">Tous ({allBovins.length})</TabsTrigger>
-                <TabsTrigger value="EN_ENGRAISSEMENT" className="text-xs">Actifs ({actifs.length})</TabsTrigger>
-                <TabsTrigger value="VENDU" className="text-xs">Vendus ({vendus.length})</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-wrap gap-3">
+              <Tabs value={especeFilter} onValueChange={(v) => setEspeceFilter(v as typeof especeFilter)}>
+                <TabsList className="h-9">
+                  <TabsTrigger value="ALL" className="text-xs">Toutes ({allBovins.length})</TabsTrigger>
+                  <TabsTrigger value="BOVIN" className="text-xs">🐄 Bovins ({actifsBovins.length + vendus.filter((b) => b.espece !== "OVIN").length})</TabsTrigger>
+                  <TabsTrigger value="OVIN" className="text-xs">🐑 Ovins ({actifsOvins.length + vendus.filter((b) => b.espece === "OVIN").length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+                <TabsList className="h-9">
+                  <TabsTrigger value="TOUS" className="text-xs">Tous ({allBovins.length})</TabsTrigger>
+                  <TabsTrigger value="EN_ENGRAISSEMENT" className="text-xs">Actifs ({actifs.length})</TabsTrigger>
+                  <TabsTrigger value="VENDU" className="text-xs">Vendus ({vendus.length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
 
           {isLoading ? (
@@ -263,6 +351,7 @@ export function BovinsView() {
                 <TableHeader className="sticky top-0 bg-muted/80 backdrop-blur z-10">
                   <TableRow>
                     <TableHead className="w-[110px]">Identifiant</TableHead>
+                    <TableHead className="w-[110px]">Espèce</TableHead>
                     <TableHead>Race</TableHead>
                     <TableHead className="hidden sm:table-cell">Achat</TableHead>
                     <TableHead className="text-right">Prix achat</TableHead>
@@ -276,13 +365,14 @@ export function BovinsView() {
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9}>
+                      <TableCell colSpan={10}>
                         <EmptyState icon={Beef} title="Aucun animal trouvé" description="Modifiez votre recherche ou filtre." />
                       </TableCell>
                     </TableRow>
                   ) : (
                     filtered.map((b) => {
                       const { coutRevient, marge } = computeBovinMarge(b);
+                      const { emoji, label } = especeLabel(b.espece);
                       return (
                         <TableRow
                           key={b.id}
@@ -290,6 +380,11 @@ export function BovinsView() {
                           onClick={() => openBovin(b.id)}
                         >
                           <TableCell className="font-mono font-semibold text-primary">{b.identifiant}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`text-[0.65rem] ${especeBadgeClass(b.espece)}`}>
+                              {emoji} {label}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="text-sm">{b.race}</TableCell>
                           <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">
                             <div>{formatDate(b.dateAchat)}</div>
@@ -403,11 +498,11 @@ export function BovinsView() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce bovin ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer cet animal ?</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget && (
                 <>
-                  Le bovin <strong>{deleteTarget.identifiant}</strong> ({deleteTarget.race}) sera supprimé définitivement.
+                  Cet animal <strong>{deleteTarget.identifiant}</strong> ({deleteTarget.race}) sera supprimé définitivement.
                   <br />Cette action est irréversible.
                 </>
               )}

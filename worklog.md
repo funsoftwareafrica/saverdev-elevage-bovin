@@ -1583,3 +1583,37 @@ Stage Summary:
 - Lint clean (0 erreur sur tous les fichiers modifiés)
 - Déploiement Vercel OK en 58s
 - Toutes les routes API répondent HTTP 200 en prod
+
+---
+Task ID: 27-B
+Agent: full-stack-developer
+Task: Correction conformité bovins + ovins vue Cheptel
+
+Work Log:
+- Lecture du worklog (1585 lignes) pour le contexte : Task 24-A (labels "bovins" → "animaux (bovins + ovins)") + Task 25-B (7 évolutions majeures) + Task 26 (déploiement 10/10).
+- Constat : le schéma Prisma `Bovin.espece` existait déjà (`@default("BOVIN")`, `@@index([espece])`), `toBovin` mappait déjà `espece`, `applySaisieOperation` savait déjà créer BOVIN/OVIN avec le bon préfixe. Mais la route POST /api/bovins restait "BOVIN-only" (générait `BOV-XXX` via l'ancienne fonction `nextBovinIdentifiant`), le formulaire nouvel achat n'avait pas de sélecteur Espèce, et la liste n'avait pas de filtre/colonne Espèce.
+- Bug 1 (formulaire nouvel achat) : ajout Select `espece` en haut du Dialog + race par défaut dynamique via `RACE_PAR_DEFAUT = { BOVIN: "Zébu", OVIN: "Mouton Sokoto" }` + handler `handleEspeceChange` qui préserve les saisies utilisateur. Description Dialog remplacée : "BOV-XXX sera généré" → "Un identifiant BOE-XXX (bovin) ou OVN-XXX (ovin) sera généré selon l'espèce." Placeholder recherche "BOV-001" → "BOE-001 / OVN-001, Zébu...". Placeholders prix/poids deviennent dynamiques selon l'espèce (50000/20 pour OVIN, 450000/280 pour BOVIN).
+- Bug 2 (hook useCreateBovin) : ajout `espece?: "BOVIN" | "OVIN"` au type d'entrée du `mutationFn`. Le body JSON envoyé à /api/bovins contient maintenant `espece` (sérialisé par JSON.stringify).
+- Bug 3 (API POST /api/bovins) : lecture `body.espece` (fallback "BOVIN") ; comptage des identifiants existants FILTRÉ par espèce : `db.bovin.findMany({ where: { espece }, select: { identifiant: true } })` ; génération via `nextAnimalIdentifiant(espece, existing)` → `BOE-XXX` ou `OVN-XXX` ; `db.bovin.create` persiste `espece` + `race` (fallback "Mouton Sokoto" pour OVIN) ; Historique espèce-aware ("Nouvel achat BOE-001 (bovin, Zébu)" vs "(ovin, Mouton Sokoto)"). Suppression de l'ancien `db.bovin.count()` sans filtre qui générait un compteur global erroné.
+- Bug 4 (filtre espèce) : nouvel état `especeFilter: "ALL" | "BOVIN" | "OVIN"` + nouveau `<Tabs>` avec 3 triggers "Toutes (N)" / "🐄 Bovins (N)" / "🐑 Ovins (N)". Layout `flex flex-wrap gap-3` pour empiler les deux sélecteurs (espèce + statut) en desktop. `filtered` useMemo combine espèce + statut + recherche.
+- Bug 5 (colonne Espèce) : nouveau `<TableHead className="w-[110px]">Espèce</TableHead>` entre "Identifiant" et "Race" ; cellule `<Badge>` "🐄 Bovin" (orange) ou "🐑 Ovin" (violet) selon `b.espece`. Helpers `especeBadgeClass` / `especeLabel` isolés. `colSpan` EmptyState mis à jour 9 → 10.
+- Bug 6 (KPIs dédoublés) : remplacement `grid gap-3 sm:grid-cols-3` par `grid gap-3 grid-cols-2 sm:grid-cols-4`. 4 KpiCards : "Animaux actifs" (total), "🐄 Bovins actifs", "🐑 Ovins actifs" (variant=warning pour ton violet/orange), "Animaux vendus". Variables `actifsBovins` / `actifsOvins` calculées.
+- Bug 7 (toasts + AlertDialog) : toast "bovin(s) exporté(s)" → "animal(s) exporté(s)" + fichier CSV renommé `bovins.csv` → `animaux.csv` + colonne `Espèce` ajoutée à l'export. `AlertDialogTitle` "Supprimer ce bovin ?" → "Supprimer cet animal ?" + "Le bovin" → "Cet animal". Toast onSuccess onSubmit : "Nouvel achat ajouté" → "Nouvel ${ovin|bovin} ajouté au cheptel".
+- Bug 8 (nextAnimalIdentifiant) : ajout du type `Espece = "BOVIN" | "OVIN"` + constante `PREFIX_BY_ESPECE` dans `lib/format.ts`. Nouvelle fonction `nextAnimalIdentifiant(espece, existing)` qui normalise l'espèce (fallback BOVIN), utilise une regex dynamique `^${prefix}-(\d+)$` pour scanner uniquement les identifiants du préfixe correspondant, et retourne `BOE-XXX` ou `OVN-XXX`. `nextBovinIdentifiant` conservé en @deprecated et délègue à `nextAnimalIdentifiant("BOVIN", existing)` pour rétro-compat.
+- ESLint : `bunx eslint src/components/views/bovins-view.tsx src/lib/api.ts src/app/api/bovins/route.ts src/lib/format.ts` → exit 0, 0 erreur. (Bug initial : 2 erreurs `react-hooks/set-state-in-effect` sur les useEffect de sync espèce→race et de reset form → refactor via handlers `handleEspeceChange` + `handleOpenChange` qui évitent setState-in-effect.)
+
+Stage Summary:
+- Fichiers modifiés :
+  1. `src/lib/format.ts` — ajout `nextAnimalIdentifiant`, `Espece`, `PREFIX_BY_ESPECE` ; `nextBovinIdentifiant` déprécié.
+  2. `src/lib/api.ts` — `useCreateBovin` accepte `espece?: "BOVIN" | "OVIN"`.
+  3. `src/app/api/bovins/route.ts` — `POST` lit `espece`, persiste, génère `BOE-XXX`/`OVN-XXX` via `nextAnimalIdentifiant`, historique espèce-aware.
+  4. `src/components/views/bovins-view.tsx` — formulaire espèce+race dynamique, filtre Tabs espèce, colonne Espèce, 4 KPIs, toasts/AlertDialog "animal".
+- Tests curl effectués (4 créations, 1 listing) :
+  - POST BOVIN → 201 `{"identifiant":"BOE-001","espece":"BOVIN",...}`
+  - POST OVIN → 201 `{"identifiant":"OVN-001","espece":"OVIN",...}`
+  - POST BOVIN (2e) → 201 `{"identifiant":"BOE-002",...}` (compteur indépendant ✓)
+  - POST OVIN (2e) → 201 `{"identifiant":"OVN-002",...}` (compteur indépendant ✓)
+  - GET /api/bovins → 200 (4 animaux triés par identifiant asc)
+  - GET / → 200 (page d'accueil)
+- Logs Prisma observés dans dev.log : `WHERE main.Bovin.espece = ?` bien appliqué avant calcul du prochain identifiant.
+- Erreurs résiduelles : aucune sur les 4 fichiers de la tâche (lint clean). `bun run lint` full projet signale 2 erreurs préexistantes sur `scripts/clear_prod.cjs` et `scripts/init_capital.cjs` (fichiers .cjs non touchés, hors scope).

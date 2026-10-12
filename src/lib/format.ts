@@ -109,14 +109,47 @@ export function severiteColor(s: string): string {
   }
 }
 
-/** Génère le prochain identifiant BOV-XXX à partir d'une liste existante. */
-export function nextBovinIdentifiant(existing: { identifiant: string }[]): string {
+/**
+ * Génère le prochain identifiant d'animal selon l'espèce :
+ *   - BOVIN → BOE-XXX (préfixe historique "BOE" pour bovin d'engraissement)
+ *   - OVIN  → OVN-XXX
+ *
+ * Le compteur est déterminé en scannant les identifiants existants qui
+ * commencent par le préfixe correspondant ; on ignore les identifiants
+ * qui ne matchent pas le motif (ex: anciens BOV-XXX avant migration).
+ *
+ * `nextBovinIdentifiant` est conservé pour rétro-compatibilité et délègue
+ * à cette fonction en générant un identifiant BOVIN.
+ */
+export type Espece = "BOVIN" | "OVIN";
+
+const PREFIX_BY_ESPECE: Record<Espece, string> = {
+  BOVIN: "BOE",
+  OVIN: "OVN",
+};
+
+export function nextAnimalIdentifiant(
+  espece: Espece | string | null | undefined,
+  existing: { identifiant: string }[]
+): string {
+  const especeNorm: Espece =
+    espece === "OVIN" ? "OVIN" : "BOVIN"; // fallback BOVIN par défaut
+  const prefix = PREFIX_BY_ESPECE[especeNorm];
+  const re = new RegExp(`^${prefix}-(\\d+)$`);
   let max = 0;
   for (const b of existing) {
-    const m = /BOV-(\d+)/.exec(b.identifiant);
+    const m = re.exec(b.identifiant);
     if (m) max = Math.max(max, parseInt(m[1], 10));
   }
-  return `BOV-${String(max + 1).padStart(3, "0")}`;
+  return `${prefix}-${String(max + 1).padStart(3, "0")}`;
+}
+
+/**
+ * @deprecated Utiliser `nextAnimalIdentifiant("BOVIN", existing)` à la place.
+ * Génère un identifiant BOE-XXX (espèce bovin) — conservé pour rétro-compat.
+ */
+export function nextBovinIdentifiant(existing: { identifiant: string }[]): string {
+  return nextAnimalIdentifiant("BOVIN", existing);
 }
 
 /**
