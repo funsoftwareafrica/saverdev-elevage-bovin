@@ -8,6 +8,8 @@
 // Vercel sans mini-service sidecar), on ignore silencieusement. Le frontend
 // retombe sur le polling TanStack Query (60s).
 
+import type { SaisieType } from "@/lib/saisie-ops";
+
 const WS_EMIT_URL = "http://localhost:3030/emit";
 
 export interface WsNotificationPayload {
@@ -33,5 +35,35 @@ export async function emitNotification(payload: WsNotificationPayload): Promise<
   } catch (e) {
     // Mini-service WS indisponible — on continue sans broadcast temps réel.
     console.debug("[ws-emit] mini-service indisponible:", e);
+  }
+}
+
+/**
+ * Task 31-B — émet un event "saisie:new" pour revalidation temps réel
+ * multi-user. Quand une saisie est créée (POST /api/saisie), le frontend
+ * écoute cet event et déclenche queryClient.invalidateQueries() sur les
+ * queries pertinentes (saisie, dashboard, rapport-bailleur, etc.).
+ *
+ * `saisieType` est transmis dans le payload pour que les composants
+ * concernés puissent invalider sélectivement (ex: saisie-view du journal
+ * correspondant, dashboard pour les KPI, etc.).
+ */
+export async function emitSaisieUpdate(saisieType: SaisieType): Promise<void> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 1500);
+    await fetch(WS_EMIT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: "saisie:new",
+        payload: { type: saisieType },
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+  } catch (e) {
+    // Mini-service WS indisponible — on continue sans broadcast temps réel.
+    console.debug("[ws-emit] emitSaisieUpdate indisponible:", e);
   }
 }

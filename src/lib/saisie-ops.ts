@@ -6,6 +6,16 @@
 // On factorise ici la logique d'achat / vente / dépense / stock / capital_mouvement
 // pour pouvoir ré-appliquer une opération en attente de validation sans dupliquer
 // le code.
+//
+// Task 31-B : la vue Saisie expose désormais 6 journaux — achats, ventes,
+// dépenses, stock, investissement (saisie d'une dépense Immobilisation) et
+// capital (saisie d'un mouvement de capital). Côté backend, on conserve les
+// types normalisés "depense" (pour investissement) et "capital_mouvement"
+// (pour capital) — la table Depense/capitalMouvement est la même. Le type
+// "investissement" est un alias client de "depense" avec catégorie figée à
+// "Immobilisation". Le type "capital" est un alias client de "capital_mouvement"
+// (legacy). On garde les deux noms dans l'enum SaisiePayload pour l'UI/UX,
+// mais l'application est la même.
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -15,7 +25,10 @@ export type SaisieType =
   | "vente"
   | "depense"
   | "stock"
-  | "capital_mouvement";
+  | "capital_mouvement"
+  // Task 31-B : alias clients pour l'UI (6 journaux).
+  | "investissement"
+  | "capital";
 
 export interface SaisiePayload {
   type: SaisieType;
@@ -158,7 +171,7 @@ export async function applySaisieOperation(payload: SaisiePayload): Promise<Sais
     return { ok: true, id: mvt.id };
   }
 
-  if (type === "capital_mouvement") {
+  if (type === "capital_mouvement" || type === "capital") {
     const typeMvt = (data.typeMvt === "ENTREE" ? "ENTREE" : "SORTIE") as "ENTREE" | "SORTIE";
     const montant = Number(data.montant);
     if (!montant || montant <= 0) {
@@ -178,6 +191,32 @@ export async function applySaisieOperation(payload: SaisiePayload): Promise<Sais
       },
     });
     return { ok: true, id: mvt.id };
+  }
+
+  // Task 31-B : "investissement" — alias client de "depense" avec catégorie
+  // figée à "Immobilisation". Le libellé est préfixé par la sous-catégorie
+  // (Hangar/Équipement/Clôture/Autre) pour permettre le filtrage côté UI.
+  if (type === "investissement") {
+    const sousCat = (data.sousCategorie as string) || "Autre";
+    const libelleComplet = `[${sousCat}] ${String(data.libelle ?? "").trim()}`.slice(0, 200);
+    const depense = await db.depense.create({
+      data: {
+        date: new Date(data.date as string),
+        categorie: "Immobilisation",
+        libelle: libelleComplet,
+        montant: Number(data.montant ?? 0),
+        nbBovinsConcernes: 0,
+      },
+    });
+    await db.historique.create({
+      data: {
+        action: "INVESTISSEMENT",
+        entiteType: "Depense",
+        entiteId: depense.id,
+        details: `${sousCat} — ${libelleComplet} (${depense.montant} FCFA)`,
+      },
+    });
+    return { ok: true, id: depense.id };
   }
 
   return { ok: false, error: "Type inconnu", status: 400 };

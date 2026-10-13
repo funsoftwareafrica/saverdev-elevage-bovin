@@ -7,8 +7,14 @@
 // la query ["notifications"] de TanStack Query pour que le frontend
 // rafraîchisse la liste + badge de non-lues.
 //
-// Usage : `useRealtimeNotifications();` dans le NotificationCenter (appel
-// unique au niveau du shell).
+// Task 31-B — revalidation multi-user : on écoute aussi l'event
+// "saisie:new" (émis par /api/saisie POST via lib/ws-emit.ts). À la
+// réception, on invalide globalement les queries pour que les tableaux
+// de bord, journaux de saisie et rapports se rafraîchissent automatiquement
+// (re-fetch TanStack Query). Payload transmis : `{ type: SaisieType }` pour
+// permettre une invalidation sélective côté composants.
+//
+// Usage : `useRealtimeNotifications();` dans le shell (appel unique).
 
 "use client";
 
@@ -38,7 +44,30 @@ export function useRealtimeNotifications() {
       qc.invalidateQueries({ queryKey: ["dashboard"] });
     };
 
+    // Task 31-B : event "saisie:new" — revalidation temps réel multi-user.
+    // Payload : { type: SaisieType }. On invalide les queries serveur
+    // (saisie, dashboard, rapport-bailleur, financement, etc.) pour qu'elles
+    // se rafraîchissent automatiquement.
+    const onSaisieNew = (payload: unknown) => {
+      // Invalidation large : toutes les queries serveur concernées par une
+      // saisie. On évite l'invalidation globale (trop coûteuse) en ciblant
+      // les queryKeys les plus pertinentes.
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["rapport-bailleur"] });
+      qc.invalidateQueries({ queryKey: ["bovins"] });
+      qc.invalidateQueries({ queryKey: ["alimentations"] });
+      qc.invalidateQueries({ queryKey: ["depenses"] });
+      qc.invalidateQueries({ queryKey: ["ventes"] });
+      qc.invalidateQueries({ queryKey: ["financement"] });
+      qc.invalidateQueries({ queryKey: ["alertes"] });
+      qc.invalidateQueries({ queryKey: ["historique"] });
+      qc.invalidateQueries({ queryKey: ["tresorerie"] });
+      // Log dev pour vérifier que l'event arrive.
+      console.debug("[ws-notif] saisie:new reçu", payload);
+    };
+
     socket.on("notification:new", onNotification);
+    socket.on("saisie:new", onSaisieNew);
 
     socket.on("connect", () => {
       // Connexion établie — silencieux en prod, loggable en dev.
@@ -52,6 +81,7 @@ export function useRealtimeNotifications() {
 
     return () => {
       socket.off("notification:new", onNotification);
+      socket.off("saisie:new", onSaisieNew);
       socket.disconnect();
       socketRef.current = null;
     };

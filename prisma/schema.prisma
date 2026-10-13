@@ -7,6 +7,8 @@ generator client {
 }
 
 datasource db {
+  // Task 31-B : sqlite en local (dev) — les binaires Prisma doivent être
+  // régénérés en sqlite pour matcher la DATABASE_URL locale.
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
@@ -340,4 +342,20 @@ model Backup {
 
   @@index([date])
   @@index([type])
+}
+
+// ---------- Mois clôturés (verrouillage comptable — Task 31-B) ----------
+// Permet de figer un mois comptable : tant qu'un mois est marqué
+// `cloture=true`, la route POST /api/saisie refuse les saisies dont la
+// date tombe dans ce mois (HTTP 403 "Mois clôturé, saisie impossible").
+// La clôture/déclôture est réservée au rôle E2A (administrateur).
+model MoisCloture {
+  id          String   @id @default(cuid())
+  mois        String   @unique                // "2025-10" format YYYY-MM
+  cloture     Boolean  @default(false)        // true si le mois est clôturé
+  cloturePar  String?                          // email de l'utilisateur E2A
+  dateCloture DateTime?                        // date de la dernière clôture
+  createdAt   DateTime @default(now())
+
+  @@index([cloture])
 }

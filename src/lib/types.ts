@@ -154,10 +154,14 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
 };
 
 // Vues accessibles par rôle
+// Task 31-B : "achats" et "ventes" retirés des arrays BENEFICIAIRE et E2A —
+// ces vues ne sont plus accessibles depuis la sidebar. Le type ViewKey
+// "achats" | "ventes" est conservé pour rétrocompat (codes qui référencent
+// encore ces clés), mais les routes ne sont plus exposées.
 export const ROLE_VIEWS: Record<Role, ViewKey[]> = {
-  BENEFICIAIRE: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","soins"],
+  BENEFICIAIRE: ["carte-3d","dashboard","saisie","bovins","fiche-bovin","alimentation","depenses","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","soins"],
   SINERGI: ["dashboard","rentabilite","financement","rapport","bailleur-synthese"],
-  E2A: ["carte-3d","dashboard","saisie","achats","bovins","fiche-bovin","alimentation","depenses","ventes","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese","validations","soins","backups"],
+  E2A: ["carte-3d","dashboard","saisie","bovins","fiche-bovin","alimentation","depenses","rentabilite","financement","rapport","tresorerie","pesees","parametres","paturages","bailleur-synthese","validations","soins","backups"],
 };
 
 export type ViewKey =

@@ -4,44 +4,45 @@
 // 6 KPI colorés + 5 graphiques + 4 sections analytiques + annexes imprimables.
 // Données dynamiques via /api/rapport-bailleur (12 mois de l'exercice).
 //
-// Task 29 — refonte :
+// Task 29 — refonte historique :
 //  - Suppression du BarChart "Achats vs Ventes" (redondant avec Saisie).
 //  - Section A : Balance comptable (N-1 figé / mouvements N / solde N).
 //  - Section B : Suivi du financement (capital initial + mouvements horodatés +
 //                formulaire d'ajout — déplacé depuis la vue Saisie).
 //  - Section C : Suivi budgétaire (Investissement / Opérationnel / Trésorerie).
 //  - Section D : Dépenses d'investissement en immobilisations + dialog d'ajout.
+//
+// Task 31-B — passage en lecture seule EXCLUSIVE :
+//  - Suppression du formulaire "Nouvelle opération sur le capital" (Section B).
+//  - Suppression du Dialog "Ajouter une dépense d'investissement" (Section D).
+//  - Suppression du bouton "Supprimer" sur chaque mouvement de capital.
+//  - Tous les tableaux sont en lecture seule (aucune mutation possible).
+//  - La saisie des mouvements de capital et des dépenses d'investissement
+//    se fait désormais depuis la vue Saisie (journaux dédiés Task 31-B).
+//  - Le bouton "Exporter PDF" (react-pdf) est ajouté à côté du bouton
+//    "Exporter Excel".
 
-import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRapportBailleur, useFinancement } from "@/lib/api";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { RAPPORT_KPI_COLORS, COST_STRUCTURE_COLORS } from "@/lib/config";
-import { formatFCFA, formatFCFAShort, formatDate, severiteColor, statutEcheanceColor, nowDateTimeLocal } from "@/lib/format";
+import { formatFCFA, formatFCFAShort, formatDate, severiteColor, statutEcheanceColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter,
-  DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
 import { LazyMount } from "@/components/lazy-mount";
 import {
   FileText, Printer, Download, CheckCircle2, AlertCircle,
-  Plus, AlertTriangle, Scale, Landmark, Wallet,
+  Scale, Landmark, Wallet,
 } from "@/lib/icons";
 import { toast } from "sonner";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
   Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type {
   BalanceLigne, BudgetLigne, BudgetSection, CapitalMouvementItem,
 } from "@/lib/types";
@@ -53,24 +54,8 @@ const DOUGHNUT_COLORS = [COST_STRUCTURE_COLORS.achatBovin, COST_STRUCTURE_COLORS
 export function RapportBailleurView() {
   const selectedMonth = useAppStore((s) => s.selectedMonth);
   const year = selectedMonth ? parseInt(selectedMonth.split("-")[0], 10) : new Date().getFullYear();
-  const qc = useQueryClient();
   const { data: rap, isLoading } = useRapportBailleur(year);
   const { data: fin } = useFinancement();
-
-  // --- Section B : formulaire d'ajout d'un mouvement de capital ---
-  const [mvtDate, setMvtDate] = useState<string>(nowDateTimeLocal());
-  const [mvtType, setMvtType] = useState<"ENTREE" | "SORTIE">("SORTIE");
-  const [mvtMontant, setMvtMontant] = useState<string>("");
-  const [mvtLibelle, setMvtLibelle] = useState<string>("");
-  const [mvtSaving, setMvtSaving] = useState(false);
-
-  // --- Section D : dialog d'ajout d'une dépense d'investissement ---
-  const [investDialogOpen, setInvestDialogOpen] = useState(false);
-  const [invDate, setInvDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  const [invLibelle, setInvLibelle] = useState<string>("");
-  const [invSousCat, setInvSousCat] = useState<string>("Hangar");
-  const [invMontant, setInvMontant] = useState<string>("");
-  const [invSaving, setInvSaving] = useState(false);
 
   if (isLoading || !rap) {
     return (
@@ -100,114 +85,16 @@ export function RapportBailleurView() {
     setTimeout(() => toast.success("Excel téléchargé"), 800);
   };
 
-  // Invalide le cache du rapport bailleur (forces un re-fetch après mutation).
-  const invalidateRapport = () => {
-    qc.invalidateQueries({ queryKey: ["rapport-bailleur", year] });
-    qc.invalidateQueries({ queryKey: ["rapport-bailleur"] });
-  };
-
-  // --- Handlers Section B (Suivi du financement) ---
-  const handleSaveMouvement = async () => {
-    const montant = Number(mvtMontant.replace(/\s/g, ""));
-    if (!montant || montant <= 0) {
-      toast.error("Veuillez saisir un montant valide");
-      return;
-    }
-    setMvtSaving(true);
-    try {
-      const res = await fetch("/api/saisie", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "capital_mouvement",
-          typeMvt: mvtType,
-          date: mvtDate,
-          montant,
-          libelle: mvtLibelle.trim(),
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || "Erreur");
-        setMvtSaving(false);
-        return;
-      }
-      toast.success(mvtType === "ENTREE" ? "Ajout enregistré" : "Retrait enregistré");
-      setMvtMontant("");
-      setMvtLibelle("");
-      setMvtDate(nowDateTimeLocal());
-      invalidateRapport();
-    } catch {
-      toast.error("Connexion perdue");
-    }
-    setMvtSaving(false);
-  };
-
-  const handleDeleteMouvement = async (id: string) => {
-    if (!id) return;
-    try {
-      const res = await fetch("/api/saisie", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "capital_mouvement_delete", id }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || "Erreur lors de la suppression");
-        return;
-      }
-      toast.success("Mouvement supprimé");
-      invalidateRapport();
-    } catch {
-      toast.error("Connexion perdue");
-    }
-  };
-
-  // --- Handlers Section D (Investissements) ---
-  const handleSaveInvestissement = async () => {
-    if (!invLibelle || !invMontant) {
-      toast.error("Libellé et montant requis");
-      return;
-    }
-    const montant = Number(invMontant);
-    if (isNaN(montant) || montant <= 0) {
-      toast.error("Montant invalide");
-      return;
-    }
-    setInvSaving(true);
-    // La catégorie DB reste "Immobilisation" (compte 23). Le sous-type
-    // (Hangar/Équipement/Clôture/Autre) est préfixé dans le libellé pour
-    // permettre le filtrage ultérieur tout en gardant une catégorie simple.
-    const libelleComplet = `[${invSousCat}] ${invLibelle.trim()}`;
-    try {
-      const res = await fetch("/api/depenses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: invDate,
-          categorie: "Immobilisation",
-          libelle: libelleComplet,
-          montant,
-          nbBovinsConcernes: 0,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || "Erreur lors de l'enregistrement");
-        setInvSaving(false);
-        return;
-      }
-      toast.success("Dépense d'investissement enregistrée");
-      setInvLibelle("");
-      setInvMontant("");
-      setInvSousCat("Hangar");
-      setInvDate(new Date().toISOString().split("T")[0]);
-      setInvestDialogOpen(false);
-      invalidateRapport();
-    } catch {
-      toast.error("Connexion perdue");
-    }
-    setInvSaving(false);
+  const handleExportPdf = () => {
+    const url = `/api/rapport-bailleur/export-pdf?annee=${year}`;
+    toast.info("Génération PDF en cours…", { description: `rapport-bailleur-${year}.pdf` });
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rapport-bailleur-${year}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => toast.success("PDF téléchargé"), 800);
   };
 
   return (
@@ -226,6 +113,10 @@ export function RapportBailleurView() {
           </Button>
           <Button variant="outline" size="sm" onClick={handleExportXlsx} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
             <HugeiconsIcon icon={Download} size={16} /> Export Excel
+          </Button>
+          {/* Task 31-B : export PDF via react-pdf (@react-pdf/renderer) */}
+          <Button variant="outline" size="sm" onClick={handleExportPdf} className="border-rose-300 text-rose-700 hover:bg-rose-50">
+            <HugeiconsIcon icon={Download} size={16} /> Export PDF
           </Button>
         </div>
       </div>
@@ -371,11 +262,12 @@ export function RapportBailleurView() {
         </CardContent>
       </Card>
 
-      {/* ============ SECTION B : Suivi du financement ============ */}
+      {/* ============ SECTION B : Suivi du financement (LECTURE SEULE — Task 31-B) ============ */}
       <Card className="print-page border-border shadow-sm">
         <CardHeader className="bg-secondary/5 border-b border-border">
           <CardTitle className="text-sm flex items-center gap-2">
             <HugeiconsIcon icon={Landmark} size={16} className="text-primary" /> Section B — Suivi du financement
+            <Badge variant="outline" className="text-[0.6rem] ml-1 text-muted-foreground border-border">Lecture seule</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-5 space-y-4">
@@ -386,18 +278,10 @@ export function RapportBailleurView() {
             soldeRestant={rap.capital.soldeRestant}
             nbMouvements={rap.capital.nbMouvements}
             mouvements={rap.capital.mouvements}
-            mvtDate={mvtDate}
-            mvtType={mvtType}
-            mvtMontant={mvtMontant}
-            mvtLibelle={mvtLibelle}
-            mvtSaving={mvtSaving}
-            onMvtDateChange={setMvtDate}
-            onMvtTypeChange={setMvtType}
-            onMvtMontantChange={setMvtMontant}
-            onMvtLibelleChange={setMvtLibelle}
-            onSaveMouvement={handleSaveMouvement}
-            onDeleteMouvement={handleDeleteMouvement}
           />
+          {/* Note : le formulaire d'ajout d'un mouvement de capital a été
+              déplacé vers la vue Saisie (journal "Suivi du capital" — Task 31-B).
+              Le rapport bailleur est désormais en consultation uniquement. */}
         </CardContent>
       </Card>
 
@@ -413,20 +297,21 @@ export function RapportBailleurView() {
         </CardContent>
       </Card>
 
-      {/* ============ SECTION D : Dépenses d'investissement en immobilisations ============ */}
+      {/* ============ SECTION D : Dépenses d'investissement (LECTURE SEULE — Task 31-B) ============ */}
       <Card className="print-page border-border shadow-sm">
-        <CardHeader className="bg-secondary/5 border-b border-border no-print">
+        <CardHeader className="bg-secondary/5 border-b border-border">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={Plus} size={16} className="text-primary" /> Section D — Dépenses d'investissement en immobilisations
+              <HugeiconsIcon icon={Scale} size={16} className="text-primary" /> Section D — Dépenses d'investissement en immobilisations
+              <Badge variant="outline" className="text-[0.6rem] ml-1 text-muted-foreground border-border">Lecture seule</Badge>
             </CardTitle>
-            <Button size="sm" onClick={() => setInvestDialogOpen(true)} className="bg-primary">
-              <HugeiconsIcon icon={Plus} size={14} /> Ajouter une dépense d'investissement
-            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-5">
           <InvestissementsTable investissements={rap.investissements} />
+          {/* Note : le Dialog d'ajout d'une dépense d'investissement a été
+              déplacé vers la vue Saisie (journal "Dépenses d'investissement"
+              — Task 31-B). Le rapport bailleur est en consultation uniquement. */}
         </CardContent>
       </Card>
 
@@ -538,68 +423,6 @@ export function RapportBailleurView() {
           </div>
         </CardContent>
       </Card>
-
-      {/* ============ DIALOG : Ajout d'une dépense d'investissement ============ */}
-      <Dialog open={investDialogOpen} onOpenChange={setInvestDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <HugeiconsIcon icon={Plus} size={16} className="text-primary" /> Nouvelle dépense d'investissement
-            </DialogTitle>
-            <DialogDescription>
-              Compte 23 — Immobilisations. La dépense sera enregistrée avec la catégorie « Immobilisation ».
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="inv-date" className="text-xs">Date</Label>
-                <Input id="inv-date" type="date" value={invDate} onChange={(e) => setInvDate(e.target.value)} className="text-sm h-9" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="inv-cat" className="text-xs">Sous-catégorie</Label>
-                <Select value={invSousCat} onValueChange={setInvSousCat}>
-                  <SelectTrigger id="inv-cat" className="text-sm h-9"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Hangar" className="text-sm">Hangar</SelectItem>
-                    <SelectItem value="Équipement" className="text-sm">Équipement</SelectItem>
-                    <SelectItem value="Clôture" className="text-sm">Clôture</SelectItem>
-                    <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="inv-libelle" className="text-xs">Libellé</Label>
-              <Input
-                id="inv-libelle"
-                placeholder="ex: Achat de tôles pour toiture hangar"
-                value={invLibelle}
-                onChange={(e) => setInvLibelle(e.target.value)}
-                className="text-sm h-9"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="inv-montant" className="text-xs">Montant (FCFA)</Label>
-              <Input
-                id="inv-montant"
-                type="number"
-                inputMode="numeric"
-                placeholder="ex: 350000"
-                value={invMontant}
-                onChange={(e) => setInvMontant(e.target.value)}
-                className="text-sm h-9 tabular-nums"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setInvestDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleSaveInvestissement} disabled={invSaving} className="bg-primary">
-              {invSaving ? "Enregistrement…" : "Enregistrer"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -707,7 +530,7 @@ function BalanceTable({
   );
 }
 
-// ---- Section B : Suivi du financement ----
+// ---- Section B : Suivi du financement (LECTURE SEULE — Task 31-B) ----
 interface SuiviFinancementProps {
   capitalInitial: number;
   totalEntrees: number;
@@ -715,25 +538,10 @@ interface SuiviFinancementProps {
   soldeRestant: number;
   nbMouvements: number;
   mouvements: CapitalMouvementItem[];
-  // form state
-  mvtDate: string;
-  mvtType: "ENTREE" | "SORTIE";
-  mvtMontant: string;
-  mvtLibelle: string;
-  mvtSaving: boolean;
-  onMvtDateChange: (v: string) => void;
-  onMvtTypeChange: (v: "ENTREE" | "SORTIE") => void;
-  onMvtMontantChange: (v: string) => void;
-  onMvtLibelleChange: (v: string) => void;
-  onSaveMouvement: () => void;
-  onDeleteMouvement: (id: string) => void;
 }
 
 function SuiviFinancement({
   capitalInitial, totalEntrees, totalSorties, soldeRestant, nbMouvements, mouvements,
-  mvtDate, mvtType, mvtMontant, mvtLibelle, mvtSaving,
-  onMvtDateChange, onMvtTypeChange, onMvtMontantChange, onMvtLibelleChange,
-  onSaveMouvement, onDeleteMouvement,
 }: SuiviFinancementProps) {
   return (
     <>
@@ -746,7 +554,7 @@ function SuiviFinancement({
         <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
       </div>
 
-      {/* Résumé des mouvements */}
+      {/* Résumé des mouvements (lecture seule) */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-center">
           <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ajouts</p>
@@ -762,99 +570,41 @@ function SuiviFinancement({
         </div>
       </div>
 
-      {/* Formulaire d'ajout d'un mouvement horodaté */}
-      <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2.5 no-print">
-        <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={Plus} size={14} className="text-primary" />
-          <p className="text-xs font-semibold text-foreground">Nouvelle opération sur le capital</p>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label htmlFor="mvt-date" className="text-[0.6rem] uppercase text-muted-foreground">Date & heure</Label>
-            <Input id="mvt-date" type="datetime-local" value={mvtDate} onChange={(e) => onMvtDateChange(e.target.value)} className="text-xs h-8" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="mvt-type" className="text-[0.6rem] uppercase text-muted-foreground">Sens de l'opération</Label>
-            <Select value={mvtType} onValueChange={(v) => onMvtTypeChange(v as "ENTREE" | "SORTIE")}>
-              <SelectTrigger id="mvt-type" className="text-xs h-8"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SORTIE">− Retrait (sortie de capital)</SelectItem>
-                <SelectItem value="ENTREE">+ Ajout (entrée de capital)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label htmlFor="mvt-montant" className="text-[0.6rem] uppercase text-muted-foreground">Montant (FCFA)</Label>
-            <Input id="mvt-montant" type="number" inputMode="numeric" placeholder="ex: 150000" value={mvtMontant} onChange={(e) => onMvtMontantChange(e.target.value)} className="text-xs h-8 tabular-nums" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="mvt-libelle" className="text-[0.6rem] uppercase text-muted-foreground">Motif / libellé</Label>
-            <Input id="mvt-libelle" placeholder="ex: Achat alimentation" value={mvtLibelle} onChange={(e) => onMvtLibelleChange(e.target.value)} className="text-xs h-8" />
-          </div>
-        </div>
-        <Button
-          onClick={onSaveMouvement}
-          disabled={mvtSaving}
-          size="sm"
-          className={`w-full text-xs ${mvtType === "ENTREE" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
-        >
-          {mvtSaving ? "Enregistrement…" : (mvtType === "ENTREE" ? "+ Ajouter au capital" : "− Soustraire du capital")}
-        </Button>
-      </div>
-
-      {/* Mouvements horodatés en cascade */}
+      {/* Mouvements horodatés en cascade (LECTURE SEULE — pas de bouton supprimer) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold text-foreground">Historique des opérations ({nbMouvements})</p>
           <p className="text-[0.55rem] text-muted-foreground">tri : récent → ancien</p>
         </div>
-        <div className="max-h-80 overflow-y-auto pr-1 -mr-1 space-y-0">
-          <AnimatePresence mode="popLayout">
-            {mouvements.map((m, i) => (
-              <motion.div
-                key={m.id ?? `${m.date}-${i}`}
-                layout
-                initial={{ opacity: 0, x: -30, height: 0 }}
-                animate={{ opacity: 1, x: 0, height: "auto" }}
-                exit={{ opacity: 0, x: -30, height: 0 }}
-                transition={{ delay: i * 0.04, duration: 0.25 }}
-                className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
-              >
-                <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
-                    </p>
-                    <p className="text-[0.6rem] text-muted-foreground tabular-nums">
-                      <span className="font-medium">{m.date}</span> · {m.typeLabel}
-                      {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0 flex items-center gap-2">
-                    <div>
-                      <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
-                        {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
-                      </p>
-                      <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
-                    </div>
-                    <button
-                      onClick={() => onDeleteMouvement(m.id)}
-                      title="Supprimer ce mouvement"
-                      className="no-print text-muted-foreground hover:text-red-600 transition-colors p-1 rounded"
-                    >
-                      <HugeiconsIcon icon={AlertTriangle} size={14} />
-                    </button>
-                  </div>
+        <div className="max-h-96 overflow-y-auto pr-1 -mr-1 space-y-0">
+          {mouvements.map((m, i) => (
+            <div
+              key={m.id ?? `${m.date}-${i}`}
+              className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
+            >
+              <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
+                  </p>
+                  <p className="text-[0.6rem] text-muted-foreground tabular-nums">
+                    <span className="font-medium">{m.date}</span> · {m.typeLabel}
+                    {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
+                  </p>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                <div className="text-right shrink-0">
+                  <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
+                    {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
+                  </p>
+                  <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
           {mouvements.length === 0 && (
             <p className="text-center text-xs text-muted-foreground py-6">
-              Aucune opération enregistrée. Ajoutez votre premier mouvement ci-dessus.
+              Aucune opération enregistrée. Saisissez vos mouvements depuis la vue Saisie (journal « Suivi du capital »).
             </p>
           )}
         </div>
@@ -934,13 +684,13 @@ function BudgetSectionRows({ section }: { section: BudgetSection }) {
   );
 }
 
-// ---- Section D : Dépenses d'investissement ----
+// ---- Section D : Dépenses d'investissement (LECTURE SEULE — Task 31-B) ----
 function InvestissementsTable({ investissements }: { investissements: { id: string; date: string; libelle: string; categorie: string; montant: number }[] }) {
   const total = investissements.reduce((s, i) => s + i.montant, 0);
   if (investissements.length === 0) {
     return (
       <div className="flex items-center justify-center gap-2 rounded-md border border-dashed border-border px-3 py-6 text-xs text-muted-foreground">
-        <HugeiconsIcon icon={Plus} size={14} /> Aucune dépense d'investissement enregistrée.
+        Aucune dépense d'investissement enregistrée. Saisissez vos immobilisations depuis la vue Saisie (journal « Dépenses d'investissement »).
       </div>
     );
   }

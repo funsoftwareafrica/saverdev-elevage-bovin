@@ -32,12 +32,17 @@ export function AppSidebar({ activeView, role }: Props) {
   const items = NAV_ITEMS.filter((i) => allowedKeys.has(i.key));
 
   const handleSelect = (key: ViewKey) => {
-    // Le raccourci "achats" ouvre la vue Saisie en présélectionnant le
-    // journal d'achats (type = "achat"). Idem pour un éventuel raccourci
-    // "ventes-saisie" ou "depenses-saisie" à venir.
+    // Task 31-B : les raccourcis "achats" et "ventes" n'existent plus dans
+    // la sidebar — ils ont été retirés de NAV_ITEMS. Le flux passe
+    // désormais par la vue Saisie uniquement (journaux d'achats et de
+    // ventes). On garde ce bloc de logique pour rétrocompat (si une vue
+    // "achats" est demandée par un autre chemin, on redirige vers Saisie).
     if (key === "achats") {
       setSaisieInitialType("achat");
-      setView("achats");
+      setView("saisie");
+    } else if (key === "ventes") {
+      setSaisieInitialType("vente");
+      setView("saisie");
     } else {
       setView(key);
     }
@@ -136,7 +141,22 @@ export function AppSidebar({ activeView, role }: Props) {
         </div>
         {/* Bouton déconnexion */}
         <button
-          onClick={() => {
+          onClick={async () => {
+            // Déconnexion serveur : on efface le cookie NextAuth via
+            // POST /api/auth/signout. On délègue à fetch car le bouton
+            // est un simple <button>, pas un lien. Le rate limit (5/min)
+            // protège contre le flood. On ne bloque pas l'UI sur l'appel
+            // réseau : on déconnecte l'état Zustand local même si le
+            // serveur tarde (l'utilisateur revient au login de toute façon).
+            try {
+              await fetch("/api/auth/signout", {
+                method: "POST",
+                credentials: "include",
+              });
+            } catch {
+              // Silencieux : on déconnecte l'UI de toute façon (l'état
+              // local doit toujours être reset, le cookie expirera tout seul).
+            }
             logout();
           }}
           className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center text-sidebar-foreground/60 hover:text-red-400 hover:bg-red-500/10 transition-colors"

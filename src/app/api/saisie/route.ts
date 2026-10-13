@@ -21,7 +21,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
-import { emitNotification } from "@/lib/ws-emit";
+import { emitNotification, emitSaisieUpdate } from "@/lib/ws-emit";
+import { withRateLimit } from "@/lib/rate-limit";
+import { getSchemaForType } from "@/lib/validations";
 import {
   applySaisieOperation,
   serializeSaisie,
@@ -47,6 +49,13 @@ export async function GET(req: NextRequest) {
       },
       { status: 404 }
     );
+  }
+  // Task 31-B : "capital" est un alias client de l'ancien "financement" —
+  // renvoie le suivi du capital initial + mouvements horodatés. Anciennement
+  // exposé via GET /api/saisie?type=financement (qui répondait 404 depuis
+  // la Task 29). On rétablit la disponibilité sous le nouvel alias.
+  if (type === "capital") {
+    return getCapitalSuivi();
   }
   const limit = type === "all" ? 5 : 100;
 
@@ -193,12 +202,87 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ entries, summary });
   }
 
+  // Task 31-B : journal "Dépenses d'investissement" — alias client du journal
+  // des dépenses filtré sur categorie === "Immobilisation" (compte 23).
+  // On renvoie les lignes en partie double (compte 23 débit / 5711 crédit).
+  if (type === "investissement") {
+    const depenses = await db.depense.findMany({
+      where: { categorie: "Immobilisation" },
+      orderBy: { date: "desc" },
+      take: limit,
+    });
+    const entries = depenses.flatMap((d) => {
+      const date = d.date.toISOString().slice(0, 10).split("-").reverse().join("/");
+      return [
+        { id: `${d.id}-d`, date, numCompte: "23", libelle: d.libelle, debit: d.montant, credit: 0 },
+        { id: `${d.id}-c`, date, numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
+      ];
+    });
+    const totalDebit = entries.reduce((s, e) => s + e.debit, 0);
+    const totalCredit = entries.reduce((s, e) => s + e.credit, 0);
+    const solde = totalDebit - totalCredit;
+    return NextResponse.json({ entries, totalDebit, totalCredit, solde, conclusion: solde > 0 ? "Solde débitaire" : "Solde créditaire" });
+  }
+
   // all
   const [achats, ventes, depenses, stock] = await Promise.all([getAchats(), getVentes(), getDepenses(), getStock()]);
   return NextResponse.json({ achats, ventes, depenses, stock: stock.entries, stockSummary: stock.summary });
 }
 
-export async function POST(req: NextRequest) {
+// ============================================================
+//  Task 31-B : suivi du capital (alias client "capital")
+//  Renvoie le capital initial figé + la liste des mouvements
+//  horodatés (déplacé depuis /api/rapport-bailleur pour exposer
+//  un endpoint GET /api/saisie?type=capital dédié au journal
+//  de saisie "Suivi du capital" dans la vue Saisie).
+// ============================================================
+const CAPITAL_INITIAL_DEFAUT = 14_775_000;
+
+async function getCapitalSuivi() {
+  let capitalInitial = CAPITAL_INITIAL_DEFAUT;
+  try {
+    const param = await db.parametre.findUnique({ where: { cle: "capital_initial" } });
+    if (param) {
+      const n = Number(param.valeur);
+      if (!isNaN(n) && n >= 0) capitalInitial = n;
+    }
+  } catch (e) {
+    console.error("getCapitalSuivi:", e);
+  }
+  const mvts = await db.capitalMouvement.findMany({ orderBy: { date: "asc" } });
+  let soldeCumule = capitalInitial;
+  const mouvements = mvts.map((m) => {
+    const sens = m.type === "ENTREE" ? "entree" : "sortie";
+    if (sens === "entree") soldeCumule += m.montant;
+    else soldeCumule -= m.montant;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const dateStr = `${pad(m.date.getDate())}/${pad(m.date.getMonth() + 1)}/${m.date.getFullYear()} ${pad(m.date.getHours())}:${pad(m.date.getMinutes())}`;
+    return {
+      id: m.id,
+      date: dateStr,
+      dateISO: m.date.toISOString(),
+      libelle: m.libelle,
+      type: sens,
+      typeLabel: m.type === "ENTREE" ? "Ajout (entrée)" : "Retrait (sortie)",
+      montant: m.montant,
+      sens,
+      soldeApres: soldeCumule,
+      saisiePar: m.saisiePar ?? null,
+    };
+  }).reverse();
+  const totalEntrees = mvts.filter((m) => m.type === "ENTREE").reduce((s, m) => s + m.montant, 0);
+  const totalSorties = mvts.filter((m) => m.type === "SORTIE").reduce((s, m) => s + m.montant, 0);
+  return NextResponse.json({
+    capitalInitial,
+    totalEntrees,
+    totalSorties,
+    soldeRestant: capitalInitial + totalEntrees - totalSorties,
+    nbMouvements: mvts.length,
+    mouvements,
+  });
+}
+
+async function postHandler(req: NextRequest) {
   const body = await req.json();
   const { type, ...data } = body;
 
@@ -237,9 +321,65 @@ export async function POST(req: NextRequest) {
   const saisieParId = session?.user?.id ?? null;
 
   const saisieType = type as SaisiePayload["type"];
-  const validTypes: SaisiePayload["type"][] = ["achat", "vente", "depense", "stock", "capital_mouvement"];
+  // Task 31-B : ajout des alias UI "investissement" et "capital" dans la
+  // liste des types valides (alias client de "depense" / "capital_mouvement").
+  const validTypes: SaisiePayload["type"][] = [
+    "achat", "vente", "depense", "stock", "capital_mouvement",
+    "investissement", "capital",
+  ];
   if (!validTypes.includes(saisieType)) {
     return NextResponse.json({ ok: false, error: "Type inconnu" }, { status: 400 });
+  }
+
+  // ===== Validation Zod stricte du payload selon le type =====
+  // On valide AVANT de créer la Validation EN_ATTENTE pour ne pas stocker
+  // des données invalides qui exploseraient au moment de l'application
+  // réelle par l'E2A (PATCH /api/validations/[id]).
+  //
+  // En cas d'échec : HTTP 400 avec les détails Zod flatten (champs en erreur,
+  // messages lisibles) — pratique pour le débogage côté frontend.
+  const schema = getSchemaForType(saisieType);
+  if (schema) {
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Données invalides",
+          details: result.error.flatten(),
+        },
+        { status: 400 }
+      );
+    }
+    // On remplace `data` par la version parsée/normalisée par Zod
+    // (les transformations .default(), .trim() éventuelles seront appliquées).
+    Object.assign(data, result.data);
+  }
+
+  // ===== Task 31-B : verrouillage des clôtures de mois comptable =====
+  // Si la date de la saisie (champ `date` ISO YYYY-MM-DD ou datetime-local)
+  // tombe dans un mois marqué `cloture=true` dans la table MoisCloture,
+  // on refuse la saisie avec HTTP 403. Les types capital_initial_update et
+  // capital_mouvement_delete ne sont pas concernés (gérés avant ce bloc).
+  try {
+    const rawDate = (data.date as string | undefined) ?? null;
+    if (rawDate) {
+      const parsed = new Date(rawDate);
+      if (!isNaN(parsed.getTime())) {
+        const mois = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+        const cloture = await db.moisCloture.findUnique({ where: { mois } });
+        if (cloture?.cloture) {
+          return NextResponse.json(
+            { ok: false, error: "Mois clôturé, saisie impossible" },
+            { status: 403 }
+          );
+        }
+      }
+    }
+  } catch (e) {
+    console.error("MoisCloture check:", e);
+    // Tolérant : si la table MoisCloture n'existe pas encore (DB non
+    // poussée), on laisse passer la saisie.
   }
 
   const payload: SaisiePayload = { type: saisieType, data };
@@ -254,7 +394,7 @@ export async function POST(req: NextRequest) {
       ? "Bovin"
       : saisieType === "vente"
       ? "Vente"
-      : saisieType === "depense"
+      : saisieType === "depense" || saisieType === "investissement"
       ? "Depense"
       : saisieType === "stock"
       ? "StockMouvement"
@@ -303,12 +443,27 @@ export async function POST(req: NextRequest) {
     await db.historique.create({
       data: {
         action: `SAISIE_DIRECTE_${saisieType.toUpperCase()}`,
-        entiteType: saisieType === "achat" || saisieType === "vente" ? "Bovin" : saisieType === "depense" ? "Depense" : saisieType === "stock" ? "StockMouvement" : "CapitalMouvement",
+        entiteType: saisieType === "achat" || saisieType === "vente"
+          ? "Bovin"
+          : saisieType === "depense" || saisieType === "investissement"
+          ? "Depense"
+          : saisieType === "stock"
+          ? "StockMouvement"
+          : "CapitalMouvement",
         entiteId: result.id,
         userId: saisieParId,
         details: `Saisie directe (${saisieType}) par ${saisiePar}`,
       },
     }).catch(() => null);
+    // Task 31-B : émet un event WS "saisie:new" pour revalidation temps réel
+    // multi-user (frontend écoute → invalidate TanStack Query).
+    void emitSaisieUpdate(saisieType);
   }
   return saisieResultToResponse(result);
 }
+
+// Wrapper avec rate limiting : max 10 saisies / minute / IP (anti-spam).
+// Au-delà : HTTP 429 Too Many Requests avec Retry-After.
+// On déclare POST en dernière position pour qu'il soit bindé après postHandler
+// (Next.js lit les exports `GET`/`POST` au module-level via Reflect metadata).
+export const POST = withRateLimit(postHandler, { maxPerMinute: 10 });

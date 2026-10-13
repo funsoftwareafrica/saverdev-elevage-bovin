@@ -2,6 +2,7 @@
 // Lancez avec : bun run db:seed
 
 import { PrismaClient, StatutBovin, StatutEcheance, Role } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { MOCK_BOVINS, MOCK_ALIMENTATIONS, MOCK_DEPENSES, MOCK_FINANCEMENT, MOCK_ALERTES, MOCK_HISTORIQUES } from "../src/lib/mock-data";
 
 const prisma = new PrismaClient();
@@ -23,12 +24,15 @@ async function main() {
   console.log("  OK Tables nettoyées");
 
   // ---- Users (4 rôles) ----
+  // Les mots de passe sont hashés avec bcrypt (10 rounds) — la route
+  // /api/auth/credentials-login utilise bcrypt.compare() pour vérifier.
+  const demoHashed = await bcrypt.hash("demo", 10);
   const users = await Promise.all([
-    prisma.user.create({ data: { email: "beneficiaire@saverdev.org", name: "Bénéficiaire 1", role: Role.BENEFICIAIRE, password: "demo" } }),
-    prisma.user.create({ data: { email: "sinergi@saverdev.org", name: "SINERGI SA", role: Role.SINERGI, password: "demo" } }),
-    prisma.user.create({ data: { email: "e2a@saverdev.org", name: "E2A", role: Role.E2A, password: "demo" } }),
+    prisma.user.create({ data: { email: "beneficiaire@saverdev.org", name: "Bénéficiaire 1", role: Role.BENEFICIAIRE, password: demoHashed } }),
+    prisma.user.create({ data: { email: "sinergi@saverdev.org", name: "SINERGI SA", role: Role.SINERGI, password: demoHashed } }),
+    prisma.user.create({ data: { email: "e2a@saverdev.org", name: "E2A", role: Role.E2A, password: demoHashed } }),
   ]);
-  console.log(`  OK ${users.length} utilisateurs créés (4 rôles)`);
+  console.log(`  OK ${users.length} utilisateurs créés (4 rôles, passwords hashés bcrypt)`);
 
   // ---- Bovins ----
   const bovinIdMap = new Map<string, string>(); // mockId -> dbId

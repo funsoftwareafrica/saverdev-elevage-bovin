@@ -103,11 +103,13 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { key: "dashboard", label: "Tableau de bord", icon: Activity },
   { key: "saisie", label: "Saisie", icon: Plus },
-  { key: "achats", label: "Achats", icon: Beef },
+  // Task 31-B : les journaux "Achats" et "Ventes" séparés ont été retirés
+  // de la sidebar — ils sont désormais saisis depuis la vue Saisie
+  // (journaux d'achats et de ventes). La table Cheptel (bovins-view) affiche
+  // déjà la liste du cheptel qui inclut les achats.
   { key: "bovins", label: "Cheptel", icon: Database },
   { key: "alimentation", label: "Alimentation", icon: Package },
   { key: "depenses", label: "Dépenses", icon: CreditCard },
-  { key: "ventes", label: "Ventes", icon: ShoppingCart },
   { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
   { key: "financement", label: "Financement", icon: Clock },
   { key: "tresorerie", label: "Trésorerie", icon: Wallet },

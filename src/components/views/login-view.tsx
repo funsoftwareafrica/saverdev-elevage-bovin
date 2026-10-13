@@ -19,8 +19,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 // Comptes démo (depuis prisma/seed.ts) — un compte par rôle (3 boutons).
-// Le mot de passe réel côté API est hashé (bcrypt) dans la table User ;
-// les boutons ci-dessous ne font qu'appeler le login Zustand local.
+// Les boutons démo appellent POST /api/auth/credentials-login avec le
+// mot de passe "demo" (hashé bcrypt côté DB). Le serveur renvoie un
+// token JWT NextAuth posé en cookie, plus l'objet user pour mettre à
+// jour l'état Zustand local (rôle + nom pour la sidebar).
 const DEMO_ACCOUNTS: { email: string; name: string; role: Role; password: string; color: string }[] = [
   { email: "beneficiaire@saverdev.org", name: "Ibrahim Sawadogo", role: "BENEFICIAIRE", password: "demo", color: PALETTE.primary },
   { email: "sinergi@saverdev.org", name: "Bailleur SAVERDEV", role: "SINERGI", password: "demo", color: "#8D6E63" },
@@ -35,32 +37,71 @@ export function LoginView() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Appel unifié à l'API d'authentification NextAuth custom.
+  // - Envoie {email, password} en POST à /api/auth/credentials-login
+  // - Si succès : pose le cookie next-auth.session-token (signé JWT via
+  //   NEXTAUTH_SECRET) et renvoie { ok, user }
+  // - En cas d'erreur 401/429/autre : renvoie { error } qu'on affiche
+  // On met à jour l'état Zustand local seulement si l'API confirme,
+  // ce qui garde la UI (rôle, name) cohérente avec la session serveur.
+  const callLoginApi = async (emailToCheck: string, passwordToCheck: string): Promise<{ ok: boolean; error?: string; user?: { id: string; email: string; name: string; role: Role } }> => {
+    try {
+      const res = await fetch("/api/auth/credentials-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // pour que le navigateur stocke le cookie
+        body: JSON.stringify({ email: emailToCheck, password: passwordToCheck }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        return { ok: false, error: data?.error ?? "Identifiants invalides" };
+      }
+      return { ok: true, user: data.user };
+    } catch {
+      return { ok: false, error: "Impossible de contacter le serveur. Réessayez." };
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      const account = DEMO_ACCOUNTS.find((a) => a.email === email && a.password === password);
-      if (account) {
-        login({ email: account.email, name: account.name, role: account.role });
-        toast.success("Connexion réussie", { description: `Bienvenue, ${account.name}` });
-      } else {
-        setError("Email ou mot de passe incorrect. Utilisez un compte démo ci-dessous.");
-        setLoading(false);
-      }
-    }, 600);
+    const result = await callLoginApi(email, password);
+    if (result.ok && result.user) {
+      login({
+        email: result.user.email,
+        name: result.user.name,
+        role: result.user.role,
+      });
+      toast.success("Connexion réussie", { description: `Bienvenue, ${result.user.name}` });
+    } else {
+      setError(result.error ?? "Email ou mot de passe incorrect. Utilisez un compte démo ci-dessous.");
+      setLoading(false);
+    }
   };
 
-  const quickLogin = (account: typeof DEMO_ACCOUNTS[0]) => {
+  const quickLogin = async (account: (typeof DEMO_ACCOUNTS)[0]) => {
     setEmail(account.email);
     setPassword(account.password);
     setError("");
     setLoading(true);
-    setTimeout(() => {
-      login({ email: account.email, name: account.name, role: account.role });
-      toast.success("Connexion réussie", { description: `Bienvenue, ${account.name} (${ROLE_LABELS[account.role]})` });
-    }, 400);
+
+    const result = await callLoginApi(account.email, account.password);
+    if (result.ok && result.user) {
+      login({
+        email: result.user.email,
+        name: result.user.name,
+        role: result.user.role,
+      });
+      toast.success("Connexion réussie", {
+        description: `Bienvenue, ${result.user.name} (${ROLE_LABELS[result.user.role]})`,
+      });
+    } else {
+      // Fallback visible : on garde le message d'erreur serveur pour debug
+      setError(result.error ?? "Connexion impossible. Réessayez.");
+      setLoading(false);
+    }
   };
 
   return (

@@ -16,7 +16,9 @@ interface AppState {
   view: ViewKey;
   selectedBovinId: string | null;
   selectedMonth: string; // ISO "YYYY-MM"
-  saisieInitialType: "achat" | "vente" | "depense" | "stock" | null;
+  // Task 31-B : 6 journaux de saisie désormais (achats / ventes / dépenses /
+  // stock / investissement / capital).
+  saisieInitialType: "achat" | "vente" | "depense" | "stock" | "investissement" | "capital" | null;
   dashboardMode: "auto" | "BENEFICIAIRE" | "SINERGI" | "E2A"; // sélecteur de vue dashboard
   login: (user: AuthUser) => void;
   logout: () => void;
@@ -24,7 +26,7 @@ interface AppState {
   setView: (v: ViewKey) => void;
   openBovin: (id: string) => void;
   setSelectedMonth: (m: string) => void;
-  setSaisieInitialType: (t: "achat" | "vente" | "depense" | "stock" | null) => void;
+  setSaisieInitialType: (t: "achat" | "vente" | "depense" | "stock" | "investissement" | "capital" | null) => void;
   setDashboardMode: (m: "auto" | "BENEFICIAIRE" | "SINERGI" | "E2A") => void;
 }
 

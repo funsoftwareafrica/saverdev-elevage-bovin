@@ -2,9 +2,13 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 // Vue Saisie — journaux comptables (partie double).
-// Vue Task 29 : uniquement les 4 journaux (Achats / Ventes / Dépenses / Stock)
-// + la zone d'alertes. La balance comptable et le suivi du financement ont été
-// déplacés vers le rapport bailleur (cf. rapport-bailleur-view).
+// Vue Task 31-B : 6 journaux (Achats / Ventes / Dépenses / Stock /
+// Dépenses d'investissement / Suivi du capital) + la zone d'alertes.
+// La balance comptable et le suivi du financement historiques ont été
+// déplacés vers le rapport bailleur (cf. rapport-bailleur-view) qui est
+// désormais en lecture seule. Le formulaire "Suivi du capital" et le
+// formulaire "Dépense d'investissement" ont migré ici (centralisation
+// des saisies dans la vue Saisie).
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,9 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle,
-  ChevronDown, ChevronUp, Wifi,
+  ChevronDown, ChevronUp, Wifi, Landmark, Wallet,
 } from "@/lib/icons";
-import { formatFCFA, severiteColor } from "@/lib/format";
+import { formatFCFA, severiteColor, nowDateTimeLocal } from "@/lib/format";
 import { addPendingEntry } from "@/lib/offline-db";
 import { useAppStore } from "@/lib/store";
 import { useBovins } from "@/lib/api";
@@ -35,13 +39,19 @@ interface JournalEntry {
   credit: number;
 }
 interface Alerte { type: string; severite: string; message: string; }
-type SaisieType = "achat" | "vente" | "depense" | "stock";
+// Task 31-B : 6 journaux désormais (ajout de "investissement" et "capital").
+type SaisieType = "achat" | "vente" | "depense" | "stock" | "investissement" | "capital";
 
 const TYPE_CONFIG: Record<SaisieType, { label: string; icon: typeof Beef; color: string }> = {
   achat: { label: "Journal d'achats", icon: Beef, color: "#10B981" },
   vente: { label: "Journal de ventes", icon: ShoppingCart, color: "#14B8A6" },
   depense: { label: "Journal des dépenses", icon: Receipt, color: "#F59E0B" },
   stock: { label: "Gestion de stock", icon: Package, color: "#3B82F6" },
+  // Task 31-B : journal "Dépenses d'investissement" (immobilisations — compte 23).
+  investissement: { label: "Dépenses d'investissement", icon: Wallet, color: "#8B5CF6" },
+  // Task 31-B : journal "Suivi du capital" (mouvements horodatés — déplacé
+  // depuis le rapport bailleur passé en lecture seule).
+  capital: { label: "Suivi du capital", icon: Landmark, color: "#2E8B57" },
 };
 
 export function SaisieView() {
@@ -62,6 +72,16 @@ export function SaisieView() {
   const [totalCredit, setTotalCredit] = useState(0);
   const [solde, setSolde] = useState(0);
   const [conclusion, setConclusion] = useState("");
+  // Task 31-B : pour le journal "Suivi du capital", on charge le capital
+  // initial + la liste des mouvements horodatés (structure différente des
+  // autres journaux qui sont en partie double). On stocke dans un state dédié.
+  const [capitalInitial, setCapitalInitial] = useState(0);
+  const [capitalEntrees, setCapitalEntrees] = useState(0);
+  const [capitalSorties, setCapitalSorties] = useState(0);
+  const [capitalSolde, setCapitalSolde] = useState(0);
+  const [capitalMouvements, setCapitalMouvements] = useState<
+    { id: string; date: string; libelle: string; type: string; typeLabel: string; montant: number; sens: string; soldeApres: number; saisiePar: string | null }[]
+  >([]);
 
   const loadJournal = useCallback(async (t: SaisieType) => {
     setLoading(true);
@@ -69,11 +89,27 @@ export function SaisieView() {
       const res = await fetch(`/api/saisie?type=${t}`);
       if (!res.ok) return;
       const data = await res.json();
-      setEntries(data.entries || []);
-      setTotalDebit(data.totalDebit || 0);
-      setTotalCredit(data.totalCredit || 0);
-      setSolde(data.solde || 0);
-      setConclusion(data.conclusion || "");
+      // Task 31-B : le journal "capital" a une structure différente
+      // (capitalInitial + mouvements). On le gère à part.
+      if (t === "capital") {
+        setCapitalInitial(data.capitalInitial ?? 0);
+        setCapitalEntrees(data.totalEntrees ?? 0);
+        setCapitalSorties(data.totalSorties ?? 0);
+        setCapitalSolde(data.soldeRestant ?? 0);
+        setCapitalMouvements(data.mouvements ?? []);
+        setEntries([]);
+        setTotalDebit(0);
+        setTotalCredit(0);
+        setSolde(0);
+        setConclusion("");
+      } else {
+        setEntries(data.entries || []);
+        setTotalDebit(data.totalDebit || 0);
+        setTotalCredit(data.totalCredit || 0);
+        setSolde(data.solde || 0);
+        setConclusion(data.conclusion || "");
+        setCapitalMouvements([]);
+      }
     } catch { /* hors ligne */ }
     setLoading(false);
   }, []);
@@ -212,9 +248,79 @@ export function SaisieView() {
             {activeType === "vente" && <FormVente onSave={handleSave} />}
             {activeType === "depense" && <FormDepense onSave={handleSave} />}
             {activeType === "stock" && <FormStock onSave={handleSave} />}
+            {activeType === "investissement" && <FormInvestissement onSave={handleSave} />}
+            {activeType === "capital" && (
+              <FormCapitalMouvement onSave={handleSave} />
+            )}
           </CardContent></Card>
 
-          {/* Journal comptable — tableau en cascade */}
+          {/* Task 31-B : pour le journal "Suivi du capital", on affiche
+              le capital initial figé + résumé + mouvements (structure
+              différente des autres journaux qui sont en partie double). */}
+          {activeType === "capital" && (
+            <div className="space-y-3">
+              <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
+                <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
+                  <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
+                </p>
+                <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(capitalInitial)}</p>
+                <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-center">
+                  <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ajouts</p>
+                  <p className="text-sm font-bold text-emerald-700 tabular-nums">+ {formatFCFA(capitalEntrees, false)}</p>
+                </div>
+                <div className="rounded-lg bg-red-50 border border-red-200 p-2 text-center">
+                  <p className="text-[0.6rem] uppercase text-red-700 font-medium">Retraits</p>
+                  <p className="text-sm font-bold text-red-700 tabular-nums">− {formatFCFA(capitalSorties, false)}</p>
+                </div>
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+                  <p className="text-[0.6rem] uppercase text-primary font-medium">Solde actuel</p>
+                  <p className="text-sm font-bold text-primary tabular-nums">{formatFCFA(capitalSolde, false)}</p>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold text-foreground">Historique des opérations ({capitalMouvements.length})</p>
+                {loading ? (
+                  <p className="text-center text-xs text-muted-foreground py-4">Chargement...</p>
+                ) : capitalMouvements.length === 0 ? (
+                  <p className="text-center text-xs text-muted-foreground py-4">Aucune opération. Saisissez votre premier mouvement ci-dessus.</p>
+                ) : (
+                  <div className="max-h-96 overflow-y-auto pr-1 -mr-1 space-y-0">
+                    {capitalMouvements.map((m, i) => (
+                      <div
+                        key={m.id ?? `mvt-${i}`}
+                        className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
+                      >
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
+                            </p>
+                            <p className="text-[0.6rem] text-muted-foreground tabular-nums">
+                              <span className="font-medium">{m.date}</span> · {m.typeLabel}
+                              {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
+                              {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
+                            </p>
+                            <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Journal comptable — tableau en cascade (sauf pour "capital") */}
+          {activeType !== "capital" && (
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground">{TYPE_CONFIG[activeType].label}</h3>
@@ -292,6 +398,7 @@ export function SaisieView() {
               </div>
             )}
           </div>
+          )}
         </div>
       )}
     </div>
@@ -529,6 +636,127 @@ function FormStock({ onSave }: { onSave: (type: SaisieType, data: Record<string,
       </div>
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Fournisseur..." className="text-sm min-h-[60px]" /></div>
       <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer le mouvement</>}</Button>
+    </div>
+  );
+}
+
+// ============================================================
+//   Task 31-B — formulaires "Dépense d'investissement" et "Suivi du capital"
+//   Ces deux formulaires ont été déplacés depuis le rapport bailleur
+//   (passé en lecture seule exclusive) pour centraliser toutes les
+//   saisies dans la vue Saisie.
+// ============================================================
+
+function FormInvestissement({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [sousCategorie, setSousCategorie] = useState("Hangar");
+  const [libelle, setLibelle] = useState("");
+  const [montant, setMontant] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const submit = async () => {
+    if (!libelle || !montant) { toast.error("Libellé et montant requis"); return; }
+    const n = Number(montant);
+    if (isNaN(n) || n <= 0) { toast.error("Montant invalide"); return; }
+    setSaving(true);
+    // Task 31-B : on POST /api/saisie avec type="investissement" (alias UI
+    // pour "depense" avec catégorie Immobilisation). Le backend (lib/saisie-ops.ts)
+    // applique la catégorie "Immobilisation" automatiquement et préfixe le
+    // libellé avec la sous-catégorie pour le filtrage côté UI.
+    await onSave("investissement", { date, sousCategorie, libelle, montant: n });
+    setSaving(false);
+    setLibelle(""); setMontant("");
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg bg-violet-50 border border-violet-200 px-3 py-2 text-xs text-violet-800">
+        <strong>Dépense d'investissement (compte 23 — Immobilisations).</strong> Enregistrée avec la catégorie « Immobilisation » et visible dans le rapport bailleur Section D (lecture seule).
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+        <div>
+          <Label className="text-xs">Sous-catégorie</Label>
+          <Select value={sousCategorie} onValueChange={setSousCategorie}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Hangar" className="text-sm">Hangar</SelectItem>
+              <SelectItem value="Équipement" className="text-sm">Équipement</SelectItem>
+              <SelectItem value="Clôture" className="text-sm">Clôture</SelectItem>
+              <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div><Label className="text-xs">Libellé</Label><Input value={libelle} onChange={(e) => setLibelle(e.target.value)} placeholder="ex: Achat de tôles pour toiture hangar" className="h-11 text-sm" /></div>
+      <div><Label className="text-xs">Montant (FCFA)</Label><Input type="number" value={montant} onChange={(e) => setMontant(e.target.value)} className="h-11 text-sm" placeholder="350000" /></div>
+      {montant && Number(montant) > 0 && (
+        <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">Débit (23) / Crédit (5711) : </span>
+          <span className="font-bold text-red-600">{formatFCFA(Number(montant))}</span>
+        </div>
+      )}
+      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm" style={{ background: "#8B5CF6" }}>
+        {saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer l'investissement</>}
+      </Button>
+    </div>
+  );
+}
+
+function FormCapitalMouvement({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
+  // Date + heure par défaut = maintenant (datetime-local)
+  const [date, setDate] = useState<string>(nowDateTimeLocal());
+  const [sens, setSens] = useState<"ENTREE" | "SORTIE">("SORTIE");
+  const [montant, setMontant] = useState("");
+  const [libelle, setLibelle] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const submit = async () => {
+    const n = Number(montant.replace(/\s/g, ""));
+    if (!n || n <= 0) { toast.error("Veuillez saisir un montant valide"); return; }
+    if (!libelle.trim()) { toast.error("Libellé requis"); return; }
+    setSaving(true);
+    // Task 31-B : on POST /api/saisie avec type="capital" (alias UI pour
+    // "capital_mouvement"). Le backend (lib/saisie-ops.ts) crée un
+    // CapitalMouvement horodaté en base.
+    await onSave("capital", { typeMvt: sens, date, montant: n, libelle: libelle.trim() });
+    setSaving(false);
+    setMontant(""); setLibelle(""); setDate(nowDateTimeLocal());
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-800">
+        <strong>Suivi du capital (mouvements horodatés).</strong> Le capital initial (14 775 000 FCFA) est figé — ces opérations viennent ajouter ou soustraire du capital. Visibles dans le rapport bailleur Section B.
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label className="text-xs">Date & heure</Label><Input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
+        <div>
+          <Label className="text-xs">Sens de l'opération</Label>
+          <Select value={sens} onValueChange={(v) => setSens(v as "ENTREE" | "SORTIE")}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="SORTIE">− Retrait (sortie de capital)</SelectItem>
+              <SelectItem value="ENTREE">+ Ajout (entrée de capital)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label className="text-xs">Montant (FCFA)</Label><Input type="number" inputMode="numeric" value={montant} onChange={(e) => setMontant(e.target.value)} className="h-11 text-sm" placeholder="150000" /></div>
+        <div><Label className="text-xs">Motif / libellé</Label><Input value={libelle} onChange={(e) => setLibelle(e.target.value)} className="h-11 text-sm" placeholder="ex: Achat alimentation" /></div>
+      </div>
+      {montant && Number(montant.replace(/\s/g, "")) > 0 && (
+        <div className={`rounded-lg border px-3 py-2 text-sm ${sens === "ENTREE" ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
+          <span className="text-muted-foreground">{sens === "ENTREE" ? "Ajout de capital : " : "Retrait de capital : "}</span>
+          <span className={`font-bold ${sens === "ENTREE" ? "text-emerald-600" : "text-red-600"}`}>
+            {sens === "ENTREE" ? "+" : "−"} {formatFCFA(Number(montant.replace(/\s/g, "")))}
+          </span>
+        </div>
+      )}
+      <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm" style={{ background: sens === "ENTREE" ? "#10B981" : "#EF4444" }}>
+        {saving ? "Enregistrement..." : (sens === "ENTREE" ? "+ Ajouter au capital" : "− Soustraire du capital")}
+      </Button>
     </div>
   );
 }
