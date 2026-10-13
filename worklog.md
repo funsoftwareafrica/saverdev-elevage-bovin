@@ -1760,3 +1760,46 @@ Stage Summary:
   - /api/notifications/check HTTP 200 ✓
   - Guide PDF HTTP 200 ✓
 - Note réelle (honnête) : 9/10 (1 point manquant = tests automatisés + audit sécurité formel)
+
+---
+Task ID: 29
+Agent: full-stack-developer
+Task: Refonte Rapport bailleur (Balance + Suivi financement + Suivi budgétaire + Investissements) + Saisie (suppression Balance + Suivi financement)
+
+Work Log:
+- Mission 1 (Saisie) :
+  - Suppression du bouton « Balance comptable » + sa modal (table N-1/N) de saisie-view.tsx
+  - Suppression du bouton « Suivi financement » + sa modal (capital initial + mouvements horodatés) de saisie-view.tsx
+  - Suppression de tous les états/hooks devenus inutiles : balance, showBalance, financement, showFinancement, mvtDate/Type/Montant/Libelle/Saving, loadBalance, loadFinancement, handleSaveMouvement, handleDeleteMouvement
+  - Imports nettoyés : Scale, Landmark, Wallet, formatDateTime, nowDateTimeLocal, CardDescription retirés
+  - Vue Saisie ramenée à 4 boutons de journaux (Achats / Ventes / Dépenses / Stock) + zone d'alertes dépliable
+  - Fichier passé de 891 → ~480 lignes
+- Mission 2 (Rapport bailleur) :
+  - Section A « Balance comptable » : table à 10 lignes (23 Immobilisations, 4111 Clients, 5711 Caisse/Banque, 6011 Achats bétail, 6012 Achats aliments, 615 Vétérinaire, 624 Transport, 661 Salariat, 68 Autres charges, 7011 Ventes bétail) avec colonnes Solde N-1 (Débit/Crédit), Mouvements N (Débit/Crédit), Solde N (Débit/Crédit) + total général
+  - Section B « Suivi du financement » : bloc CAPITAL INITIAL FIGÉ (14 775 000 FCFA) + 3 cellules Ajouts/Retraits/Solde actuel + formulaire « Nouvelle opération sur le capital » (Date & heure + Sens ENTREE/SORTIE + Montant + Libellé) + historique horodaté tri récent → ancien — déplacé depuis Saisie en section pleine page (pas modal)
+  - Section C « Suivi budgétaire » : 3 sous-sections (Investissement / Opérationnel / Trésorerie) × 4 colonnes (Poste / Prévision / Réel / Écart / %) avec écart positif en vert, négatif en rouge, % vert si ≤100% rouge sinon ; sous-totaux par section + total général
+  - Section D « Dépenses d'investissement en immobilisations » : table Date / Libellé / Catégorie / Montant filtrée sur catégorie="Immobilisation" + total + bouton « Ajouter une dépense d'investissement » ouvrant un Dialog (Date / Libellé / Sous-catégorie Hangar/Équipement/Clôture/Autre / Montant) qui POST vers /api/depenses avec categorie="Immobilisation"
+- Mission 3 (Suppression « Achats vs Ventes ») :
+  - Suppression du BarChart « Achats vs Ventes (têtes / mois) » du rapport bailleur (redondant avec les journaux d'achats/ventes de Saisie)
+  - Les 6 graphiques deviennent 5 : AreaChart cheptel, BarChart CA & marge, LineChart marge/tête & coût alim./tête, Donut structure coûts, BarChart financement vs trésorerie
+- APIs :
+  - Création GET /api/rapport-bailleur/balance — retourne BalanceComptable { lignes[], totalDebitGeneral, totalCreditGeneral, soldeDebitGeneral, soldeCreditGeneral }
+  - Modification GET /api/rapport-bailleur — étend le payload avec 4 nouveaux champs : balance, capital, budget, investissements (rétro-compatible : kpis/monthly/costStructure/alertes inchangés, l'export-xlsx est donc non impacté car il lit db directement)
+  - Modification GET /api/saisie — retrait des types `balance` et `financement` (renvoient HTTP 404 avec indication de redirection) ; les POST `capital_mouvement`, `capital_mouvement_delete` et `capital_initial_update` sont conservés (utilisés par Section B)
+  - Création des types TypeScript : BalanceLigne, BalanceComptable, CapitalMouvementItem, CapitalSuivi, BudgetLigne, BudgetSection, BudgetRapport (BudgetSectionKey), Investissement + extension de l'interface RapportBailleur
+  - Hook useRapportBailleur(year) inchangé : retourne maintenant les 4 sections en plus automatiquement
+
+Stage Summary:
+- Fichiers modifiés : src/components/views/saisie-view.tsx (891 → 480 lignes), src/components/views/rapport-bailleur-view.tsx (375 → 600+ lignes), src/app/api/saisie/route.ts, src/app/api/rapport-bailleur/route.ts, src/lib/types.ts
+- Fichier créé : src/app/api/rapport-bailleur/balance/route.ts
+- APIs créées/modifiées : GET /api/rapport-bailleur/balance (nouveau), GET /api/rapport-bailleur (étendu), GET /api/saisie?type=balance|financement (404 redirect)
+- Tests curl effectués :
+  - GET / → HTTP 200
+  - GET /api/saisie?type=balance → HTTP 404 (redirect hint vers /api/rapport-bailleur/balance)
+  - GET /api/saisie?type=financement → HTTP 404 (redirect hint vers /api/rapport-bailleur champ capital)
+  - GET /api/rapport-bailleur?annee=2025 → HTTP 200, 8 clés : kpis, monthly, costStructure, alertes, balance, capital, budget, investissements
+  - GET /api/rapport-bailleur/balance → HTTP 200, 10 lignes de comptes
+  - POST /api/depenses {categorie:"Immobilisation"} → HTTP 201, Section D ré-alimentée (count 1)
+  - POST /api/saisie {type:"capital_mouvement"} → HTTP 202 (workflow validation BENEFICIAIRE inchangé)
+- Lint : `bunx eslint` 0 erreur sur les 6 fichiers modifiés
+- Schéma Prisma : inchangé (CapitalMouvement + Parametre + Depense déjà présents)

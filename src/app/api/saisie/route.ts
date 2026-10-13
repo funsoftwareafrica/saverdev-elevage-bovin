@@ -1,6 +1,14 @@
-// API Saisie — journaux comptables (partie double) + balance + financement
+// API Saisie — journaux comptables (partie double)
 // POST : créer une entrée (achat, vente, dépense, stock, capital_mouvement)
-// GET  : récupérer un journal, la balance, ou le suivi financement
+// GET  : récupérer un journal (achat/vente/depense/stock), les alertes ou un
+//        récapitulatif global.
+//
+// Note (Task 29) : la balance comptable et le suivi du financement ne sont
+// plus exposés ici — ils ont migré vers le rapport bailleur :
+//   - balance     → GET /api/rapport-bailleur/balance
+//   - financement → champ `capital` du GET /api/rapport-bailleur
+// Les POST capital_mouvement / capital_mouvement_delete restent disponibles
+// ici (utilisés par le formulaire « Suivi du financement » du rapport bailleur).
 //
 // Workflow de validation à 2 niveaux (cahier des charges §9) :
 //  - Le Bénéficiaire (SAVERDEV) saisit → l'opération est mise EN_ATTENTE
@@ -21,33 +29,25 @@ import {
   type SaisiePayload,
 } from "@/lib/saisie-ops";
 
-// Capital initial par défaut (utilisé si aucun Parametre "capital_initial" en DB)
-const CAPITAL_INITIAL_DEFAUT = 14_775_000;
-
-/** Récupère le capital initial depuis la table Parametre (statique, immuable
- * depuis l'UI). Si absent, retourne la valeur par défaut. */
-async function getCapitalInitial(): Promise<number> {
-  try {
-    const param = await db.parametre.findUnique({ where: { cle: "capital_initial" } });
-    if (param) {
-      const n = Number(param.valeur);
-      if (!isNaN(n) && n >= 0) return n;
-    }
-  } catch (e) {
-    console.error("getCapitalInitial:", e);
-  }
-  return CAPITAL_INITIAL_DEFAUT;
-}
-
-/** Formate une date en "JJ/MM/AAAA HH:MM" pour l'affichage horodaté. */
-function formatDateTimeFR(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
   const type = q.get("type") ?? "all";
+  // Task 29 : balance + financement ont migré vers le rapport bailleur.
+  // On répond 404 avec une indication de redirection pour ne pas renvoyer
+  // silencieusement le récapitulatif "all" à un client qui attendait l'ancien
+  // format (champ `balance` ou `mouvements`).
+  if (type === "balance" || type === "financement") {
+    return NextResponse.json(
+      {
+        error: "Endpoint déplacé",
+        redirect:
+          type === "balance"
+            ? "/api/rapport-bailleur/balance"
+            : "/api/rapport-bailleur (champ `capital`)",
+      },
+      { status: 404 }
+    );
+  }
   const limit = type === "all" ? 5 : 100;
 
   if (type === "alertes") {
@@ -186,94 +186,6 @@ export async function GET(req: NextRequest) {
     const totalCredit = entries.reduce((s, e) => s + e.credit, 0);
     const solde = totalDebit - totalCredit;
     return NextResponse.json({ entries, totalDebit, totalCredit, solde, conclusion: solde > 0 ? "Solde débitaire" : "Solde créditaire" });
-  }
-
-  if (type === "balance") {
-    const [achats, ventes, depenses] = await Promise.all([getAchats(), getVentes(), getDepenses()]);
-    const allEntries = [...achats, ...ventes, ...depenses];
-    // Libellés des comptes
-    const LIBELLES: Record<string, string> = {
-      "23": "Immobilisations",
-      "4111": "Clients",
-      "5711": "Caisse / Banque",
-      "6011": "Achats de bétail",
-      "6012": "Achats d'aliments",
-      "615": "Vétérinaire",
-      "624": "Transport",
-      "661": "Salariat",
-      "68": "Autres charges",
-      "7011": "Ventes de bétail",
-    };
-    // Regrouper par numéro de compte
-    const parCompte: Record<string, { numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }> = {};
-    for (const e of allEntries) {
-      if (!parCompte[e.numCompte]) {
-        parCompte[e.numCompte] = { numCompte: e.numCompte, libelle: LIBELLES[e.numCompte] ?? e.libelle.split(" — ")[0] ?? "", totalDebit: 0, totalCredit: 0, solde: 0, conclusion: "" };
-      }
-      parCompte[e.numCompte].totalDebit += e.debit;
-      parCompte[e.numCompte].totalCredit += e.credit;
-    }
-    const balance = Object.values(parCompte).map((c) => {
-      c.solde = c.totalDebit - c.totalCredit;
-      c.conclusion = c.solde > 0 ? "Débitaire" : "Créditaire";
-      return c;
-    }).sort((a, b) => a.numCompte.localeCompare(b.numCompte));
-
-    const totalDebitGeneral = balance.reduce((s, c) => s + c.totalDebit, 0);
-    const totalCreditGeneral = balance.reduce((s, c) => s + c.totalCredit, 0);
-    const soldeGeneral = totalDebitGeneral - totalCreditGeneral;
-
-    return NextResponse.json({
-      balance,
-      totalDebitGeneral,
-      totalCreditGeneral,
-      soldeGeneral,
-      conclusionGeneral: soldeGeneral > 0 ? "Solde général débitaire" : "Solde général créditaire",
-    });
-  }
-
-  if (type === "financement") {
-    // Capital initial STATIQUE (depuis Parametre) — jamais modifié par les mouvements
-    const capitalInitial = await getCapitalInitial();
-
-    // Mouvements manuels CapitalMouvement, triés par date chronologique (asc)
-    // pour calculer le solde cumulé après chaque opération.
-    const mvts = await db.capitalMouvement.findMany({ orderBy: { date: "asc" } });
-
-    let soldeCumule = capitalInitial;
-    const mouvements = mvts.map((m) => {
-      const sens = m.type === "ENTREE" ? "entree" : "sortie";
-      if (sens === "entree") {
-        soldeCumule += m.montant;
-      } else {
-        soldeCumule -= m.montant;
-      }
-      return {
-        id: m.id,
-        date: formatDateTimeFR(m.date),
-        dateISO: m.date.toISOString(),
-        libelle: m.libelle,
-        type: m.type === "ENTREE" ? "entree" : "sortie", // pour compat UI
-        typeLabel: m.type === "ENTREE" ? "Ajout (entrée)" : "Retrait (sortie)",
-        montant: m.montant,
-        sens,
-        soldeApres: soldeCumule,
-        saisiePar: m.saisiePar ?? null,
-      };
-    }).reverse(); // ordre antéchronologique pour l'affichage
-
-    const totalEntrees = mvts.filter((m) => m.type === "ENTREE").reduce((s, m) => s + m.montant, 0);
-    const totalSorties = mvts.filter((m) => m.type === "SORTIE").reduce((s, m) => s + m.montant, 0);
-    const soldeRestant = capitalInitial + totalEntrees - totalSorties;
-
-    return NextResponse.json({
-      capitalInitial,             // CAPITAL INITIAL — STATIQUE ET TOUJOURS VISIBLE
-      totalEntrees,               // somme des ajouts
-      totalSorties,               // somme des retraits
-      soldeRestant,               // capital initial + entrées - sorties
-      nbMouvements: mvts.length,
-      mouvements,                 // liste horodatée (avec heures + minutes)
-    });
   }
 
   if (type === "stock") {

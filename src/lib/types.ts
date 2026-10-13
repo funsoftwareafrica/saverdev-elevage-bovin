@@ -280,5 +280,91 @@ export interface RapportBailleur {
   monthly: RapportMensuel[];
   costStructure: StructureCouts;
   alertes: Alerte[];
+  // --- Sections complémentaires (Task 29) ---
+  balance: BalanceComptable;
+  capital: CapitalSuivi;
+  budget: BudgetRapport;
+  investissements: Investissement[];
 }
+
+// ---------- Balance comptable (rapport bailleur §A) ----------
+
+/** Ligne de la balance comptable par compte (N-1 figé, N dynamique). */
+export interface BalanceLigne {
+  numCompte: string;
+  libelle: string;
+  soldeN1Debit: number;
+  soldeN1Credit: number;
+  mvtNDebit: number;
+  mvtNCredit: number;
+  soldeNDebit: number;
+  soldeNCredit: number;
+}
+
+export interface BalanceComptable {
+  lignes: BalanceLigne[];
+  totalDebitGeneral: number;
+  totalCreditGeneral: number;
+  soldeDebitGeneral: number;
+  soldeCreditGeneral: number;
+}
+
+// ---------- Suivi du financement (rapport bailleur §B) ----------
+
+export interface CapitalMouvementItem {
+  id: string;
+  date: string;       // "JJ/MM/AAAA HH:MM"
+  dateISO: string;
+  libelle: string;
+  type: "entree" | "sortie";
+  typeLabel: string;
+  montant: number;
+  sens: "entree" | "sortie";
+  soldeApres: number;
+  saisiePar: string | null;
+}
+
+export interface CapitalSuivi {
+  capitalInitial: number;
+  totalEntrees: number;
+  totalSorties: number;
+  soldeRestant: number;
+  nbMouvements: number;
+  mouvements: CapitalMouvementItem[];
+}
+
+// ---------- Suivi budgétaire (rapport bailleur §C) ----------
+
+export type BudgetSectionKey = "investissement" | "operationnel" | "tresorerie";
+
+export interface BudgetLigne {
+  poste: string;
+  previs: number;
+  reel: number;
+  ecart: number;       // previs - reel (positif si sous-budget)
+  pct: number;        // reel / previs * 100
+}
+
+export interface BudgetSection {
+  key: BudgetSectionKey;
+  titre: string;
+  lignes: BudgetLigne[];
+  sousTotal: BudgetLigne;
+}
+
+export interface BudgetRapport {
+  sections: BudgetSection[];
+  totalGeneral: BudgetLigne;
+}
+
+// ---------- Dépenses d'investissement en immobilisations (rapport bailleur §D) ----------
+
+export interface Investissement {
+  id: string;
+  date: string;
+  libelle: string;
+  categorie: string;
+  montant: number;
+}
+
 

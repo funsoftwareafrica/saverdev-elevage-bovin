@@ -1,16 +1,14 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-// Vue Saisie — journaux comptables (partie double) + balance + financement.
-// Refonte complète avec :
-// - Journal achat (Date, N° compte, Libellé, Débit, Crédit)
-// - Journal vente (même structure)
-// - Balance (somme débit - somme crédit + conclusion)
-// - Financement (14 775 000 avec soustractions achat + ajouts vente en cascade)
+// Vue Saisie — journaux comptables (partie double).
+// Vue Task 29 : uniquement les 4 journaux (Achats / Ventes / Dépenses / Stock)
+// + la zone d'alertes. La balance comptable et le suivi du financement ont été
+// déplacés vers le rapport bailleur (cf. rapport-bailleur-view).
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +16,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle, ChevronDown, ChevronUp, Wifi, Scale, Landmark, Wallet } from "@/lib/icons";
-import { formatFCFA, formatDate, formatDateTime, nowDateTimeLocal, severiteColor } from "@/lib/format";
+import {
+  Beef, ShoppingCart, Receipt, Package, Plus, AlertTriangle,
+  ChevronDown, ChevronUp, Wifi,
+} from "@/lib/icons";
+import { formatFCFA, severiteColor } from "@/lib/format";
 import { addPendingEntry } from "@/lib/offline-db";
 import { useAppStore } from "@/lib/store";
 import { useBovins } from "@/lib/api";
@@ -34,18 +35,6 @@ interface JournalEntry {
   credit: number;
 }
 interface Alerte { type: string; severite: string; message: string; }
-interface FinancementMvt {
-  id: string;
-  date: string;       // affichage "JJ/MM/AAAA HH:MM"
-  dateISO: string;    // ISO pour tri/affichage fallback
-  libelle: string;
-  type: "entree" | "sortie";
-  typeLabel: string;
-  montant: number;
-  sens: "entree" | "sortie";
-  soldeApres: number;
-  saisiePar: string | null;
-}
 type SaisieType = "achat" | "vente" | "depense" | "stock";
 
 const TYPE_CONFIG: Record<SaisieType, { label: string; icon: typeof Beef; color: string }> = {
@@ -74,28 +63,6 @@ export function SaisieView() {
   const [solde, setSolde] = useState(0);
   const [conclusion, setConclusion] = useState("");
 
-  // Données balance
-  const [balance, setBalance] = useState<{ numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }[]>([]);
-  const [showBalance, setShowBalance] = useState(false);
-
-  // Données financement
-  const [financement, setFinancement] = useState<{
-    capitalInitial: number;
-    totalEntrees: number;
-    totalSorties: number;
-    soldeRestant: number;
-    nbMouvements: number;
-    mouvements: FinancementMvt[];
-  } | null>(null);
-  const [showFinancement, setShowFinancement] = useState(false);
-
-  // Formulaire d'ajout d'un mouvement de capital
-  const [mvtDate, setMvtDate] = useState<string>(nowDateTimeLocal());
-  const [mvtType, setMvtType] = useState<"ENTREE" | "SORTIE">("SORTIE");
-  const [mvtMontant, setMvtMontant] = useState<string>("");
-  const [mvtLibelle, setMvtLibelle] = useState<string>("");
-  const [mvtSaving, setMvtSaving] = useState(false);
-
   const loadJournal = useCallback(async (t: SaisieType) => {
     setLoading(true);
     try {
@@ -119,84 +86,6 @@ export function SaisieView() {
       setAlertes(data.alertes || []);
     } catch { /* ignore */ }
   }, []);
-
-  const loadBalance = useCallback(async () => {
-    try {
-      const res = await fetch("/api/saisie?type=balance");
-      if (!res.ok) return;
-      const data = await res.json();
-      setBalance(data.balance || []);
-    } catch { /* ignore */ }
-  }, []);
-
-  const loadFinancement = useCallback(async () => {
-    try {
-      const res = await fetch("/api/saisie?type=financement");
-      if (!res.ok) return;
-      const data = await res.json();
-      setFinancement(data);
-    } catch { /* ignore */ }
-  }, []);
-
-  // Sauvegarde d'un nouveau mouvement manuel sur le capital
-  const handleSaveMouvement = async () => {
-    const montant = Number(mvtMontant.replace(/\s/g, ""));
-    if (!montant || montant <= 0) {
-      toast.error("Veuillez saisir un montant valide");
-      return;
-    }
-    setMvtSaving(true);
-    try {
-      const res = await fetch("/api/saisie", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "capital_mouvement",          // type d'opération API
-          typeMvt: mvtType,                   // sens : ENTREE ou SORTIE
-          date: mvtDate,                       // ISO local "YYYY-MM-DDTHH:MM"
-          montant,
-          libelle: mvtLibelle.trim(),
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || "Erreur");
-        setMvtSaving(false);
-        return;
-      }
-      toast.success(mvtType === "ENTREE" ? "Ajout enregistré" : "Retrait enregistré");
-      // Réinitialiser le formulaire
-      setMvtMontant("");
-      setMvtLibelle("");
-      setMvtDate(nowDateTimeLocal());
-      // Recharger la liste
-      await loadFinancement();
-    } catch {
-      toast.error("Connexion perdue");
-    }
-    setMvtSaving(false);
-  };
-
-  // Suppression d'un mouvement (sans toucher au capital initial)
-  const handleDeleteMouvement = async (id: string) => {
-    if (!id) return;
-    try {
-      const res = await fetch("/api/saisie", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "capital_mouvement_delete", id }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.error || "Erreur lors de la suppression");
-        return;
-      }
-      toast.success("Mouvement supprimé");
-      await loadFinancement();
-    } catch {
-      toast.error("Connexion perdue");
-    }
-  };
 
   useEffect(() => {
     const handleOnlineChange = () => setIsOnline(navigator.onLine);
@@ -245,8 +134,6 @@ export function SaisieView() {
       toast.success("Saisie enregistrée");
       if (activeType) loadJournal(activeType);
       loadAlertes();
-      loadBalance();
-      loadFinancement();
     } catch {
       await addPendingEntry(type, data);
       toast.warning("Connexion perdue — sauvegardé hors ligne");
@@ -298,250 +185,7 @@ export function SaisieView() {
               );
             })}
           </div>
-
-          {/* Accès Balance et Financement */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <button onClick={() => { setShowBalance(true); loadBalance(); }}
-              className="flex items-center gap-2 rounded-lg border border-border bg-white p-3 text-xs font-medium hover:bg-muted/40">
-              <HugeiconsIcon icon={Scale} size={18} className="text-primary" /> Balance comptable
-            </button>
-            <button onClick={() => { setShowFinancement(true); loadFinancement(); }}
-              className="flex items-center gap-2 rounded-lg border border-border bg-white p-3 text-xs font-medium hover:bg-muted/40">
-              <HugeiconsIcon icon={Landmark} size={18} className="text-primary" /> Suivi financement
-            </button>
-          </div>
         </div>
-      )}
-
-      {/* Modal Balance */}
-      {showBalance && (
-        <Card>
-          <CardHeader><CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={Scale} size={16} className="text-primary" /> Balance comptable</CardTitle></CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b-2 border-border text-left">
-                    <th className="p-2" rowSpan={2}>Compte</th>
-                    <th className="p-2" rowSpan={2}>Libellé</th>
-                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N-1</th>
-                    <th className="p-2 text-center border-l border-border" colSpan={2}>Mouvements N</th>
-                    <th className="p-2 text-center border-l border-border" colSpan={2}>Solde N</th>
-                  </tr>
-                  <tr className="border-b border-border text-left text-[0.6rem]">
-                    <th className="p-2 text-right border-l border-border">Débit</th>
-                    <th className="p-2 text-right">Crédit</th>
-                    <th className="p-2 text-right border-l border-border">Débit</th>
-                    <th className="p-2 text-right">Crédit</th>
-                    <th className="p-2 text-right border-l border-border">Débit</th>
-                    <th className="p-2 text-right">Crédit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {balance.map((c, i) => {
-                    const soldeDebit = c.solde > 0 ? Math.abs(c.solde) : 0;
-                    const soldeCredit = c.solde < 0 ? Math.abs(c.solde) : 0;
-                    return (
-                      <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                        <td className="p-2 font-mono font-bold">{c.numCompte}</td>
-                        <td className="p-2 text-foreground">{c.libelle}</td>
-                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
-                        <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
-                        <td className="p-2 text-right tabular-nums text-red-600">{c.totalDebit > 0 ? formatFCFA(c.totalDebit, false) : ""}</td>
-                        <td className="p-2 text-right tabular-nums text-emerald-600">{c.totalCredit > 0 ? formatFCFA(c.totalCredit, false) : ""}</td>
-                        <td className="p-2 text-right tabular-nums font-bold text-red-600">{soldeDebit > 0 ? formatFCFA(soldeDebit, false) : ""}</td>
-                        <td className="p-2 text-right tabular-nums font-bold text-emerald-600">{soldeCredit > 0 ? formatFCFA(soldeCredit, false) : ""}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-border font-bold bg-muted/30">
-                    <td className="p-2" colSpan={2}>Total général</td>
-                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
-                    <td className="p-2 text-right tabular-nums text-muted-foreground">—</td>
-                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(balance.reduce((s, c) => s + c.totalDebit, 0), false)}</td>
-                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(balance.reduce((s, c) => s + c.totalCredit, 0), false)}</td>
-                    <td className="p-2 text-right tabular-nums text-red-600">{formatFCFA(Math.max(0, balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
-                    <td className="p-2 text-right tabular-nums text-emerald-600">{formatFCFA(Math.max(0, -balance.reduce((s, c) => s + c.solde, 0)), false)}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-            <div className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2">
-              <span className="text-xs text-muted-foreground">Solde général (Débit − Crédit)</span>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold tabular-nums ${balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-600" : "text-emerald-600"}`}>
-                  {formatFCFA(Math.abs(balance.reduce((s, c) => s + c.solde, 0)), false)}
-                </span>
-                <Badge variant="outline" className={balance.reduce((s, c) => s + c.solde, 0) > 0 ? "text-red-700 border-red-300 bg-red-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}>
-                  {balance.reduce((s, c) => s + c.solde, 0) > 0 ? "Solde débitaire" : "Solde créditaire"}
-                </Badge>
-              </div>
-            </div>
-            <button onClick={() => setShowBalance(false)} className="mt-3 text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Modal Suivi financement — capital initial STATIQUE + mouvements manuels horodatés */}
-      {showFinancement && financement && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={Landmark} size={16} className="text-primary" /> Suivi du capital
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Le capital initial reste figé. Chaque opération (ajout/retrait) est enregistrée et horodatée (jour + heure + minutes).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Capital initial — toujours visible, non modifié */}
-            <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
-              <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
-                <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
-              </p>
-              <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(financement.capitalInitial)}</p>
-              <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
-            </div>
-
-            {/* Résumé des mouvements */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-emerald-700 font-medium">Ajouts</p>
-                <p className="text-sm font-bold text-emerald-700 tabular-nums">+ {formatFCFA(financement.totalEntrees, false)}</p>
-              </div>
-              <div className="rounded-lg bg-red-50 border border-red-200 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-red-700 font-medium">Retraits</p>
-                <p className="text-sm font-bold text-red-700 tabular-nums">− {formatFCFA(financement.totalSorties, false)}</p>
-              </div>
-              <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
-                <p className="text-[0.6rem] uppercase text-primary font-medium">Solde actuel</p>
-                <p className="text-sm font-bold text-primary tabular-nums">{formatFCFA(financement.soldeRestant, false)}</p>
-              </div>
-            </div>
-
-            {/* Formulaire d'ajout d'un mouvement horodaté */}
-            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={Plus} size={14} className="text-primary" />
-                <p className="text-xs font-semibold text-foreground">Nouvelle opération sur le capital</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label htmlFor="mvt-date" className="text-[0.6rem] uppercase text-muted-foreground">Date & heure</Label>
-                  <Input
-                    id="mvt-date"
-                    type="datetime-local"
-                    value={mvtDate}
-                    onChange={(e) => setMvtDate(e.target.value)}
-                    className="text-xs h-8"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="mvt-type" className="text-[0.6rem] uppercase text-muted-foreground">Sens de l'opération</Label>
-                  <Select value={mvtType} onValueChange={(v) => setMvtType(v as "ENTREE" | "SORTIE")}>
-                    <SelectTrigger id="mvt-type" className="text-xs h-8"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SORTIE">− Retrait (sortie de capital)</SelectItem>
-                      <SelectItem value="ENTREE">+ Ajout (entrée de capital)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label htmlFor="mvt-montant" className="text-[0.6rem] uppercase text-muted-foreground">Montant (FCFA)</Label>
-                  <Input
-                    id="mvt-montant"
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="ex: 150000"
-                    value={mvtMontant}
-                    onChange={(e) => setMvtMontant(e.target.value)}
-                    className="text-xs h-8 tabular-nums"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="mvt-libelle" className="text-[0.6rem] uppercase text-muted-foreground">Motif / libellé</Label>
-                  <Input
-                    id="mvt-libelle"
-                    placeholder="ex: Achat alimentation"
-                    value={mvtLibelle}
-                    onChange={(e) => setMvtLibelle(e.target.value)}
-                    className="text-xs h-8"
-                  />
-                </div>
-              </div>
-              <Button
-                onClick={handleSaveMouvement}
-                disabled={mvtSaving}
-                size="sm"
-                className={`w-full text-xs ${mvtType === "ENTREE" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
-              >
-                {mvtSaving ? "Enregistrement…" : (mvtType === "ENTREE" ? "+ Ajouter au capital" : "− Soustraire du capital")}
-              </Button>
-            </div>
-
-            {/* Mouvements horodatés en cascade */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-foreground">Historique des opérations ({financement.nbMouvements})</p>
-                <p className="text-[0.55rem] text-muted-foreground">tri : récent → ancien</p>
-              </div>
-              <div className="max-h-80 overflow-y-auto pr-1 -mr-1 space-y-0">
-                <AnimatePresence mode="popLayout">
-                  {financement.mouvements.map((m, i) => (
-                    <motion.div
-                      key={m.id ?? `${m.date}-${i}`}
-                      layout
-                      initial={{ opacity: 0, x: -30, height: 0 }}
-                      animate={{ opacity: 1, x: 0, height: "auto" }}
-                      exit={{ opacity: 0, x: -30, height: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.25 }}
-                      className={`relative overflow-hidden rounded-lg border pl-3 pr-2 py-2 ${m.sens === "sortie" ? "border-red-200 bg-red-50/40" : "border-emerald-200 bg-emerald-50/40"}`}
-                    >
-                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.sens === "sortie" ? "bg-red-500" : "bg-emerald-500"}`} />
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {m.libelle || (m.sens === "entree" ? "Ajout de capital" : "Retrait de capital")}
-                          </p>
-                          <p className="text-[0.6rem] text-muted-foreground tabular-nums">
-                            <span className="font-medium">{m.date}</span> · {m.typeLabel}
-                            {m.saisiePar ? ` · par ${m.saisiePar}` : ""}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0 flex items-center gap-2">
-                          <div>
-                            <p className={`text-sm font-bold tabular-nums ${m.sens === "sortie" ? "text-red-600" : "text-emerald-600"}`}>
-                              {m.sens === "sortie" ? "−" : "+"} {formatFCFA(m.montant, false)}
-                            </p>
-                            <p className="text-[0.55rem] text-muted-foreground">Solde : {formatFCFA(m.soldeApres, false)}</p>
-                          </div>
-                          <button
-                            onClick={() => handleDeleteMouvement(m.id)}
-                            title="Supprimer ce mouvement"
-                            className="text-muted-foreground hover:text-red-600 transition-colors p-1 rounded"
-                          >
-                            <HugeiconsIcon icon={AlertTriangle} size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                {financement.mouvements.length === 0 && (
-                  <p className="text-center text-xs text-muted-foreground py-6">
-                    Aucune opération enregistrée. Ajoutez votre premier mouvement ci-dessus.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <button onClick={() => setShowFinancement(false)} className="text-xs text-muted-foreground hover:text-foreground">← Fermer</button>
-          </CardContent>
-        </Card>
       )}
 
       {/* Formulaire + Journal quand un type est sélectionné */}
