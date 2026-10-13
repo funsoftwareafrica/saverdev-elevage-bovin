@@ -160,3 +160,10 @@ export function nextBovinIdentifiant(existing: { identifiant: string }[]): strin
  */
 import { CHART_COLORS } from "@/lib/config";
 export { CHART_COLORS };
+
+/** Formate une taille en octets vers une chaîne lisible : "1,2 Ko", "3,4 Mo". */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} o`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} Mo`;
+}

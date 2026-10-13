@@ -49,11 +49,18 @@ import type { Validation } from "@/lib/types";
 type TabKey = "EN_ATTENTE" | "VALIDEE" | "REJETEE";
 
 const ENTITE_LABELS: Record<string, { label: string; icon: typeof Beef }> = {
+  // Anciens libellés (rétro-compat) :
   ACHAT: { label: "Achat bétail", icon: Beef },
   VENTE: { label: "Vente bétail", icon: ShoppingCart },
   DEPENSE: { label: "Dépense", icon: Receipt },
   STOCK: { label: "Mouvement stock", icon: Wallet },
   CAPITAL_MOUVEMENT: { label: "Mouvement capital", icon: Landmark },
+  // Nouveaux libellés (post-28-B) :
+  Bovin: { label: "Achat bétail", icon: Beef },
+  Vente: { label: "Vente bétail", icon: ShoppingCart },
+  Depense: { label: "Dépense", icon: Receipt },
+  StockMouvement: { label: "Mouvement stock", icon: Wallet },
+  CapitalMouvement: { label: "Mouvement capital", icon: Landmark },
 };
 
 /** Tente de désérialiser le payload d'action stocké dans Validation.action. */

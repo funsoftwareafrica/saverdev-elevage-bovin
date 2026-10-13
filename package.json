@@ -13,7 +13,10 @@
     "db:seed": "bun prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "dev:sqlite": "./scripts/switch-prisma-provider.sh sqlite && prisma generate && prisma db push --accept-data-loss",
+    "vercel:build": "./scripts/switch-prisma-provider.sh postgresql && prisma generate",
+    "ws:notif": "cd mini-services/notifications-ws && bun --hot index.ts"
   },
   "prisma": {
     "seed": "bun prisma/seed.ts"
@@ -81,6 +84,7 @@
     "react-syntax-highlighter": "^15.6.1",
     "recharts": "^2.15.4",
     "sharp": "^0.34.3",
+    "socket.io-client": "^4.8.4",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",

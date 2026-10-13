@@ -1,0 +1,17 @@
+{
+  "name": "notifications-ws",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mini-service WebSocket SAVERDEV — notifications temps réel (broadcast)",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4",
+    "typescript": "^5"
+  }
+}

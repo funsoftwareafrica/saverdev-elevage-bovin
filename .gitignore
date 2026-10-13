@@ -30,3 +30,9 @@ db/*.db-journal
 # Tool results and agent context (interne)
 tool-results/
 agent-ctx/
+
+# App mobile native (Expo) — scaffolding incomplet, ~35 erreurs TS
+# (theme.ts incomplet, lib/api.ts et lib/types.ts divergent de la version web).
+# Hors périmètre Next.js — non déployé, non maintenu pour l'instant.
+mobile/
+

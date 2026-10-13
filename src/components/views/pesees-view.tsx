@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ViewHeader, KpiCard } from "./_shared";
+import { ViewHeader, KpiCard, especeLabel } from "./_shared";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -134,7 +134,7 @@ export function PeseesView() {
                     <option value="">— Sélectionner un animal —</option>
                     {actifs.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.identifiant} — {b.race} ({b.espece === "OVIN" ? "Ovin" : "Bovin"})
+                        {b.identifiant} — {b.race} ({especeLabel(b.espece).label})
                       </option>
                     ))}
                   </select>
@@ -231,7 +231,7 @@ export function PeseesView() {
                       <td className="p-3 font-mono font-semibold text-primary">{p.identifiant}</td>
                       <td className="p-3 text-xs">
                         <Badge variant="outline" className="text-[0.65rem] gap-1">
-                          {p.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"}
+                          {especeLabel(p.espece).emoji} {especeLabel(p.espece).label}
                         </Badge>
                       </td>
                       <td className="p-3">{p.race}</td>

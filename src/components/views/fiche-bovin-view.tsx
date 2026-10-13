@@ -19,6 +19,7 @@ import { QRCode } from "@/components/charts/qr-code";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import { especeBadgeClass, especeLabel } from "./_shared";
 
 export function FicheBovinView() {
   const selectedBovinId = useAppStore((s) => s.selectedBovinId);
@@ -65,17 +66,17 @@ export function FicheBovinView() {
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xl" aria-hidden>{bovin.espece === "OVIN" ? "🐑" : "🐄"}</span>
+                  <span className="text-xl" aria-hidden>{especeLabel(bovin.espece).emoji}</span>
                   <h2 className="text-2xl font-bold font-mono text-primary">{bovin.identifiant}</h2>
-                  <Badge variant="outline" className={`text-[0.65rem] ${bovin.espece === "OVIN" ? "border-violet-300 text-violet-700 bg-violet-50" : "border-amber-300 text-amber-800 bg-amber-50"}`}>
-                    {bovin.espece === "OVIN" ? "Ovin" : "Bovin"}
+                  <Badge variant="outline" className={`text-[0.65rem] ${especeBadgeClass(bovin.espece)}`}>
+                    {especeLabel(bovin.espece).label}
                   </Badge>
                   <Badge variant="outline" className={`text-[0.65rem] ${statutBovinColor(bovin.statut)}`}>
                     {bovin.statut === "EN_ENGRAISSEMENT" ? "En engraissement" : bovin.statut === "VENDU" ? "Vendu" : "Mort"}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  {bovin.espece === "OVIN" ? "Ovin" : "Bovin"} · {bovin.race} · {bovin.sexe} · {bovin.poidsAchat} kg à l'achat
+                  {especeLabel(bovin.espece).label} · {bovin.race} · {bovin.sexe} · {bovin.poidsAchat} kg à l'achat
                 </p>
               </div>
             </div>
@@ -99,7 +100,7 @@ export function FicheBovinView() {
             <CardTitle className="text-sm">Identification</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <Row icon={Beef} label="Espèce" value={bovin.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"} />
+            <Row icon={Beef} label="Espèce" value={`${especeLabel(bovin.espece).emoji} ${especeLabel(bovin.espece).label}`} />
             <Row icon={Beef} label="Race" value={bovin.race} />
             <Row icon={User} label="Sexe" value={bovin.sexe} />
             <Row icon={Scale} label="Poids à l'achat" value={`${bovin.poidsAchat} kg`} />
@@ -148,7 +149,7 @@ export function FicheBovinView() {
             )}
             {bovin.statut === "EN_ENGRAISSEMENT" && (
               <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
-                {bovin.espece === "OVIN" ? "Ovin" : "Bovin"} en cours d'engraissement — la marge sera calculée à la vente.
+                {especeLabel(bovin.espece).label} en cours d'engraissement — la marge sera calculée à la vente.
               </div>
             )}
           </CardContent>
@@ -214,9 +215,9 @@ export function FicheBovinView() {
             <QRCode value={bovin.identifiant} size={140} className="rounded-lg border border-border p-2" />
             <div className="text-center">
               <p className="font-mono font-bold text-primary text-lg">
-                {bovin.espece === "OVIN" ? "🐑 " : "🐄 "}{bovin.identifiant}
+                {especeLabel(bovin.espece).emoji} {bovin.identifiant}
               </p>
-              <p className="text-[0.7rem] text-muted-foreground">{bovin.espece === "OVIN" ? "Ovin" : "Bovin"} · {bovin.race} · {bovin.poidsAchat} kg</p>
+              <p className="text-[0.7rem] text-muted-foreground">{especeLabel(bovin.espece).label} · {bovin.race} · {bovin.poidsAchat} kg</p>
             </div>
             <Button
               variant="outline"
@@ -228,9 +229,9 @@ export function FicheBovinView() {
                     <html><head><title>Étiquette ${bovin.identifiant}</title></head>
                     <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;">
                       <div style="border:2px solid #111827;border-radius:8px;padding:16px;text-align:center;">
-                        <p style="font-size:28px;margin:0 0 4px;">${bovin.espece === "OVIN" ? "🐑" : "🐄"}</p>
+                        <p style="font-size:28px;margin:0 0 4px;">${especeLabel(bovin.espece).emoji}</p>
                         <p style="font-size:24px;font-weight:700;color:#10B981;margin:0 0 4px;">${bovin.identifiant}</p>
-                        <p style="font-size:12px;color:#6B7280;margin:0 0 8px;">${bovin.espece === "OVIN" ? "Ovin" : "Bovin"} · ${bovin.race} · ${bovin.poidsAchat} kg · ${formatDate(bovin.dateAchat)}</p>
+                        <p style="font-size:12px;color:#6B7280;margin:0 0 8px;">${especeLabel(bovin.espece).label} · ${bovin.race} · ${bovin.poidsAchat} kg · ${formatDate(bovin.dateAchat)}</p>
                         <div style="width:120px;height:120px;background:#fff;border:1px solid #E5E7EB;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto;">
                           <span style="font-size:10px;color:#9CA3AF;">QR Code</span>
                         </div>

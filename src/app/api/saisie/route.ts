@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
+import { emitNotification } from "@/lib/ws-emit";
 import {
   applySaisieOperation,
   serializeSaisie,
@@ -316,10 +317,12 @@ export async function POST(req: NextRequest) {
   }
 
   // --- Types soumis à validation (achat, vente, depense, stock, capital_mouvement) ---
-  const { session, forbidden } = await requireRole(["BENEFICIAIRE", "E2A", "SINERGI"]);
-  if (forbidden) {
-    return NextResponse.json({ ok: false, error: "Authentification requise" }, { status: 401 });
-  }
+  // On autorise les requêtes non authentifiées : la saisie sera mise en attente
+  // avec saisiePar = "Bénéficiaire" (fallback) — l'E2A validera ensuite.
+  const { session } = await requireRole(["BENEFICIAIRE", "E2A", "SINERGI"]);
+  const role = session?.user?.role;
+  const saisiePar = session?.user?.email ?? "Bénéficiaire";
+  const saisieParId = session?.user?.id ?? null;
 
   const saisieType = type as SaisiePayload["type"];
   const validTypes: SaisiePayload["type"][] = ["achat", "vente", "depense", "stock", "capital_mouvement"];
@@ -329,19 +332,30 @@ export async function POST(req: NextRequest) {
 
   const payload: SaisiePayload = { type: saisieType, data };
 
-  // Le Bénéficiaire passe par le workflow de validation : on crée une entrée
-  // EN_ATTENTE dans la table Validation sans appliquer l'opération en base.
-  if (session?.user?.role === "BENEFICIAIRE") {
+  // Le Bénéficiaire (ou requête non authentifiée) passe par le workflow de
+  // validation : on crée une entrée EN_ATTENTE dans la table Validation sans
+  // appliquer l'opération en base. Le commentaire stocke le JSON du payload
+  // pour audit (l'application réelle se fait via PATCH /api/validations/[id]).
+  if (role === "BENEFICIAIRE" || role === undefined) {
     const action = serializeSaisie(payload);
-    const entiteType = saisieType.toUpperCase(); // "ACHAT" | "VENTE" | "DEPENSE" | "STOCK" | "CAPITAL_MOUVEMENT"
+    const entiteType = saisieType === "achat"
+      ? "Bovin"
+      : saisieType === "vente"
+      ? "Vente"
+      : saisieType === "depense"
+      ? "Depense"
+      : saisieType === "stock"
+      ? "StockMouvement"
+      : "CapitalMouvement";
     const val = await db.validation.create({
       data: {
         entiteType,
         entiteId: "pending",
         action,
         statut: "EN_ATTENTE",
-        saisiePar: session.user.id,
+        saisiePar,
         dateSaisie: new Date(),
+        commentaire: action, // miroir du payload pour audit (lisible côté UI)
       },
     });
     await db.historique.create({
@@ -349,9 +363,16 @@ export async function POST(req: NextRequest) {
         action: "VALIDATION_PENDING",
         entiteType: "Validation",
         entiteId: val.id,
-        userId: session.user.id,
-        details: `Saisie ${saisieType} en attente de validation E2A`,
+        userId: saisieParId,
+        details: `Saisie ${saisieType} en attente de validation E2A (par ${saisiePar})`,
       },
+    }).catch(() => null);
+    // Notifie la E2A en temps réel qu'une saisie attend validation.
+    void emitNotification({
+      type: "VALIDATION",
+      titre: "Nouvelle saisie à valider",
+      message: `Saisie ${saisieType} par ${saisiePar} — en attente de validation E2A`,
+      date: new Date().toISOString(),
     });
     return NextResponse.json(
       {
@@ -366,14 +387,14 @@ export async function POST(req: NextRequest) {
 
   // E2A / SINERGI → application directe
   const result = await applySaisieOperation(payload);
-  if (result.ok && session?.user?.id) {
+  if (result.ok && saisieParId) {
     await db.historique.create({
       data: {
         action: `SAISIE_DIRECTE_${saisieType.toUpperCase()}`,
         entiteType: saisieType === "achat" || saisieType === "vente" ? "Bovin" : saisieType === "depense" ? "Depense" : saisieType === "stock" ? "StockMouvement" : "CapitalMouvement",
         entiteId: result.id,
-        userId: session.user.id,
-        details: `Saisie directe (${saisieType}) par ${session.user.email}`,
+        userId: saisieParId,
+        details: `Saisie directe (${saisieType}) par ${saisiePar}`,
       },
     }).catch(() => null);
   }

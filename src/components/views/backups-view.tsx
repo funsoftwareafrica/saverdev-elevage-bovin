@@ -15,7 +15,7 @@ import { useEffect, useRef } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useBackups, useCreateBackup, useCheckAutoBackup } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatBytes } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +25,6 @@ import { Database, Download, Plus, HardDrive, CheckCircle2, Clock } from "@/lib/
 import { ViewHeader, KpiCard } from "./_shared";
 import { toast } from "sonner";
 import type { Backup } from "@/lib/types";
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} Mo`;
-}
 
 export function BackupsView() {
   const role = useAppStore((s) => s.role);

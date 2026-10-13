@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, User, Eye, Trash } from "@/lib/icons";
+import { ShoppingCart, Plus, TrendingUp, TrendingDown, Calendar, Eye, Trash } from "@/lib/icons";
 // Note: ShoppingCart reste pour les KPI cards (ventes/CA), TrendingUp pour l'en-tête (aligné sur cattly.io)
-import { ViewHeader, KpiCard } from "./_shared";
+import { ViewHeader, KpiCard, especeLabel } from "./_shared";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -109,7 +109,7 @@ export function VentesView() {
                       <SelectContent>
                         {actifs.map((b) => (
                           <SelectItem key={b.id} value={b.id}>
-                            {b.identifiant} {b.espece === "OVIN" ? "🐑" : "🐄"} — {b.race} ({formatFCFA(b.prixAchat + b.coutsEngraissement, false)} revient)
+                            {b.identifiant} {especeLabel(b.espece).emoji} — {b.race} ({formatFCFA(b.prixAchat + b.coutsEngraissement, false)} revient)
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -181,7 +181,7 @@ export function VentesView() {
                   return (
                     <TableRow key={b.id}>
                       <TableCell className="font-mono font-semibold text-primary text-sm">
-                        {b.identifiant} <span className="ml-1 text-xs font-normal text-muted-foreground">{b.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"}</span>
+                        {b.identifiant} <span className="ml-1 text-xs font-normal text-muted-foreground">{especeLabel(b.espece).emoji} {especeLabel(b.espece).label}</span>
                       </TableCell>
                       <TableCell className="text-xs hidden sm:table-cell">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -232,7 +232,7 @@ export function VentesView() {
             const { coutRevient, marge } = computeBovinMarge(viewTarget);
             return (
               <div className="space-y-2 text-sm">
-                <div><span className="text-muted-foreground text-xs">Animal :</span> <br /><strong className="font-mono text-primary">{viewTarget.identifiant}</strong> <span className="text-xs text-muted-foreground">{viewTarget.espece === "OVIN" ? "🐑 Ovin" : "🐄 Bovin"}</span></div>
+                <div><span className="text-muted-foreground text-xs">Animal :</span> <br /><strong className="font-mono text-primary">{viewTarget.identifiant}</strong> <span className="text-xs text-muted-foreground">{especeLabel(viewTarget.espece).emoji} {especeLabel(viewTarget.espece).label}</span></div>
                 <div><span className="text-muted-foreground text-xs">Race :</span> <br /><strong>{viewTarget.race}</strong></div>
                 <div><span className="text-muted-foreground text-xs">Client :</span> <br /><strong>{viewTarget.clientVente ?? "—"}</strong></div>
                 <div className="grid grid-cols-2 gap-3 pt-2">

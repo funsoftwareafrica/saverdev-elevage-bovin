@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
+import { emitNotification } from "@/lib/ws-emit";
 
 export async function GET() {
   const [notifs, alertes] = await Promise.all([
@@ -59,6 +60,15 @@ export async function POST(req: NextRequest) {
       lu: false,
     },
   });
+
+  // Broadcast WebSocket temps réel aux clients connectés.
+  void emitNotification({
+    type: notif.type,
+    titre: notif.titre,
+    message: notif.message,
+    date: notif.date.toISOString(),
+  });
+
   return NextResponse.json({
     id: notif.id,
     date: notif.date.toISOString(),

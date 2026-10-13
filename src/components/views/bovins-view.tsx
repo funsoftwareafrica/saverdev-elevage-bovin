@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Beef, Search, Eye, Plus, Pencil, Trash, TrendingUp, TrendingDown, Database, Download } from "@/lib/icons";
-import { ViewHeader, EmptyState, KpiCard } from "./_shared";
+import { ViewHeader, EmptyState, KpiCard, especeBadgeClass, especeLabel } from "./_shared";
 import { exportCSV } from "@/lib/export";
 import type { Bovin, StatutBovin } from "@/lib/types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -53,19 +53,6 @@ const RACE_PAR_DEFAUT: Record<"BOVIN" | "OVIN", string> = {
   BOVIN: "Zébu",
   OVIN: "Mouton Sokoto",
 };
-
-// Classement Tailwind du badge Espèce (orange pour bovin, violet pour ovin).
-function especeBadgeClass(espece: string): string {
-  return espece === "OVIN"
-    ? "text-violet-700 bg-violet-50 border-violet-200"
-    : "text-orange-700 bg-orange-50 border-orange-200";
-}
-
-function especeLabel(espece: string): { emoji: string; label: string } {
-  return espece === "OVIN"
-    ? { emoji: "🐑", label: "Ovin" }
-    : { emoji: "🐄", label: "Bovin" };
-}
 
 export function BovinsView() {
   const openBovin = useAppStore((s) => s.openBovin);

@@ -174,3 +174,19 @@ export function EmptyState({
     </div>
   );
 }
+
+// ---------- Badge Espèce (bovin / ovin) — partagé entre Cheptel, Fiche, Ventes, Pesées ----------
+
+// Classe Tailwind du badge Espèce (orange pour bovin, violet pour ovin).
+export function especeBadgeClass(espece: string): string {
+  return espece === "OVIN"
+    ? "text-violet-700 bg-violet-50 border-violet-200"
+    : "text-orange-700 bg-orange-50 border-orange-200";
+}
+
+// Emoji + libellé court de l'espèce (🐄 Bovin / 🐑 Ovin).
+export function especeLabel(espece: string): { emoji: string; label: string } {
+  return espece === "OVIN"
+    ? { emoji: "🐑", label: "Ovin" }
+    : { emoji: "🐄", label: "Bovin" };
+}

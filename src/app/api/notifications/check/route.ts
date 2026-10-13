@@ -15,6 +15,7 @@
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { emitNotification } from "@/lib/ws-emit";
 
 // Hash simple (string → 8 premiers caractères d'un SHA-like)
 function hash(s: string): string {
@@ -116,6 +117,17 @@ export async function GET() {
     }
   } catch (e) {
     console.error("notif mortalite:", e);
+  }
+
+  // Émet les notifications créées via WebSocket (broadcast aux clients
+  // connectés). Fire-and-forget — tolérant si mini-service indisponible.
+  for (const n of created) {
+    void emitNotification({
+      type: n.type,
+      titre: n.titre,
+      message: n.message,
+      date: now.toISOString(),
+    });
   }
 
   return NextResponse.json({

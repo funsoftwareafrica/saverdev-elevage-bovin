@@ -10,7 +10,6 @@ import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBov
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
 import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { KpiCard, ViewHeader } from "./_shared";

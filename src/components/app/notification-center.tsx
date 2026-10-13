@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useNotifications, useMarkAllNotificationsRead, useCheckNotifications } from "@/lib/api";
+import { useRealtimeNotifications } from "@/lib/realtime";
 import { formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const TYPE_ICON: Record<string, IconSvgElement> = {
   MORTALITE: AlertCircle,
   STOCK: AlertCircle,
   MARGE: AlertCircle,
+  VALIDATION: Info,
   AUTRE: Info,
   INFO: Info,
   WARNING: AlertTriangle,
@@ -47,6 +49,10 @@ export function NotificationCenter() {
   const markAll = useMarkAllNotificationsRead();
   const check = useCheckNotifications();
   const checkedRef = useRef(false);
+
+  // Connexion WebSocket temps réel — invalidate la query ["notifications"]
+  // quand le backend émet un event "notification:new".
+  useRealtimeNotifications();
 
   // Au premier mount, déclenche la génération auto des notifications.
   useEffect(() => {

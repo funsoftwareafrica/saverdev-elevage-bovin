@@ -2,7 +2,7 @@
 // Vue isométrique 3D des pâturages avec bovins positionnés
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,20 +10,28 @@ import { KpiCard, ViewHeader } from "./_shared";
 import { usePaturages, useBovins } from "@/lib/api";
 import { MapPin, Layers, RotateCw, Maximize2, Navigation, Box, Beef, Eye } from "@/lib/icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import type { Paturage } from "@/lib/types";
 
 // Coordonnées réelles Zinder, Niger
 const ZINDER_CENTER = { lat: 13.8071, lng: 8.9884 };
 const ZINDER_NAME = "Zinder, Niger";
 
-// Pâturages autour de Zinder avec coordonnées GPS réelles
-const PATURAGES_DATA = [
-  { id: "p1", nom: "Pâturage Nord — Zinder", surface: 5.5, capacite: 20, lat: 13.85, lng: 8.97, color: "#10B981" },
-  { id: "p2", nom: "Parcelle Est — Damana", surface: 3.2, capacite: 12, lat: 13.79, lng: 9.05, color: "#14B8A6" },
-  { id: "p3", nom: "Enclos d'engraissement — Birni", surface: 1.8, capacite: 15, lat: 13.81, lng: 8.99, color: "#34D399" },
-  { id: "p4", nom: "Pâturage Sud — Karkada", surface: 4.0, capacite: 18, lat: 13.76, lng: 8.96, color: "#6EE7B7" },
-];
+// Palette de couleurs pour les parcelles (appliquée par index, car la DB ne stocke pas de couleur)
+const PARCEL_COLORS = ["#10B981", "#14B8A6", "#34D399", "#6EE7B7", "#22C55E", "#0EA5E9"];
+
+// Décode les coordonnées "lat,lng" stockées dans le champ `coordonnees` (fallback Zinder)
+function parseLatLng(p: Paturage): { lat: number; lng: number } {
+  if (p.coordonnees) {
+    const parts = p.coordonnees.split(",").map((s) => parseFloat(s.trim()));
+    if (parts.length === 2 && !Number.isNaN(parts[0]) && !Number.isNaN(parts[1])) {
+      return { lat: parts[0], lng: parts[1] };
+    }
+  }
+  return { lat: ZINDER_CENTER.lat, lng: ZINDER_CENTER.lng };
+}
+
+type PaturageVM = Paturage & { lat: number; lng: number; color: string };
 
 export function Carte3DView() {
   const { data: paturages } = usePaturages();
@@ -33,21 +41,29 @@ export function Carte3DView() {
   const [selectedPaturage, setSelectedPaturage] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
   const [showGoogleMaps, setShowGoogleMaps] = useState(true);
-  const mapRef = useRef<HTMLDivElement>(null);
 
   // URL Google Maps embed pour Zinder (sans API key, iframe gratuit)
   const GOOGLE_MAPS_EMBED = `https://maps.google.com/maps?q=${ZINDER_CENTER.lat},${ZINDER_CENTER.lng}&z=13&output=embed`;
   const GOOGLE_MAPS_LINK = `https://www.google.com/maps/@${ZINDER_CENTER.lat},${ZINDER_CENTER.lng},14z`;
 
-  const allPaturages = paturages?.length ? paturages : PATURAGES_DATA.map((p) => ({ ...p, coordonnees: null, createdAt: new Date().toISOString(), id: p.id }));
+  // Construit la liste enrichie (lat/lng/color dérivés) à partir des pâturages API
+  const allPaturages: PaturageVM[] = (paturages ?? []).map((p, i) => {
+    const { lat, lng } = parseLatLng(p);
+    return { ...p, lat, lng, color: PARCEL_COLORS[i % PARCEL_COLORS.length] };
+  });
   const allBovins = bovins ?? [];
   const bovinsActifs = allBovins.filter((b) => b.statut === "EN_ENGRAISSEMENT");
 
   // Répartition simulée des bovins sur les pâturages
   const bovinsParPaturage = (paturageId: string) => {
-    const idx = PATURAGES_DATA.findIndex((p) => p.id === paturageId);
-    return bovinsActifs.filter((_, i) => i % PATURAGES_DATA.length === idx);
+    if (allPaturages.length === 0) return [];
+    const idx = allPaturages.findIndex((p) => p.id === paturageId);
+    if (idx === -1) return [];
+    return bovinsActifs.filter((_, i) => i % allPaturages.length === idx);
   };
+
+  const surfaceTotale = allPaturages.reduce((s, p) => s + (p.surface || 0), 0);
+  const capaciteTotale = allPaturages.reduce((s, p) => s + (p.capacite || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -75,9 +91,9 @@ export function Carte3DView() {
 
       {/* KPIs */}
       <div className="grid gap-3 sm:grid-cols-4">
-        <KpiCard label="Parcelles" value={PATURAGES_DATA.length} icon={MapPin} variant="primary" />
-        <KpiCard label="Surface totale" value={`${PATURAGES_DATA.reduce((s, p) => s + p.surface, 0).toFixed(1)} ha`} icon={Maximize2} />
-        <KpiCard label="Capacité totale" value={`${PATURAGES_DATA.reduce((s, p) => s + p.capacite, 0)} bovins`} icon={Beef} variant="success" />
+        <KpiCard label="Parcelles" value={allPaturages.length} icon={MapPin} variant="primary" />
+        <KpiCard label="Surface totale" value={`${surfaceTotale.toFixed(1)} ha`} icon={Maximize2} />
+        <KpiCard label="Capacité totale" value={`${capaciteTotale} bovins`} icon={Beef} variant="success" />
         <KpiCard label="Bovins actifs" value={bovinsActifs.length} icon={Beef} variant="warning" />
       </div>
 
@@ -93,7 +109,6 @@ export function Carte3DView() {
         </CardHeader>
         <CardContent className="p-0">
           <div
-            ref={mapRef}
             className="relative h-[500px] overflow-hidden"
             style={{ perspective: "1200px" }}
           >
@@ -124,7 +139,7 @@ export function Carte3DView() {
             )}
 
             {/* Cercles de rayonnement (zones d'influence) */}
-            {PATURAGES_DATA.map((p, i) => (
+            {allPaturages.map((p, i) => (
               <div
                 key={`halo-${p.id}`}
                 className="absolute rounded-full opacity-20"
@@ -150,16 +165,16 @@ export function Carte3DView() {
             >
               <div className="relative" style={{ width: "600px", height: "400px", transformStyle: "preserve-3d" }}>
                 {/* Parcelles 3D */}
-                {PATURAGES_DATA.map((p, i) => {
+                {allPaturages.map((p, i) => {
                   const positions = [
                     { left: "5%", top: "5%", w: "40%", h: "35%" },
                     { left: "55%", top: "10%", w: "35%", h: "30%" },
                     { left: "15%", top: "55%", w: "30%", h: "30%" },
                     { left: "55%", top: "55%", w: "35%", h: "35%" },
                   ];
-                  const pos = positions[i];
+                  const pos = positions[i % positions.length];
                   const bovinsOnPaturage = bovinsParPaturage(p.id);
-                  const occupancy = Math.round((bovinsOnPaturage.length / p.capacite) * 100);
+                  const occupancy = p.capacite > 0 ? Math.round((bovinsOnPaturage.length / p.capacite) * 100) : 0;
                   const isSelected = selectedPaturage === p.id;
 
                   return (
@@ -192,7 +207,7 @@ export function Carte3DView() {
                             <span className="text-xs font-bold" style={{ color: p.color }}>{p.nom}</span>
                           </div>
                           <p className="text-[0.6rem] text-slate-500 mt-0.5">
-                            {p.surface} ha · {p.capacite} places · {p.lat}°N, {p.lng}°E
+                            {p.surface} ha · {p.capacite} places · {p.lat.toFixed(4)}°N, {p.lng.toFixed(4)}°E
                           </p>
                         </div>
                       )}
@@ -266,7 +281,7 @@ export function Carte3DView() {
                 {ZINDER_CENTER.lat}°N, {ZINDER_CENTER.lng}°E
               </p>
               <p className="text-[0.65rem] text-muted-foreground">
-                {PATURAGES_DATA.length} parcelles · {bovinsActifs.length} bovins actifs
+                {allPaturages.length} parcelles · {bovinsActifs.length} bovins actifs
               </p>
               <a href={GOOGLE_MAPS_LINK} target="_blank" rel="noopener noreferrer" className="text-[0.65rem] text-primary hover:underline mt-1 inline-block">
                 Ouvrir dans Google Maps →
@@ -276,7 +291,7 @@ export function Carte3DView() {
             {/* Légende */}
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg z-10">
               <p className="text-[0.65rem] font-semibold mb-2">Légende</p>
-              {PATURAGES_DATA.map((p) => (
+              {allPaturages.map((p) => (
                 <div key={p.id} className="flex items-center gap-2 mb-1">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: p.color }} />
                   <span className="text-[0.6rem] text-slate-600">{p.nom}</span>
@@ -296,7 +311,8 @@ export function Carte3DView() {
                 className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg max-w-xs z-20"
               >
                 {(() => {
-                  const p = PATURAGES_DATA.find((x) => x.id === selectedPaturage)!;
+                  const p = allPaturages.find((x) => x.id === selectedPaturage);
+                  if (!p) return null;
                   const b = bovinsParPaturage(p.id);
                   return (
                     <>
@@ -307,8 +323,8 @@ export function Carte3DView() {
                       <div className="space-y-1 text-xs">
                         <p className="text-muted-foreground">Surface: <span className="font-semibold text-foreground">{p.surface} ha</span></p>
                         <p className="text-muted-foreground">Capacité: <span className="font-semibold text-foreground">{p.capacite} bovins</span></p>
-                        <p className="text-muted-foreground">GPS: <span className="font-mono text-foreground">{p.lat}°N, {p.lng}°E</span></p>
-                        <p className="text-muted-foreground">Occupation: <span className="font-semibold text-foreground">{b.length}/{p.capacite} ({Math.round(b.length/p.capacite*100)}%)</span></p>
+                        <p className="text-muted-foreground">GPS: <span className="font-mono text-foreground">{p.lat.toFixed(4)}°N, {p.lng.toFixed(4)}°E</span></p>
+                        <p className="text-muted-foreground">Occupation: <span className="font-semibold text-foreground">{b.length}/{p.capacite} ({p.capacite > 0 ? Math.round(b.length / p.capacite * 100) : 0}%)</span></p>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {b.slice(0, 8).map((bovin) => (
@@ -347,9 +363,9 @@ export function Carte3DView() {
                 </tr>
               </thead>
               <tbody>
-                {PATURAGES_DATA.map((p) => {
+                {allPaturages.map((p) => {
                   const b = bovinsParPaturage(p.id);
-                  const occ = Math.round((b.length / p.capacite) * 100);
+                  const occ = p.capacite > 0 ? Math.round((b.length / p.capacite) * 100) : 0;
                   return (
                     <tr key={p.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => setSelectedPaturage(p.id)}>
                       <td className="p-3">
@@ -360,7 +376,7 @@ export function Carte3DView() {
                       </td>
                       <td className="p-3 text-right tabular-nums">{p.surface}</td>
                       <td className="p-3 text-right tabular-nums">{p.capacite}</td>
-                      <td className="p-3 font-mono text-xs text-muted-foreground">{p.lat}°N, {p.lng}°E</td>
+                      <td className="p-3 font-mono text-xs text-muted-foreground">{p.lat.toFixed(4)}°N, {p.lng.toFixed(4)}°E</td>
                       <td className="p-3 text-center">
                         <Badge variant="outline" className={occ > 80 ? "text-red-700 bg-red-50 border-red-200" : occ > 60 ? "text-amber-700 bg-amber-50 border-amber-200" : "text-emerald-700 bg-emerald-50 border-emerald-200"}>
                           {b.length}/{p.capacite} ({occ}%)
@@ -369,6 +385,13 @@ export function Carte3DView() {
                     </tr>
                   );
                 })}
+                {allPaturages.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="p-6 text-center text-sm text-muted-foreground">
+                      Aucune parcelle enregistrée. Ajoutez-en via l'API <code className="text-xs">/api/paturages</code>.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

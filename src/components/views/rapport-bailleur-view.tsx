@@ -7,7 +7,7 @@
 import { useRapportBailleur, useFinancement } from "@/lib/api";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { RAPPORT_KPI_COLORS, COST_STRUCTURE_COLORS } from "@/lib/config";
-import { formatFCFA, formatFCFAShort, formatDate, moisLabel, severiteColor, statutEcheanceColor } from "@/lib/format";
+import { formatFCFA, formatFCFAShort, formatDate, severiteColor, statutEcheanceColor } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { SaverdevLogo } from "@/components/saverdev-logo";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,9 +44,6 @@ export function RapportBailleurView() {
     );
   }
 
-  const [y, m] = selectedMonth.split("-").map(Number);
-  const moisLabelFull = moisLabel(m - 1) + " " + y;
-
   const handlePrint = () => {
     toast.info("Préparation du PDF...", { description: "Utilisez « Imprimer » puis « Enregistrer en PDF »." });
     setTimeout(() => window.print(), 300);
@@ -81,9 +78,6 @@ export function RapportBailleurView() {
           </Button>
           <Button variant="outline" size="sm" onClick={handleExportXlsx} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
             <HugeiconsIcon icon={Download} size={16} /> Export Excel
-          </Button>
-          <Button size="sm" className="bg-primary" onClick={handlePrint}>
-            <HugeiconsIcon icon={Download} size={16} /> Export PDF
           </Button>
         </div>
       </div>

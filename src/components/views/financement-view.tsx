@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Landmark, Wallet, CalendarClock, CheckCircle2, AlertCircle, Clock, PiggyBank } from "@/lib/icons";
+import { Landmark, Wallet, CalendarClock, AlertCircle, Clock, PiggyBank } from "@/lib/icons";
 // Clock est utilisé pour l'en-tête (aligné cattly.io) + KPI échéances ; Landmark reste pour KPI financement
 import { ViewHeader, KpiCard } from "./_shared";
 // pas de useMemo ici pour éviter le lint react-hooks/preserve-manual-memoization

@@ -10,9 +10,8 @@ import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, TrendingDown, ShoppingCart, Beef, Salad, PiggyBank, Activity, Percent, BarChart3 } from "@/lib/icons";
+import { TrendingUp, TrendingDown, ShoppingCart, Beef, Salad, PiggyBank, BarChart3 } from "@/lib/icons";
 import {
   Bar,
   BarChart,
