@@ -1842,3 +1842,87 @@ Stage Summary:
   ✅ BarChart "Achats vs Ventes" supprimé du rapport bailleur (redondant avec Saisie)
 - Note réelle (honnête) : 9/10 — seule chose manquante = tests automatisés + audit sécurité formel
 - Application prête pour la saisie avec votre collègue sur https://saverdev.vercel.app
+
+---
+Task ID: 30-A
+Agent: full-stack-developer
+Task: Tests unitaires Vitest
+
+Work Log:
+- Installation : `bun add -d vitest @vitest/coverage-v8 jsdom @testing-library/react @testing-library/jest-dom @vitejs/plugin-react` → vitest@5.0.4 + 5 deps
+- Configuration : `vitest.config.ts` (jsdom, globals, alias `@` → `./src`, coverage `src/lib/**`, plugin React)
+- Setup : `tests/setup.ts` — jest-dom matchers, cleanup RTL, mocks `next/navigation`/`sonner`/`next/server`/`@/lib/db` (Prisma), `process.env.TZ = "UTC"` pour dates déterministes
+- Tests écrits (3 fichiers, 53 tests au total) :
+  - `tests/lib/format.test.ts` (40 tests) : formatFCFA, formatFCFAShort, formatDate, formatDateTime, nowDateTimeLocal, joursEntre, statutBovinColor, statutEcheanceColor, severiteColor, nextAnimalIdentifiant (BOVIN/OVIN), formatBytes
+  - `tests/lib/calculations.test.ts` (4 tests) : computeBovinMarge (VENDU, EN_ENGRAISSEMENT, MORT, vente à perte)
+  - `tests/lib/saisie-ops.test.ts` (9 tests) : serializeSaisie, deserializeSaisie, round-trip, cas d'erreur (JSON invalide, type/data manquant)
+- Scripts package.json : `test` / `test:watch` / `test:coverage` (préfixés `TZ=UTC` pour reproductibilité des dates)
+- Résultat : `bun run test` exit 0, 53/53 tests passent en 6.9s ; `bunx eslint tests/` exit 0, 0 erreur
+
+Stage Summary:
+- Nombre de tests : 53 (répartis sur 3 fichiers de tests dans `tests/lib/`)
+- Coverage (src/lib/**) :
+  - `format.ts` : 84.5% Stmts / 85.18% Branch / 81.25% Funcs
+  - `config.ts` : 100% (transitivement via CHART_COLORS)
+  - `calculations.ts` : 2.8% (seul `computeBovinMarge` testé ; `computeDashboardFromData` non couvert car agrégat complexe)
+  - `saisie-ops.ts` : 12.96% (seulement serialize/deserialize ; `applySaisieOperation` touche à la DB)
+- Erreurs résiduelles : 0 (lint clean, tous les tests passent)
+- Décisions clés :
+  - `TZ=UTC` préfixé dans le script `test` pour éviter le glissement d'un jour sur `formatDate("2025-10-12")` selon le fuseau
+  - Helper `normalizeSpaces()` pour gérer les séparateurs NBSP/NNBSP de `Intl.NumberFormat("fr-FR")`
+  - Tests tolérants via regex pour `formatFCFAShort` (séparateur `.` ou `,`) et `formatBytes` (`Ko` ou `KB`) — code source non modifié, tests valident le comportement réel
+  - Mocks `@/lib/db` + `next/server` dans setup.ts pour ne pas instancier Prisma en unit tests
+
+---
+Task ID: 30-B
+Agent: full-stack-developer
+Task: Playwright e2e + Audit sécurité + Vérification API vues
+
+Work Log:
+- Mission 1 (Playwright e2e) :
+  - Installation : `bun add -d @playwright/test` → @playwright/test@1.64.0 ; `bunx playwright install chromium` (binaire Chromium installé)
+  - Configuration `playwright.config.ts` à la racine : `testDir: ./tests/e2e`, `workers: 1` (évite les collisions DB SQLite), `expect.timeout: 20_000` (rapport-bailleur cold-compile 3-7s), `locale: fr-FR`, `timezoneId: UTC`, `webServer: bun run dev` avec `reuseExistingServer: true`, `reporter: 'list'`
+  - `tests/e2e/auth.spec.ts` (4 tests) : page de connexion affiche 3 boutons démo (vérifie labels Bénéficiaire/SINERGI SA/E2A + grille `.grid.grid-cols-2` count=3) ; login Bénéficiaire → header h1 "Tableau de bord" ; login E2A → header h1 "Tableau de bord" + sidebar "Validations" ; déconnexion via bouton `aria-label="Se déconnecter"` → `input#email` et `input#password` visibles (sélecteur précis pour éviter le mode strict qui matche aussi le bouton "Afficher le mot de passe")
+  - `tests/e2e/navigation.spec.ts` (3 tests) : itère tous les boutons sidebar E2A (≥10 boutons) et vérifie que le `<header h1>` change après chaque clic (≥3 titres distincts visités) ; vue Cheptel affiche "BOE" et "OVN" ; vue Saisie affiche 4 labels ("Journal d'achats", "Journal de ventes", "Journal des dépenses", "Gestion de stock") et AUCUN "Balance comptable" / "Suivi financement" (supprimés Task 29)
+  - `tests/e2e/capital.spec.ts` (3 tests) : login SINERGI + clic "Rapport bailleur" sidebar → "Capital initial (figé)" visible (regex /i car CSS `uppercase` n'affecte pas textContent) + "14 775 000 FCFA" visible (regex tolérante aux espaces insécables \u00A0/\u202F de `Intl.NumberFormat("fr-FR")`) ; section "Suivi budgétaire" avec 5 colonnes `<th>` Poste/Prévision/Réel/Écart/% ; section "Dépenses d'investissement en immobilisations" + bouton "Ajouter une dépense d'investissement"
+  - Fix applicatif login-view.tsx : DEMO_ACCOUNTS ramené de 4 → 3 entrées (suppression du doublon "Awa Traoré" qui partageait l'email "beneficiaire@saverdev.org" — seule la 1ère entrée matchait via find() de toute façon, l'autre était code mort) — aligne la UI sur la spec "3 boutons de comptes démo"
+  - Fix environnement Prisma : après `bun add -d @playwright/test`, le `bun install` a régénéré le client Prisma avec le schéma source `provider = "postgresql"` → `/api/rapport-bailleur` retournait HTTP 500 (`the URL must start with the protocol postgresql://`) car DATABASE_URL=file:.../custom.db (SQLite). Fix appliqué SANS toucher au schéma source (contrainte "laisse en postgresql") : `bun run dev:sqlite` (bascule schéma → sqlite + `prisma generate` + `prisma db push`) puis restauration manuelle de `prisma/schema.prisma` à `provider = "postgresql"`. Le binaire Prisma dans `node_modules/.prisma/client` reste compilé `activeProvider: "sqlite"` → runtime fonctionne avec SQLite, mais le fichier source `schema.prisma` reste postgresql (cohérent avec la prod Vercel).
+  - Résultat : `bunx playwright test` exit 0 — **10/10 tests passent en 59.7s** (4 auth + 3 navigation + 3 capital)
+- Mission 2 (Audit sécu) :
+  - **A. Authentification** : bcrypt.compare présent dans `src/lib/auth.ts:44` (✓ côté code), mais `prisma/seed.ts:27-29` stocke les passwords en clair ("demo" non hashé) → bcrypt.compare échouera toujours. NEXTAUTH_SECRET non posé en `.env` (warning `[next-auth][warn][NO_SECRET]` dans dev.log). Sessions JWT maxAge 30j (✓). Pas de rate limiting sur /api/auth. **🔴 CRITIQUE — Disconnect frontend/backend** : `login-view.tsx` appelle `login()` du store Zustand (pas NextAuth), donc `getServerSession(authOptions)` retourne TOUJOURS null côté API → toutes les routes avec `requireRole([...])` renvoient forbidden=true. L'authentification est cosmétique.
+  - **B. RBAC** : 7 routes sur 41 utilisent `requireRole` (budget, validations/[id], notifications POST/PATCH, saisie POST, backup, backup/auto, backup/[id]/download). 34 routes n'ont AUCUN guard — publiquement accessibles en écriture : POST /api/bovins, PUT/DELETE /api/bovins/[id], POST /api/depenses, POST /api/ventes 🔴 (crée vente à n'importe quel prix sans auth), PUT /api/parametres 🔴 (modifie capital_initial sans auth), POST /api/pesees, POST /api/soins, etc. Même les routes "protégées" sont inopérantes car session NextAuth toujours null (voir §A). La route /api/saisie POST est la SEULE qui gère correctement l'absence de session (fallback BENEFICIAIRE → workflow EN_ATTENTE). En pratique le bouton "Sauvegardes" de l'E2A sidebar pointe sur /api/backup qui retournera 403 → vue backups cassée.
+  - **C. Validation entrées** : aucune lib (zod pourtant en deps) utilisée côté serveur. `Number(body.x)` sans check `isNaN` ni `>= 0` dans bovins POST/PUT, depenses POST (montant), ventes POST (prixVente), pesees POST (poids), soins POST (cout). Pas de validation catégories de dépenses contre liste fixe. Pas de check date future pour achat/vente. `body.bovinId` non validé (FK brute error Prisma). Injections SQL : ✓ OK — Prisma gère (pas de $queryRaw identifié).
+  - **D. CSRF/CORS** : `src/proxy.ts` positionne `Access-Control-Allow-Origin: *` sur TOUTES les routes /api/* 🔴 (n'importe quel site tiers peut appeler les APIs en POST/PUT/DELETE). Pas de CSRF token. Pas de header CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, HSTS, Permissions-Policy. SameSite=Lax par défaut NextAuth v4 (pas de Strict).
+  - **E. Env/secrets** : `.env` dans `.gitignore` (✓). Aucun secret hardcodé dans src/ (✓). DEMO_ACCOUNTS (emails + password "demo") dans `login-view.tsx:24-27` côté client bundle 🔴 (en prod, retirer du bundle et exposer les emails via API publique). NEXTAUTH_SECRET non posé en local (✓ en prod Vercel — Task 28). Pas de console.log exposant passwords/emails (✓).
+  - **F. Données sensibles** : pas de `toUser` dans `src/lib/server-mappers.ts` (✓ — passwords jamais retournés). Emails non exposés à d'autres rôles (✓ — table User lue uniquement par authorize()). ⚠️ GET /api/validations expose `saisiePar` (email/nom saisineur) à quiconque — pas de garde.
+  - Synthèse vulnérabilités : **5 hautes** (disconnect auth, CORS *, 34 routes sans guard RBAC, POST /api/parametres modifie capital_initial sans auth, POST /api/ventes sans auth ni validation prix), **7 moyennes** (NEXTAUTH_SECRET local, passwords seed non hashés, rate limiting absent, validation entrées absente, CSRF absent, headers de sécurité absents, DEMO_ACCOUNTS dans bundle client), **3 basses** (saisiePar exposé, numeroCompteDepense fallback silencieux, body.bovinId non validé)
+- Mission 3 (Vérification API vues) :
+  - Méthode : grep `from ['"]@/lib/(api|mock-data)` sur les 19 fichiers `src/components/views/*.tsx` + recherche `MOCK_*|PATURAGES_DATA|RACES_PAR_DEFAUT|*_DATA|*_DEFAUT`.
+  - **Aucune vue ne viole la règle "API for shared data"**. Aucun import de `@/lib/mock-data` (le fichier n'est importé que par `prisma/seed.ts` pour le peuplement initial — usage légitime). Toutes les vues utilisent au moins un hook TanStack Query (`useBovins`, `useDashboard`, etc.) ou un `fetch('/api/...')` direct (saisie-view, rapport-bailleur-view pour mutations capital_mouvement/depenses Immobilisation).
+  - Détail par vue :
+    - dashboard-view : useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBovins, useValidations → ✅ conforme
+    - saisie-view : useBovins + fetch('/api/saisie?type=X') + fetch('/api/saisie?type=alertes') + fetch('/api/saisie', POST) → ✅ conforme (pas de hook dédié useSaisie, fetch direct acceptable)
+    - bovins-view : useBovins, useCreateBovin, useUpdateBovin, useDeleteBovin + constante `RACE_PAR_DEFAUT` (BOVIN→"Zébu", OVIN→"Mouton Sokoto") qui est juste une valeur par défaut de formulaire, pas une donnée métier partagée → ✅ conforme
+    - fiche-bovin-view : useBovin(id), useTags(id), useAddTag → ✅
+    - alimentation-view : useAlimentations + mutations CRUD → ✅
+    - depenses-view : useDepenses + mutations CRUD + useBudgets/useUpdateBudget + fetch('/api/budget', PUT) inline edit → ✅
+    - ventes-view : useVentes, useBovins, useCreateVente, useDeleteVente → ✅
+    - rentabilite-view : useBovins, useDashboard → ✅
+    - financement-view : useFinancement → ✅
+    - rapport-bailleur-view : useRapportBailleur(year), useFinancement + fetch('/api/saisie', POST capital_mouvement) + fetch('/api/depenses', POST Immobilisation) → ✅
+    - bailleur-synthese-view : useDashboard, useFinancement, useBovins → ✅
+    - carte-3d-view : usePaturages, useBovins → ✅ — **PATURAGES_DATA a bien été retiré** (constantes restantes `ZINDER_CENTER` = coords géographiques réelles de la ville, `PARCEL_COLORS` = palette UI pure — pas des données métier)
+    - parametres-view : useParams, useUpdateParam → ✅
+    - paturages-view : hooks usePaturages + mutations CRUD → ✅
+    - pesees-view : usePesees, useBovins + mutations CRUD → ✅
+    - soins-view : useSoins, useBovins + mutations CRUD + useSoinsAVenir + constante `SOIN_TYPES` (8 types de soins pour le select — déjà définie côté serveur `/api/soins/route.ts:29` mais pas encore exposée via API dédiée) → ✅
+    - tresorerie-view : useTresorerie → ✅
+    - validations-view : useValidations, useValidateOperation, useBovins → ✅
+    - backups-view : useBackups, useCreateBackup, useCheckAutoBackup → ✅ (⚠️ les hooks appellent des routes qui retournent 403 car requireRole ne marche pas en l'état — bug d'auth, pas bug de source de données)
+  - 3 constantes "frontend-only" identifiées (pas des violations) : `RACE_PAR_DEFAUT` (bovins-view:52), `SOIN_TYPES` (soins-view:46), `TYPE_CONFIG` (saisie-view:40 — labels UI pure), `PARCEL_COLORS` (carte-3d-view:21), `ZINDER_CENTER/ZINDER_NAME` (carte-3d-view:17-18 — coords ville réelle). Pour durcir : exposer `RACE_PAR_DEFAUT` et `SOIN_TYPES` via une route `/api/options` (source unique de vérité + typage).
+
+Stage Summary:
+- Tests Playwright : **10/10 passent** en 59.7s (4 auth + 3 navigation + 3 capital) — `bunx playwright test` exit 0
+- Audit sécu : **15 vulnérabilités** identifiées (5 hautes / 7 moyennes / 3 basses). Top 3 critiques à traiter en priorité : (1) disconnect auth frontend/backend (login Zustand n'appelle jamais NextAuth → requireRole toujours forbidden), (2) CORS `Access-Control-Allow-Origin: *` sur /api/*, (3) 34 routes API en écriture sans guard RBAC dont POST /api/ventes et PUT /api/parametres (modifie capital_initial)
+- Vues non conformes API : **0** — les 19 vues utilisent toutes l'API pour les données partagées (hooks TanStack Query ou fetch direct). `PATURAGES_DATA` bien retiré de carte-3d-view. 3 constantes "frontend-only" identifiées comme hardening futur (RACE_PAR_DEFAUT, SOIN_TYPES, TYPE_CONFIG) — pas des violations mais pourraient venir de l'API pour source unique de vérité.
+- Lint : `bun run lint` exit 0 sur les fichiers modifiés (login-view.tsx, playwright.config.ts, tests/e2e/*.spec.ts, prisma/schema.prisma)

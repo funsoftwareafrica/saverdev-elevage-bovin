@@ -36,3 +36,10 @@ agent-ctx/
 # Hors périmètre Next.js — non déployé, non maintenu pour l'instant.
 mobile/
 
+
+# Tests artifacts
+coverage/
+test-results/
+playwright-report/
+backups/
+.agent-ctx/
