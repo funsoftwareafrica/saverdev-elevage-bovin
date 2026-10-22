@@ -5,11 +5,17 @@ import { ViewHeader } from "./_shared";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { useParams, useUpdateParam } from "@/lib/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useParams, useUpdateParam, useUsers, useCreateUser, useUpdateUser, useDeleteUser, type UserItem } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
-import { Settings, Check, Lock, CalendarClock } from "@/lib/icons";
+import { Settings, Check, Lock, CalendarClock, UserPlus, Pencil, Trash } from "@/lib/icons";
+import { formatDate } from "@/lib/format";
 import { toast } from "sonner";
 
 interface MoisClotureItem {
@@ -50,7 +56,7 @@ export function ParametresView() {
   const loadMoisClotures = async () => {
     setLoadingMois(true);
     try {
-      const res = await fetch("/api/mois-cloture", { cache: "no-store" });
+      const res = await fetch("/api/mois-cloture", { cache: "no-store", credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
       setMoisClotures(data.mois || []);
@@ -59,14 +65,12 @@ export function ParametresView() {
   };
 
   // Task 31-B : charge la liste des mois clôturés au montage du composant.
-  // On utilise une fonction auto-invoquée async pour ne pas appeler
-  // setState directement dans le corps de l'effet (règle React 19).
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoadingMois(true);
       try {
-        const res = await fetch("/api/mois-cloture", { cache: "no-store" });
+        const res = await fetch("/api/mois-cloture", { cache: "no-store", credentials: "include" });
         if (!res.ok) return;
         const data = await res.json();
         if (!cancelled) setMoisClotures(data.mois || []);
@@ -219,6 +223,153 @@ export function ParametresView() {
           </p>
         </CardContent>
       </Card>
+
+      {/* ===== Gestion des utilisateurs (E2A only) ===== */}
+      {role === "E2A" && <UserManagementSection />}
     </div>
+  );
+}
+
+// ===== Section Gestion des Utilisateurs (E2A only) =====
+function UserManagementSection() {
+  const { data: users, isLoading } = useUsers();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+  const [showAdd, setShowAdd] = useState(false);
+  const [editTarget, setEditTarget] = useState<UserItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UserItem | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newRole, setNewRole] = useState("BENEFICIAIRE");
+  const [newPassword, setNewPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const list = users ?? [];
+
+  const roleColor = (r: string) => r === "E2A" ? "text-red-700 bg-red-50 border-red-200" : r === "SINERGI" ? "text-amber-700 bg-amber-50 border-amber-200" : "text-emerald-700 bg-emerald-50 border-emerald-200";
+
+  const handleAdd = async () => {
+    if (!newEmail || !newName || !newPassword) { toast.error("Tous les champs requis"); return; }
+    setSaving(true);
+    createUser.mutate({ email: newEmail, name: newName, role: newRole, password: newPassword }, {
+      onSuccess: () => { toast.success("Utilisateur créé"); setShowAdd(false); setNewEmail(""); setNewName(""); setNewPassword(""); setNewRole("BENEFICIAIRE"); },
+      onError: (e: Error) => toast.error(e.message),
+      onSettled: () => setSaving(false),
+    });
+  };
+
+  const handleEdit = async (data: { email?: string; name?: string; role?: string; password?: string }) => {
+    if (!editTarget) return;
+    setSaving(true);
+    updateUser.mutate({ id: editTarget.id, ...data }, {
+      onSuccess: () => { toast.success("Utilisateur modifié"); setEditTarget(null); },
+      onError: (e: Error) => toast.error(e.message),
+      onSettled: () => setSaving(false),
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    deleteUser.mutate(deleteTarget.id, {
+      onSuccess: () => { toast.success("Utilisateur supprimé"); setDeleteTarget(null); },
+      onError: (e: Error) => toast.error(e.message),
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2"><HugeiconsIcon icon={UserPlus} size={16} className="text-primary" /> Gestion des utilisateurs</CardTitle>
+        <CardDescription className="text-xs">Créer, modifier ou supprimer des comptes (réservé E2A)</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex justify-end">
+          <Button size="sm" className="bg-primary" onClick={() => setShowAdd(true)}><HugeiconsIcon icon={UserPlus} size={14} /> Ajouter un utilisateur</Button>
+        </div>
+
+        {isLoading ? <Skeleton className="h-32" /> : list.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-4">Aucun utilisateur</p>
+        ) : (
+          <div className="max-h-72 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Rôle</TableHead>
+                  <TableHead className="hidden sm:table-cell">Créé le</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {list.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell className="text-xs font-mono">{u.email}</TableCell>
+                    <TableCell className="text-xs">{u.name}</TableCell>
+                    <TableCell><Badge variant="outline" className={`text-[0.6rem] ${roleColor(u.role)}`}>{u.role}</Badge></TableCell>
+                    <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">{formatDate(u.createdAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-1 justify-end">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditTarget(u)} title="Modifier"><HugeiconsIcon icon={Pencil} size={12} /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => setDeleteTarget(u)} title="Supprimer"><HugeiconsIcon icon={Trash} size={12} /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {/* Dialog Ajouter */}
+        <Dialog open={showAdd} onOpenChange={setShowAdd}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader><DialogTitle>Nouvel utilisateur</DialogTitle><DialogDescription className="text-xs">Tous les champs sont requis.</DialogDescription></DialogHeader>
+            <div className="space-y-3">
+              <div><Label className="text-xs">Email</Label><Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@saverdev.org" /></div>
+              <div><Label className="text-xs">Nom complet</Label><Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Ibrahim Sawadogo" /></div>
+              <div><Label className="text-xs">Rôle</Label><Select value={newRole} onValueChange={setNewRole}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="BENEFICIAIRE">Bénéficiaire (saisie)</SelectItem><SelectItem value="SINERGI">SINERGI (lecture seule)</SelectItem><SelectItem value="E2A">E2A (admin)</SelectItem></SelectContent></Select></div>
+              <div><Label className="text-xs">Mot de passe (min 6)</Label><Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••" /></div>
+            </div>
+            <DialogFooter><Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}>Annuler</Button><Button size="sm" className="bg-primary" disabled={saving} onClick={handleAdd}>{saving ? "..." : "Créer"}</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Modifier */}
+        {editTarget && <EditUserDialog user={editTarget} onClose={() => setEditTarget(null)} onSave={handleEdit} saving={saving} />}
+
+        {/* AlertDialog Supprimer */}
+        <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader><AlertDialogTitle>Supprimer cet utilisateur ?</AlertDialogTitle><AlertDialogDescription>{deleteTarget?.email} sera supprimé définitivement. Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Supprimer</AlertDialogAction></AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Dialog de modification d'un user
+function EditUserDialog({ user, onClose, onSave, saving }: { user: UserItem; onClose: () => void; onSave: (data: { email?: string; name?: string; role?: string; password?: string }) => void; saving: boolean }) {
+  const [email, setEmail] = useState(user.email);
+  const [name, setName] = useState(user.name);
+  const [role, setRole] = useState(user.role);
+  const [password, setPassword] = useState("");
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Modifier l'utilisateur</DialogTitle><DialogDescription className="text-xs">{user.email} — laissez le mot de passe vide pour ne pas le changer.</DialogDescription></DialogHeader>
+        <div className="space-y-3">
+          <div><Label className="text-xs">Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div><Label className="text-xs">Nom</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div><Label className="text-xs">Rôle</Label><Select value={role} onValueChange={setRole}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="BENEFICIAIRE">Bénéficiaire</SelectItem><SelectItem value="SINERGI">SINERGI</SelectItem><SelectItem value="E2A">E2A</SelectItem></SelectContent></Select></div>
+          <div><Label className="text-xs">Nouveau mot de passe (optionnel)</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Laisser vide pour ne pas changer" /></div>
+        </div>
+        <DialogFooter><Button variant="ghost" size="sm" onClick={onClose}>Annuler</Button><Button size="sm" className="bg-primary" disabled={saving} onClick={() => onSave({ email, name, role, ...(password ? { password } : {}) })}>{saving ? "..." : "Enregistrer"}</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

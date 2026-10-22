@@ -656,3 +656,52 @@ export function useRapportBailleur(annee?: number) {
     queryFn: () => fetchJson<RapportBailleur>(`/api/rapport-bailleur${annee ? `?annee=${annee}` : ""}`),
   });
 }
+
+// ---------- Users (E2A only) ----------
+export interface UserItem {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+}
+
+export function useUsers() {
+  return useQuery<UserItem[]>({ queryKey: ["users"], queryFn: () => fetchJson<UserItem[]>("/api/users") });
+}
+
+export function useCreateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { email: string; name: string; role: string; password: string }) => {
+      const r = await fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || "Échec"); }
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+}
+
+export function useUpdateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; email?: string; name?: string; role?: string; password?: string }) => {
+      const r = await fetch(`/api/users/${data.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || "Échec"); }
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+}
+
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/users/${id}`, { method: "DELETE" });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || "Échec"); }
+      return r.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+}
