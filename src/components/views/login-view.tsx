@@ -11,23 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/lib/store";
-import { ROLE_LABELS, type Role } from "@/lib/types";
+import { type Role } from "@/lib/types";
 import { PALETTE } from "@/lib/config";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { User, Shield, Menu, Lock, Eye, EyeOff, ArrowRight, Check, AlertTriangle, Download } from "@/lib/icons";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-// Comptes démo (depuis prisma/seed.ts) — un compte par rôle (3 boutons).
-// Les boutons démo appellent POST /api/auth/credentials-login avec le
-// mot de passe "demo" (hashé bcrypt côté DB). Le serveur renvoie un
-// token JWT NextAuth posé en cookie, plus l'objet user pour mettre à
-// jour l'état Zustand local (rôle + nom pour la sidebar).
-const DEMO_ACCOUNTS: { email: string; name: string; role: Role; password: string; color: string }[] = [
-  { email: "beneficiaire@saverdev.org", name: "Ibrahim Sawadogo", role: "BENEFICIAIRE", password: "demo", color: PALETTE.primary },
-  { email: "sinergi@saverdev.org", name: "Bailleur SAVERDEV", role: "SINERGI", password: "demo", color: "#8D6E63" },
-  { email: "e2a@saverdev.org", name: "Administrateur", role: "E2A", password: "demo", color: "#14532A" },
-];
 
 export function LoginView() {
   const login = useAppStore((s) => s.login);
@@ -77,29 +66,6 @@ export function LoginView() {
       toast.success("Connexion réussie", { description: `Bienvenue, ${result.user.name}` });
     } else {
       setError(result.error ?? "Email ou mot de passe incorrect. Utilisez un compte démo ci-dessous.");
-      setLoading(false);
-    }
-  };
-
-  const quickLogin = async (account: (typeof DEMO_ACCOUNTS)[0]) => {
-    setEmail(account.email);
-    setPassword(account.password);
-    setError("");
-    setLoading(true);
-
-    const result = await callLoginApi(account.email, account.password);
-    if (result.ok && result.user) {
-      login({
-        email: result.user.email,
-        name: result.user.name,
-        role: result.user.role,
-      });
-      toast.success("Connexion réussie", {
-        description: `Bienvenue, ${result.user.name} (${ROLE_LABELS[result.user.role]})`,
-      });
-    } else {
-      // Fallback visible : on garde le message d'erreur serveur pour debug
-      setError(result.error ?? "Connexion impossible. Réessayez.");
       setLoading(false);
     }
   };
@@ -249,47 +215,6 @@ export function LoginView() {
               )}
             </Button>
           </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Comptes démo</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-
-          {/* Accès rapide — 4 profils */}
-          <div className="grid grid-cols-2 gap-2.5">
-            {DEMO_ACCOUNTS.map((account, i) => (
-              <motion.button
-                key={account.email}
-                type="button"
-                onClick={() => quickLogin(account)}
-                disabled={loading}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.05 }}
-                whileHover={{ y: -2, transition: { duration: 0.15 } }}
-                whileTap={{ scale: 0.97 }}
-                className="group flex items-center gap-2.5 rounded-lg border border-border bg-white p-2.5 text-left hover:border-primary/40 hover:shadow-md transition-all"
-              >
-                <div
-                  className="h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-white text-[0.65rem] font-bold"
-                  style={{ background: account.color }}
-                >
-                  {account.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[0.7rem] font-semibold text-foreground truncate">{ROLE_LABELS[account.role]}</p>
-                  <p className="text-[0.6rem] text-muted-foreground truncate">{account.email}</p>
-                </div>
-                <HugeiconsIcon
-                  icon={ArrowRight}
-                  size={14}
-                  className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-              </motion.button>
-            ))}
-          </div>
 
           {/* Lien de téléchargement du guide PDF */}
           <a

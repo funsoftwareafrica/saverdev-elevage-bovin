@@ -705,3 +705,18 @@ export function useDeleteUser() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
   });
 }
+
+// ---------- Admin : Effacer toutes les données (E2A only) ----------
+export function useClearData() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const r = await fetch("/api/admin/clear-data", { method: "POST", credentials: "include" });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || "Échec"); }
+      return r.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries();
+    },
+  });
+}

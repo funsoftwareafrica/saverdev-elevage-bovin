@@ -1,4 +1,8 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Trash } from "@/lib/icons";
+import { useState } from "react";
+import { toast } from "sonner";
 
 // Vue Tableau de bord — synthèse SAVERDEV enrichie avec graphismes avancés.
 // Jauges radiales · aires dégradées · sparklines · anneaux · radar · composed.
@@ -6,7 +10,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBovins } from "@/lib/api";
+import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBovins, useClearData } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
 import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +44,8 @@ export function DashboardView() {
   const { data: bovinsList } = useBovins();
   const role = useAppStore((s) => s.role);
   const dashboardMode = useAppStore((s) => s.dashboardMode);
+
+
   // Mode effectif : "auto" → on prend le rôle de l'utilisateur
   const mode: "BENEFICIAIRE" | "SINERGI" | "E2A" =
     dashboardMode === "auto" ? role : dashboardMode;
@@ -73,16 +80,63 @@ export function DashboardView() {
   const showSynthese = mode === "SINERGI" || mode === "E2A";        // rentabilité + financement
   const showAudit = mode === "E2A";                                  // validations en attente + alertes audit
 
+  const handleClearData = () => {
+    clearData.mutate(undefined, {
+      onSuccess: () => { toast.success("Toutes les données ont été effacées"); setShowClearConfirm(false); },
+      onError: (e: Error) => toast.error(e.message),
+    });
+  };
+
   return (
     <div className="space-y-6">
       <DashboardHeader3D />
 
-      {/* Bandeau de mode — affiche le mode courant (vue opérationnelle / synthétique / audit) */}
-      <div className="no-print flex items-center gap-2 text-xs text-muted-foreground">
-        <HugeiconsIcon icon={BarChart3} size={14} className="text-primary" />
-        Mode : <strong className="text-foreground">{mode === "BENEFICIAIRE" ? "Vue opérationnelle (SAVERDEV)" : mode === "SINERGI" ? "Vue synthétique (bailleur)" : "Vue d'audit (E2A)"}</strong>
-        {dashboardMode === "auto" && <span className="text-[0.65rem]">(selon votre rôle {role})</span>}
+      {/* Bandeau de mode + bouton E2A "Effacer les données" */}
+      <div className="no-print flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <HugeiconsIcon icon={BarChart3} size={14} className="text-primary" />
+          Mode : <strong className="text-foreground">{mode === "BENEFICIAIRE" ? "Vue opérationnelle (SAVERDEV)" : mode === "SINERGI" ? "Vue synthétique (bailleur)" : "Vue d'audit (E2A)"}</strong>
+          {dashboardMode === "auto" && <span className="text-[0.65rem]">(selon votre rôle {role})</span>}
+        </div>
+        {role === "E2A" && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-red-600 border-red-300 hover:bg-red-50 text-xs"
+            onClick={() => setShowClearConfirm(true)}
+          >
+            <HugeiconsIcon icon={Trash} size={14} className="mr-1" />
+            Effacer toutes les données
+          </Button>
+        )}
       </div>
+
+      {/* AlertDialog de confirmation pour effacer les données */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowClearConfirm(false)}>
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-red-700 mb-2">⚠️ Effacer toutes les données ?</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Cette action va <strong>supprimer définitivement</strong> tous les animaux, ventes, achats, dépenses, alimentations, stocks, mouvements de capital, historique, alertes, etc.
+              <br /><br />
+              Seuls les <strong>comptes utilisateurs</strong> et le <strong>capital initial (14 775 000 FCFA)</strong> seront conservés.
+              <br /><br />
+              <strong>Cette action est irréversible.</strong>
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setShowClearConfirm(false)}>Annuler</Button>
+              <Button
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+                disabled={clearData.isPending}
+                onClick={handleClearData}
+              >
+                {clearData.isPending ? "Effacement..." : "Oui, tout effacer"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* === BANDEAU ALERTE CRITIQUE — 3D animé === */}
       {alertesActives.some((a) => a.severite === "CRITICAL") && (
