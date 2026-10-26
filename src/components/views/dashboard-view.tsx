@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboard, useHistorique, useStatsComparaison, useStatsRaces, useBovins, useClearData } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import { formatFCFA, formatFCFAShort, formatDate, severiteColor, CHART_COLORS } from "@/lib/format";
 import { COST_STRUCTURE_COLORS } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
