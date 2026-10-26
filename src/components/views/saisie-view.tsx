@@ -116,7 +116,7 @@ export function SaisieView() {
 
   const loadAlertes = useCallback(async () => {
     try {
-      const res = await fetch("/api/saisie?type=alertes");
+      const res = await fetch("/api/saisie?type=alertes", { credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
       setAlertes(data.alertes || []);
@@ -159,6 +159,7 @@ export function SaisieView() {
     try {
       const res = await fetch("/api/saisie", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, ...data }),
       });
@@ -414,9 +415,12 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const [espece, setEspece] = useState("BOVIN");
   const [gestionnaire, setGestionnaire] = useState("SAVERDEV");
   const [race, setRace] = useState("Zébu");
+  const [sexe, setSexe] = useState("Mâle");
   const [nbSujets, setNbSujets] = useState("1");
   const [prixUnitaire, setPrixUnitaire] = useState("");
   const [poids, setPoids] = useState("");
+  const [fournisseur, setFournisseur] = useState("");
+  const [numRecu, setNumRecu] = useState("");
   const [observations, setObservations] = useState("");
   const [saving, setSaving] = useState(false);
   const montant = Number(prixUnitaire || 0) * Number(nbSujets || 0);
@@ -424,9 +428,9 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const submit = async () => {
     if (!prixUnitaire) { toast.error("Prix requis"); return; }
     setSaving(true);
-    await onSave("achat", { date, espece, gestionnaire, race, nbSujets, prixUnitaire, poids, observations });
+    await onSave("achat", { date, espece, gestionnaire, race, sexe, nbSujets, prixUnitaire, poids, fournisseur, numRecu, observations });
     setSaving(false);
-    setPrixUnitaire(""); setPoids(""); setObservations("");
+    setPrixUnitaire(""); setPoids(""); setFournisseur(""); setNumRecu(""); setObservations("");
   };
 
   return (
@@ -456,10 +460,26 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
         </div>
         <div><Label className="text-xs">Race</Label><Input value={race} onChange={(e) => setRace(e.target.value)} className="h-11 text-sm" /></div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label className="text-xs">Fournisseur/Vendeur — facultatif</Label><Input value={fournisseur} onChange={(e) => setFournisseur(e.target.value)} className="h-11 text-sm" placeholder="Nom du vendeur" /></div>
+        <div><Label className="text-xs">N° de reçu — facultatif</Label><Input value={numRecu} onChange={(e) => setNumRecu(e.target.value)} className="h-11 text-sm" placeholder="N° facture/reçu" /></div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">Sexe</Label>
+          <Select value={sexe} onValueChange={setSexe}>
+            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Mâle" className="text-sm">Mâle</SelectItem>
+              <SelectItem value="Femelle" className="text-sm">Femelle</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div><Label className="text-xs">Nb sujets</Label><Input type="number" value={nbSujets} onChange={(e) => setNbSujets(e.target.value)} className="h-11 text-sm" min="1" /></div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="350000" /></div>
-        <div><Label className="text-xs">Poids (kg)</Label><Input type="number" value={poids} onChange={(e) => setPoids(e.target.value)} className="h-11 text-sm" placeholder="280" /></div>
+        <div><Label className="text-xs">Poids (kg) — facultatif</Label><Input type="number" value={poids} onChange={(e) => setPoids(e.target.value)} className="h-11 text-sm" placeholder="280" /></div>
       </div>
       {montant > 0 && <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit (6011) / Crédit (5711) : </span><span className="font-bold text-red-600">{formatFCFA(montant)}</span></div>}
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Marché, robe..." className="text-sm min-h-[60px]" /></div>
