@@ -493,7 +493,10 @@ function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const [espece, setEspece] = useState<"BOVIN" | "OVIN">("BOVIN");
   const [bovinId, setBovinId] = useState<string>("");
   const [acheteur, setAcheteur] = useState("");
+  const [numFacture, setNumFacture] = useState("");
+  const [designation, setDesignation] = useState("");
   const [prixUnitaire, setPrixUnitaire] = useState("");
+  const [tvaPct, setTvaPct] = useState("0");
   const [observations, setObservations] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -517,13 +520,18 @@ function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   // Animal sélectionné (pour réafficher son coût de revient).
   const selected = actifs.find((b) => b.id === bovinId) ?? null;
 
+  // Calculs HTVA / TVA / TTC
+  const htva = Number(prixUnitaire || 0);
+  const tva = Math.round(htva * Number(tvaPct || 0) / 100);
+  const ttc = htva + tva;
+
   const submit = async () => {
     if (!bovinId) { toast.error("Sélectionner un animal à vendre"); return; }
     if (!acheteur || !prixUnitaire) { toast.error("Acheteur et prix requis"); return; }
     setSaving(true);
-    await onSave("vente", { date, espece, bovinId, acheteur, nbSujets, prixUnitaire, observations });
+    await onSave("vente", { date, espece, bovinId, acheteur, nbSujets, prixUnitaire, numFacture, designation, htva, tvaPct, tva, ttc, observations });
     setSaving(false);
-    setBovinId(""); setAcheteur(""); setPrixUnitaire(""); setObservations("");
+    setBovinId(""); setAcheteur(""); setNumFacture(""); setDesignation(""); setPrixUnitaire(""); setTvaPct("0"); setObservations("");
   };
 
   return (
@@ -565,7 +573,13 @@ function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string,
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Acheteur</Label><Input value={acheteur} onChange={(e) => setAcheteur(e.target.value)} placeholder="Nom du client" className="h-11 text-sm" /></div>
-        <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="450000" /></div>
+        <div><Label className="text-xs">N° facture — facultatif</Label><Input value={numFacture} onChange={(e) => setNumFacture(e.target.value)} className="h-11 text-sm" placeholder="N° facture" /></div>
+      </div>
+      <div><Label className="text-xs">Désignation — facultatif</Label><Input value={designation} onChange={(e) => setDesignation(e.target.value)} className="h-11 text-sm" placeholder="Désignation de la vente" /></div>
+      <div className="grid grid-cols-3 gap-3">
+        <div><Label className="text-xs">Prix unit. HTVA (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="450000" /></div>
+        <div><Label className="text-xs">TVA (%)</Label><Input type="number" value={tvaPct} onChange={(e) => setTvaPct(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" max="100" /></div>
+        <div><Label className="text-xs">Montant TTC</Label><div className="h-11 rounded-md border border-input bg-muted/40 flex items-center px-3 text-sm font-bold tabular-nums">{formatFCFA(ttc, false)}</div></div>
       </div>
       {selected && (
         <div className="rounded-md bg-muted/60 border border-border px-3 py-2 text-xs text-muted-foreground">
@@ -581,16 +595,17 @@ function FormVente({ onSave }: { onSave: (type: SaisieType, data: Record<string,
 
 function FormDepense({ onSave }: { onSave: (type: SaisieType, data: Record<string, unknown>) => Promise<void> }) {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [categorie, setCategorie] = useState("Vétérinaire");
+  const [categorie, setCategorie] = useState("Alimentation");
   const [libelle, setLibelle] = useState("");
   const [montant, setMontant] = useState("");
+  const [modePaiement, setModePaiement] = useState("Comptant");
   const [observations, setObservations] = useState("");
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
     if (!libelle || !montant) { toast.error("Libellé et montant requis"); return; }
     setSaving(true);
-    await onSave("depense", { date, categorie, libelle, montant, observations });
+    await onSave("depense", { date, categorie, libelle, montant, modePaiement, observations });
     setSaving(false);
     setLibelle(""); setMontant(""); setObservations("");
   };
@@ -601,17 +616,32 @@ function FormDepense({ onSave }: { onSave: (type: SaisieType, data: Record<strin
         <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
         <div><Label className="text-xs">Catégorie</Label>
           <Select value={categorie} onValueChange={setCategorie}><SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger><SelectContent>
-            <SelectItem value="Vétérinaire" className="text-sm">Vétérinaire</SelectItem>
-            <SelectItem value="Salariat" className="text-sm">Salariat</SelectItem>
-            <SelectItem value="Immobilisation" className="text-sm">Immobilisation</SelectItem>
-            <SelectItem value="Aliment bétail" className="text-sm">Aliment bétail</SelectItem>
+            <SelectItem value="Alimentation" className="text-sm">Alimentation</SelectItem>
+            <SelectItem value="Salaires" className="text-sm">Salaires</SelectItem>
             <SelectItem value="Transport" className="text-sm">Transport</SelectItem>
-            <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
+            <SelectItem value="Matériel" className="text-sm">Matériel</SelectItem>
+            <SelectItem value="Gestion de l'eau" className="text-sm">Gestion de l'eau</SelectItem>
+            <SelectItem value="Santé" className="text-sm">Santé</SelectItem>
+            <SelectItem value="Loyer" className="text-sm">Loyer</SelectItem>
+            <SelectItem value="Communication" className="text-sm">Communication</SelectItem>
+            <SelectItem value="Événement" className="text-sm">Événement</SelectItem>
+            <SelectItem value="Immobilisation" className="text-sm">Immobilisation</SelectItem>
+            <SelectItem value="Autres" className="text-sm">Autres</SelectItem>
           </SelectContent></Select>
         </div>
       </div>
-      <div><Label className="text-xs">Libellé</Label><Input value={libelle} onChange={(e) => setLibelle(e.target.value)} placeholder="Description" className="h-11 text-sm" /></div>
-      <div><Label className="text-xs">Montant (FCFA)</Label><Input type="number" value={montant} onChange={(e) => setMontant(e.target.value)} className="h-11 text-sm" placeholder="50000" /></div>
+      <div><Label className="text-xs">Libellé</Label><Input value={libelle} onChange={(e) => setLibelle(e.target.value)} placeholder="Description de la dépense" className="h-11 text-sm" /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div><Label className="text-xs">Montant HTVA (FCFA)</Label><Input type="number" value={montant} onChange={(e) => setMontant(e.target.value)} className="h-11 text-sm" placeholder="50000" /></div>
+        <div><Label className="text-xs">Mode de paiement</Label>
+          <Select value={modePaiement} onValueChange={setModePaiement}><SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger><SelectContent>
+            <SelectItem value="Comptant" className="text-sm">Comptant</SelectItem>
+            <SelectItem value="Crédit" className="text-sm">Crédit</SelectItem>
+            <SelectItem value="Virement" className="text-sm">Virement</SelectItem>
+            <SelectItem value="Mobile Money" className="text-sm">Mobile Money</SelectItem>
+          </SelectContent></Select>
+        </div>
+      </div>
       {montant && Number(montant) > 0 && <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit : </span><span className="font-bold text-red-600">{formatFCFA(Number(montant))}</span></div>}
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Remarques..." className="text-sm min-h-[60px]" /></div>
       <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer la dépense</>}</Button>
@@ -624,36 +654,57 @@ function FormStock({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const [typeAliment, setTypeAliment] = useState("Tourteau de coton");
   const [entree, setEntree] = useState("");
   const [sortie, setSortie] = useState("");
+  const [stockInitial, setStockInitial] = useState("");
+  const [stockReel, setStockReel] = useState("");
   const [prixParSac, setPrixParSac] = useState("");
   const [observations, setObservations] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Calculs automatiques : stock final théorique + écart
+  const si = Number(stockInitial || 0);
+  const ent = Number(entree || 0);
+ const sor = Number(sortie || 0);
+ const stockFinalTheo = si + ent - sor;
+ const sr = stockReel ? Number(stockReel) : stockFinalTheo;
+ const ecart = stockFinalTheo - sr;
+
   const submit = async () => {
-    if (!entree && !sortie) { toast.error("Saisir une entrée ou sortie"); return; }
+    if (!entree && !sortie && !stockInitial && !stockReel) { toast.error("Saisir au moins une valeur"); return; }
     setSaving(true);
-    await onSave("stock", { date, typeAliment, entree, sortie, prixParSac, observations });
+    await onSave("stock", { date, typeAliment, entree, sortie, stockInitial, stockFinalTheo, stockReel: sr, ecart, prixParSac, observations });
     setSaving(false);
-    setEntree(""); setSortie(""); setPrixParSac(""); setObservations("");
+    setEntree(""); setSortie(""); setStockInitial(""); setStockReel(""); setPrixParSac(""); setObservations("");
   };
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>
-        <div><Label className="text-xs">Type d'aliment</Label>
+        <div><Label className="text-xs">Désignation (type d'aliment)</Label>
           <Select value={typeAliment} onValueChange={setTypeAliment}><SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger><SelectContent>
+            <SelectItem value="Sac 40kg" className="text-sm">Sac 40kg</SelectItem>
+            <SelectItem value="Croissance bœuf" className="text-sm">Croissance bœuf</SelectItem>
+            <SelectItem value="Finition vache laitière" className="text-sm">Finition vache laitière</SelectItem>
+            <SelectItem value="NL 25L" className="text-sm">NL 25L</SelectItem>
+            <SelectItem value="Pâtée à rôtir" className="text-sm">Pâtée à rôtir</SelectItem>
+            <SelectItem value="Paille" className="text-sm">Paille</SelectItem>
             <SelectItem value="Tourteau de coton" className="text-sm">Tourteau de coton</SelectItem>
-            <SelectItem value="Son" className="text-sm">Son</SelectItem>
-            <SelectItem value="Concentré" className="text-sm">Concentré</SelectItem>
+            <SelectItem value="Son de blé" className="text-sm">Son de blé</SelectItem>
             <SelectItem value="Autre" className="text-sm">Autre</SelectItem>
           </SelectContent></Select>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">
-        <div><Label className="text-xs">Entrée (sacs)</Label><Input type="number" value={entree} onChange={(e) => setEntree(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
-        <div><Label className="text-xs">Sortie (sacs)</Label><Input type="number" value={sortie} onChange={(e) => setSortie(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
-        <div><Label className="text-xs">Prix/sac</Label><Input type="number" value={prixParSac} onChange={(e) => setPrixParSac(e.target.value)} className="h-11 text-sm" placeholder="25000" /></div>
+        <div><Label className="text-xs">Stock initial — facultatif</Label><Input type="number" value={stockInitial} onChange={(e) => setStockInitial(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
+        <div><Label className="text-xs">Entrées (sacs)</Label><Input type="number" value={entree} onChange={(e) => setEntree(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
+        <div><Label className="text-xs">Sorties (sacs)</Label><Input type="number" value={sortie} onChange={(e) => setSortie(e.target.value)} className="h-11 text-sm" placeholder="0" min="0" /></div>
       </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div><Label className="text-xs">Stock final théorique (calculé)</Label><div className="h-11 rounded-md border border-input bg-muted/40 flex items-center px-3 text-sm font-bold tabular-nums">{stockFinalTheo}</div></div>
+        <div><Label className="text-xs">Stock réel — facultatif</Label><Input type="number" value={stockReel} onChange={(e) => setStockReel(e.target.value)} className="h-11 text-sm" placeholder="(= théorique)" min="0" /></div>
+        <div><Label className="text-xs">Écart (calculé)</Label><div className={`h-11 rounded-md border border-input flex items-center px-3 text-sm font-bold tabular-nums ${ecart === 0 ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{ecart > 0 ? "+" : ""}{ecart}</div></div>
+      </div>
+      <div><Label className="text-xs">Prix/sac (FCFA) — facultatif</Label><Input type="number" value={prixParSac} onChange={(e) => setPrixParSac(e.target.value)} className="h-11 text-sm" placeholder="25000" /></div>
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Fournisseur..." className="text-sm min-h-[60px]" /></div>
       <Button onClick={submit} disabled={saving} className="w-full h-12 text-sm bg-primary">{saving ? "Enregistrement..." : <><HugeiconsIcon icon={Plus} size={16} /> Enregistrer le mouvement</>}</Button>
     </div>
