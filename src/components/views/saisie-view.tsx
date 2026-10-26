@@ -418,7 +418,6 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const [sexe, setSexe] = useState("Mâle");
   const [nbSujets, setNbSujets] = useState("1");
   const [prixUnitaire, setPrixUnitaire] = useState("");
-  const [poids, setPoids] = useState("");
   const [fournisseur, setFournisseur] = useState("");
   const [numRecu, setNumRecu] = useState("");
   const [observations, setObservations] = useState("");
@@ -428,9 +427,9 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const submit = async () => {
     if (!prixUnitaire) { toast.error("Prix requis"); return; }
     setSaving(true);
-    await onSave("achat", { date, espece, gestionnaire, race, sexe, nbSujets, prixUnitaire, poids, fournisseur, numRecu, observations });
+    await onSave("achat", { date, espece, gestionnaire, race, sexe, nbSujets, prixUnitaire, fournisseur, numRecu, observations });
     setSaving(false);
-    setPrixUnitaire(""); setPoids(""); setFournisseur(""); setNumRecu(""); setObservations("");
+    setPrixUnitaire(""); setFournisseur(""); setNumRecu(""); setObservations("");
   };
 
   return (
@@ -479,7 +478,6 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Prix unit. (FCFA)</Label><Input type="number" value={prixUnitaire} onChange={(e) => setPrixUnitaire(e.target.value)} className="h-11 text-sm" placeholder="350000" /></div>
-        <div><Label className="text-xs">Poids (kg) — facultatif</Label><Input type="number" value={poids} onChange={(e) => setPoids(e.target.value)} className="h-11 text-sm" placeholder="280" /></div>
       </div>
       {montant > 0 && <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm"><span className="text-muted-foreground">Débit (6011) / Crédit (5711) : </span><span className="font-bold text-red-600">{formatFCFA(montant)}</span></div>}
       <div><Label className="text-xs">Observations</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Marché, robe..." className="text-sm min-h-[60px]" /></div>

@@ -113,7 +113,6 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "rentabilite", label: "Rentabilité", icon: BarChart3 },
   { key: "financement", label: "Financement", icon: Clock },
   { key: "tresorerie", label: "Trésorerie", icon: Wallet },
-  { key: "pesees", label: "Pesées", icon: Scale },
   { key: "soins", label: "Soins & vaccins", icon: CalendarClock },
   { key: "paturages", label: "Pâturages", icon: Map },
   { key: "rapport", label: "Rapport bailleur", icon: FileText },

@@ -38,10 +38,17 @@ import { toast } from "sonner";
 import type { Depense, BudgetItem } from "@/lib/types";
 
 const CATEGORIES = [
-  { key: "Soins vétérinaires", icon: Stethoscope, color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
-  { key: "Transport", icon: Truck, color: "text-sky-700 bg-sky-50 border-sky-200" },
-  { key: "Main-d'œuvre", icon: Users, color: "text-amber-700 bg-amber-50 border-amber-200" },
-  { key: "Autres", icon: Wrench, color: "text-muted-foreground bg-muted border-border" },
+  { key: "Alimentation", icon: Package, color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  { key: "Salaires", icon: Wallet, color: "text-amber-700 bg-amber-50 border-amber-200" },
+  { key: "Transport", icon: CreditCard, color: "text-sky-700 bg-sky-50 border-sky-200" },
+  { key: "Matériel", icon: HardDrive, color: "text-violet-700 bg-violet-50 border-violet-200" },
+  { key: "Gestion de l'eau", icon: Wallet, color: "text-blue-700 bg-blue-50 border-blue-200" },
+  { key: "Santé", icon: AlertTriangle, color: "text-rose-700 bg-rose-50 border-rose-200" },
+  { key: "Loyer", icon: HardDrive, color: "text-cyan-700 bg-cyan-50 border-cyan-200" },
+  { key: "Communication", icon: Receipt, color: "text-indigo-700 bg-indigo-50 border-indigo-200" },
+  { key: "Événement", icon: Calendar, color: "text-orange-700 bg-orange-50 border-orange-200" },
+  { key: "Immobilisation", icon: HardDrive, color: "text-stone-700 bg-stone-50 border-stone-200" },
+  { key: "Autres", icon: Receipt, color: "text-muted-foreground bg-muted border-border" },
 ] as const;
 
 export function DepensesView() {
