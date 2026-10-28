@@ -12,50 +12,50 @@ import type { BalanceComptable, BalanceLigne } from "@/lib/types";
 // ---- PLAN COMPTA SAVERDEV (extrait du PDF "PLAN COMPTA SAVERDEV.pdf") ----
 const LIBELLES_COMPTE: Record<string, string> = {
   // Classe 2 — Immobilisations
-  "2131": "Logiciels",
-  "2132": "Sites internets",
-  "2341": "Installations complexes spécialisées sur sol propre",
-  "2343": "Installations à caractère spécifique sur sol propre",
-  "2441": "Matériel de bureau",
-  "2442": "Matériel informatique",
-  "2444": "Mobilier de bureau",
-  "2813": "Amortissements des logiciels et sites internet",
-  "2834": "Amortissements des aménagements et installations techniques",
-  "2844": "Amortissements du matériel et mobilier",
-  "2845": "Amortissements du matériel de transport",
+  "213100": "Logiciels",
+  "213200": "Sites internets",
+  "234100": "Installations complexes spécialisées sur sol propre",
+  "234300": "Installations à caractère spécifique sur sol propre",
+  "244100": "Matériel de bureau",
+  "244200": "Matériel informatique",
+  "244400": "Mobilier de bureau",
+  "281300": "Amortissements des logiciels et sites internet",
+  "283400": "Amortissements des aménagements et installations techniques",
+  "284400": "Amortissements du matériel et mobilier",
+  "284500": "Amortissements du matériel de transport",
   // Classe 3 — Stocks
-  "3111": "Marchandises A1 (cheptel)",
-  "321":  "Matières A",
-  "3738": "Autres stocks (activités annexes)",
+  "311100": "Marchandises A1 (cheptel)",
+  "321000":  "Matières A",
+  "373800": "Autres stocks (activités annexes)",
   // Classe 4 — Tiers
-  "4111": "Clients",
+  "411100": "Clients",
   // Classe 5 — Trésorerie
-  "5711": "Caisse / Banque",
+  "571100": "Caisse / Banque",
   // Classe 6 — Charges
-  "6011": "Achats de marchandises dans la Région (cheptel)",
-  "6021": "Achats de matières premières et fournitures liées (aliments)",
-  "6031": "Variations des stocks de marchandises",
-  "6032": "Variations des stocks de matières premières",
-  "6033": "Variations des stocks d'autres approvisionnements",
-  "6051": "Fournitures non stockables - Eau",
-  "6052": "Fournitures non stockables - Electricité",
-  "6053": "Fournitures non stockables - Autres énergies",
-  "6056": "Achats de petit matériel et outillage",
-  "6057": "Achats d'études et prestations de services",
-  "612":  "Transports sur ventes",
-  "614":  "Transports du personnel",
-  "6222": "Locations de bâtiments",
-  "6228": "Locations et charges locatives diverses",
-  "6248": "Autres entretiens et réparations",
-  "6324": "Honoraires des professions règlementées",
-  "6327": "Rémunérations des autres prestataires de service",
-  "6611": "Appointements salaires et commissions",
-  "6615": "Indemnités de maladie versées aux travailleurs",
-  "6661": "Rémunération du travail de l'exploitant",
+  "601100": "Achats de marchandises dans la Région (cheptel)",
+  "602100": "Achats de matières premières et fournitures liées (aliments)",
+  "603100": "Variations des stocks de marchandises",
+  "603200": "Variations des stocks de matières premières",
+  "603300": "Variations des stocks d'autres approvisionnements",
+  "605100": "Fournitures non stockables - Eau",
+  "605200": "Fournitures non stockables - Electricité",
+  "605300": "Fournitures non stockables - Autres énergies",
+  "605600": "Achats de petit matériel et outillage",
+  "605700": "Achats d'études et prestations de services",
+  "612000":  "Transports sur ventes",
+  "614000":  "Transports du personnel",
+  "622200": "Locations de bâtiments",
+  "622800": "Locations et charges locatives diverses",
+  "624800": "Autres entretiens et réparations",
+  "632400": "Honoraires des professions règlementées",
+  "632700": "Rémunérations des autres prestataires de service",
+  "661100": "Appointements salaires et commissions",
+  "661500": "Indemnités de maladie versées aux travailleurs",
+  "666100": "Rémunération du travail de l'exploitant",
   // Classe 7 — Produits
-  "7011": "Ventes de marchandises dans la Région (cheptel)",
-  "7012": "Ventes de marchandises hors Région (cheptel)",
-  "7078": "Autres produits accessoires",
+  "701100": "Ventes de marchandises dans la Région (cheptel)",
+  "701200": "Ventes de marchandises hors Région (cheptel)",
+  "707800": "Autres produits accessoires",
 };
 
 // Ordre d'affichage (plan comptable par classe croissante)
@@ -63,17 +63,17 @@ const ORDRE_COMPTES = Object.keys(LIBELLES_COMPTE);
 
 // Mapping catégorie dépense → n° de compte SAVERDEV
 const CATEGORIE_VERS_COMPTE: Record<string, string> = {
-  "Alimentation": "6021",
-  "Salaires": "6611",
-  "Transport": "612",
-  "Matériel": "6056",
-  "Gestion de l'eau": "6051",
-  "Santé": "6248",
-  "Loyer": "6222",
-  "Communication": "6327",
-  "Événement": "6057",
-  "Immobilisation": "2341",
-  "Autres": "6248",
+  "Alimentation": "602100",
+  "Salaires": "661100",
+  "Transport": "612000",
+  "Matériel": "605600",
+  "Gestion de l'eau": "605100",
+  "Santé": "624800",
+  "Loyer": "622200",
+  "Communication": "632700",
+  "Événement": "605700",
+  "Immobilisation": "234100",
+  "Autres": "624800",
 };
 
 interface JournalEntrySimple {
@@ -91,8 +91,8 @@ async function getAchats(): Promise<JournalEntrySimple[]> {
       const montant = b.prixAchat;
       const libelle = `${b.identifiant} — ${b.race}`;
       return [
-        { numCompte: "6011", libelle, debit: montant, credit: 0 },
-        { numCompte: "5711", libelle, debit: 0, credit: montant },
+        { numCompte: "601100", libelle, debit: montant, credit: 0 },
+        { numCompte: "571100", libelle, debit: 0, credit: montant },
       ];
     });
   } catch { return []; }
@@ -109,8 +109,8 @@ async function getVentes(): Promise<JournalEntrySimple[]> {
       const montant = b.prixVente;
       const libelle = `${b.identifiant} — ${b.clientVente ?? "Client"}`;
       return [
-        { numCompte: "4111", libelle, debit: montant, credit: 0 },
-        { numCompte: "7011", libelle, debit: 0, credit: montant },
+        { numCompte: "411100", libelle, debit: montant, credit: 0 },
+        { numCompte: "701100", libelle, debit: 0, credit: montant },
       ];
     });
   } catch { return []; }
@@ -121,10 +121,10 @@ async function getDepenses(): Promise<JournalEntrySimple[]> {
   try {
     const depenses = await db.depense.findMany({ orderBy: { date: "desc" } });
     return depenses.flatMap((d) => {
-      const numCompte = CATEGORIE_VERS_COMPTE[d.categorie] ?? "6248";
+      const numCompte = CATEGORIE_VERS_COMPTE[d.categorie] ?? "624800";
       return [
         { numCompte, libelle: d.libelle, debit: d.montant, credit: 0 },
-        { numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
+        { numCompte: "571100", libelle: d.libelle, debit: 0, credit: d.montant },
       ];
     });
   } catch { return []; }
@@ -147,7 +147,7 @@ async function getVariationStocks(): Promise<JournalEntrySimple[]> {
       const variation = data.entree - data.sortie;
       const valeur = Math.abs(data.valeur);
       if (valeur > 0) {
-        const numCompte = variation >= 0 ? "6031" : "6032";
+        const numCompte = variation >= 0 ? "603100" : "603200";
         entries.push({
           numCompte,
           libelle: `Variation stock ${type}`,

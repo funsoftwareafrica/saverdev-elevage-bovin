@@ -100,8 +100,8 @@ export async function GET(req: NextRequest) {
         const montant = b.prixAchat;
         const date = b.dateAchat.toISOString().slice(0, 10).split("-").reverse().join("/");
         return [
-          { id: `${b.id}-d`, date, numCompte: "6011", libelle: `${b.identifiant} — ${b.race}`, debit: montant, credit: 0 },
-          { id: `${b.id}-c`, date, numCompte: "5711", libelle: `${b.identifiant} — ${b.race}`, debit: 0, credit: montant },
+          { id: `${b.id}-d`, date, numCompte: "601100", libelle: `${b.identifiant} — ${b.race}`, debit: montant, credit: 0 },
+          { id: `${b.id}-c`, date, numCompte: "571100", libelle: `${b.identifiant} — ${b.race}`, debit: 0, credit: montant },
         ];
       });
     } catch (e) {
@@ -118,8 +118,8 @@ export async function GET(req: NextRequest) {
         const montant = b.prixVente;
         const date = b.dateVente!.toISOString().slice(0, 10).split("-").reverse().join("/");
         return [
-          { id: `${b.id}-d`, date, numCompte: "4111", libelle: `${b.identifiant} — ${b.clientVente ?? "Client"}`, debit: montant, credit: 0 },
-          { id: `${b.id}-c`, date, numCompte: "7011", libelle: `${b.identifiant} — ${b.race}`, debit: 0, credit: montant },
+          { id: `${b.id}-d`, date, numCompte: "411100", libelle: `${b.identifiant} — ${b.clientVente ?? "Client"}`, debit: montant, credit: 0 },
+          { id: `${b.id}-c`, date, numCompte: "701100", libelle: `${b.identifiant} — ${b.race}`, debit: 0, credit: montant },
         ];
       });
     } catch (e) {
@@ -137,7 +137,7 @@ export async function GET(req: NextRequest) {
         const numCompte = d.categorie === "Vétérinaire" ? "615" : d.categorie === "Salariat" ? "661" : d.categorie === "Immobilisation" ? "23" : d.categorie === "Transport" ? "624" : d.categorie === "Aliment bétail" ? "6012" : "68";
         return [
           { id: `${d.id}-d`, date, numCompte, libelle: d.libelle, debit: d.montant, credit: 0 },
-          { id: `${d.id}-c`, date, numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
+          { id: `${d.id}-c`, date, numCompte: "571100", libelle: d.libelle, debit: 0, credit: d.montant },
         ];
       });
     } catch (e) {
@@ -215,7 +215,7 @@ export async function GET(req: NextRequest) {
       const date = d.date.toISOString().slice(0, 10).split("-").reverse().join("/");
       return [
         { id: `${d.id}-d`, date, numCompte: "23", libelle: d.libelle, debit: d.montant, credit: 0 },
-        { id: `${d.id}-c`, date, numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
+        { id: `${d.id}-c`, date, numCompte: "571100", libelle: d.libelle, debit: 0, credit: d.montant },
       ];
     });
     const totalDebit = entries.reduce((s, e) => s + e.debit, 0);
