@@ -33,12 +33,13 @@ export const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
 export const achatSchema = z.object({
   espece: z.enum(["BOVIN", "OVIN"]),
   race: z.string().min(1).max(100),
-  sexe: z.enum(["Mâle", "Femelle"]),
   date: z.string().regex(isoDateRegex, "Date invalide (format attendu YYYY-MM-DD)"),
   prixUnitaire: z.number().positive().max(10_000_000, "Prix unitaire trop élevé"),
   nbSujets: z.number().int().positive().max(1000, "Trop de sujets"),
-  poids: z.number().min(0).max(2000).optional(),
   gestionnaire: z.string().max(200).optional(),
+  fournisseur: z.string().max(200).optional(),
+  numRecu: z.string().max(200).optional(),
+  observations: z.string().max(500).optional(),
 });
 
 // ---------- Vente ----------
@@ -61,15 +62,21 @@ export const venteSchema = z.object({
 export const depenseSchema = z.object({
   date: z.string().regex(isoDateRegex, "Date invalide (format attendu YYYY-MM-DD)"),
   categorie: z.enum([
-    "Vétérinaire",
+    "Alimentation",
+    "Salaires",
     "Transport",
-    "Salariat",
-    "Aliment bétail",
+    "Matériel",
+    "Gestion de l'eau",
+    "Santé",
+    "Loyer",
+    "Communication",
+    "Événement",
     "Immobilisation",
     "Autres",
   ]),
   libelle: z.string().min(1).max(200),
   montant: z.number().positive().max(10_000_000, "Montant trop élevé"),
+  modePaiement: z.enum(["Comptant", "Crédit", "Virement", "Mobile Money"]).optional(),
   nbBovinsConcernes: z.number().int().min(0).max(1000).optional(),
 });
 

@@ -256,13 +256,13 @@ export function SaisieView() {
           </CardContent></Card>
 
           {/* Task 31-B : pour le journal "Suivi du capital", on affiche
-              le capital initial figé + résumé + mouvements (structure
+              le financement reçu figé + résumé + mouvements (structure
               différente des autres journaux qui sont en partie double). */}
           {activeType === "capital" && (
             <div className="space-y-3">
               <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
                 <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
-                  <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
+                  <HugeiconsIcon icon={Landmark} size={12} /> Financement reçu (figé)
                 </p>
                 <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(capitalInitial)}</p>
                 <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>
@@ -415,7 +415,6 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const [espece, setEspece] = useState("BOVIN");
   const [gestionnaire, setGestionnaire] = useState("SAVERDEV");
   const [race, setRace] = useState("Zébu");
-  const [sexe, setSexe] = useState("Mâle");
   const [nbSujets, setNbSujets] = useState("1");
   const [prixUnitaire, setPrixUnitaire] = useState("");
   const [fournisseur, setFournisseur] = useState("");
@@ -427,7 +426,7 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
   const submit = async () => {
     if (!prixUnitaire) { toast.error("Prix requis"); return; }
     setSaving(true);
-    await onSave("achat", { date, espece, gestionnaire, race, sexe, nbSujets, prixUnitaire, fournisseur, numRecu, observations });
+    await onSave("achat", { date, espece, gestionnaire, race, nbSujets, prixUnitaire, fournisseur, numRecu, observations });
     setSaving(false);
     setPrixUnitaire(""); setFournisseur(""); setNumRecu(""); setObservations("");
   };
@@ -464,16 +463,6 @@ function FormAchat({ onSave }: { onSave: (type: SaisieType, data: Record<string,
         <div><Label className="text-xs">N° de reçu — facultatif</Label><Input value={numRecu} onChange={(e) => setNumRecu(e.target.value)} className="h-11 text-sm" placeholder="N° facture/reçu" /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs">Sexe</Label>
-          <Select value={sexe} onValueChange={setSexe}>
-            <SelectTrigger className="h-11 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Mâle" className="text-sm">Mâle</SelectItem>
-              <SelectItem value="Femelle" className="text-sm">Femelle</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
         <div><Label className="text-xs">Nb sujets</Label><Input type="number" value={nbSujets} onChange={(e) => setNbSujets(e.target.value)} className="h-11 text-sm" min="1" /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -796,7 +785,7 @@ function FormCapitalMouvement({ onSave }: { onSave: (type: SaisieType, data: Rec
   return (
     <div className="space-y-3">
       <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-800">
-        <strong>Suivi du capital (mouvements horodatés).</strong> Le capital initial (14 775 000 FCFA) est figé — ces opérations viennent ajouter ou soustraire du capital. Visibles dans le rapport bailleur Section B.
+        <strong>Suivi du capital (mouvements horodatés).</strong> Le financement reçu (14 775 000 FCFA) est figé — ces opérations viennent ajouter ou soustraire du capital. Visibles dans le rapport bailleur Section B.
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div><Label className="text-xs">Date & heure</Label><Input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="h-11 text-sm" /></div>

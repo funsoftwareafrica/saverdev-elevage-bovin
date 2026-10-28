@@ -23,7 +23,7 @@ export async function POST() {
       results.push(`${t}: ${r.count} supprimés`);
     }
 
-    // Garder uniquement le paramètre "financement" (capital initial)
+    // Garder uniquement le paramètre "financement" (financement reçu)
     await db.parametre.deleteMany({ where: { NOT: { cle: "financement" } } });
     results.push("parametres: nettoyé (financement conservé)");
 

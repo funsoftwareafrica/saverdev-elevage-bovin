@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     );
   }
   // Task 31-B : "capital" est un alias client de l'ancien "financement" —
-  // renvoie le suivi du capital initial + mouvements horodatés. Anciennement
+  // renvoie le suivi du financement reçu + mouvements horodatés. Anciennement
   // exposé via GET /api/saisie?type=financement (qui répondait 404 depuis
   // la Task 29). On rétablit la disponibilité sous le nouvel alias.
   if (type === "capital") {
@@ -231,7 +231,7 @@ export async function GET(req: NextRequest) {
 
 // ============================================================
 //  Task 31-B : suivi du capital (alias client "capital")
-//  Renvoie le capital initial figé + la liste des mouvements
+//  Renvoie le financement reçu figé + la liste des mouvements
 //  horodatés (déplacé depuis /api/rapport-bailleur pour exposer
 //  un endpoint GET /api/saisie?type=capital dédié au journal
 //  de saisie "Suivi du capital" dans la vue Saisie).

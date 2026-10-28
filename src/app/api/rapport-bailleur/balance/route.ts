@@ -1,37 +1,80 @@
-// GET /api/rapport-bailleur/balance — balance comptable groupée par compte.
+// GET /api/rapport-bailleur/balance — balance comptable SAVERDEV (plan comptable officiel)
 //
-// Colonnes retournées pour chaque compte :
-//   - solde N-1 (débit / crédit) — figé à 0 (pas d'historique antérieur stocké)
-//   - mouvements N (débit / crédit) — agrégation des journaux achat/vente/dépense
-//   - solde N (débit / crédit) — mvt débit − mvt crédit
+// Utilise le PLAN COMPTA SAVERDEV complet. Seuls les comptes ayant des
+// mouvements sont affichés (les comptes à 0 sont filtrés).
 //
-// Reprend la logique qui était dans `/api/saisie?type=balance` (avant la Task 29).
-// La balance appartient désormais au rapport bailleur, pas à la vue Saisie.
+// Colonnes : Solde N-1 (0, pas d'historique) / Mouvements N (débit/crédit) / Solde N
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { BalanceComptable, BalanceLigne } from "@/lib/types";
 
-// Libellés des comptes du plan comptable SAVERDEV (cf. cahier des charges §6).
+// ---- PLAN COMPTA SAVERDEV (extrait du PDF "PLAN COMPTA SAVERDEV.pdf") ----
 const LIBELLES_COMPTE: Record<string, string> = {
-  "23": "Immobilisations",
+  // Classe 2 — Immobilisations
+  "2131": "Logiciels",
+  "2132": "Sites internets",
+  "2341": "Installations complexes spécialisées sur sol propre",
+  "2343": "Installations à caractère spécifique sur sol propre",
+  "2441": "Matériel de bureau",
+  "2442": "Matériel informatique",
+  "2444": "Mobilier de bureau",
+  "2813": "Amortissements des logiciels et sites internet",
+  "2834": "Amortissements des aménagements et installations techniques",
+  "2844": "Amortissements du matériel et mobilier",
+  "2845": "Amortissements du matériel de transport",
+  // Classe 3 — Stocks
+  "3111": "Marchandises A1 (cheptel)",
+  "321":  "Matières A",
+  "3738": "Autres stocks (activités annexes)",
+  // Classe 4 — Tiers
   "4111": "Clients",
+  // Classe 5 — Trésorerie
   "5711": "Caisse / Banque",
-  "6011": "Achats de bétail",
-  "6012": "Achats d'aliments",
-  "615": "Vétérinaire",
-  "624": "Transport",
-  "661": "Salariat",
-  "68": "Autres charges",
-  "7011": "Ventes de bétail",
+  // Classe 6 — Charges
+  "6011": "Achats de marchandises dans la Région (cheptel)",
+  "6021": "Achats de matières premières et fournitures liées (aliments)",
+  "6031": "Variations des stocks de marchandises",
+  "6032": "Variations des stocks de matières premières",
+  "6033": "Variations des stocks d'autres approvisionnements",
+  "6051": "Fournitures non stockables - Eau",
+  "6052": "Fournitures non stockables - Electricité",
+  "6053": "Fournitures non stockables - Autres énergies",
+  "6056": "Achats de petit matériel et outillage",
+  "6057": "Achats d'études et prestations de services",
+  "612":  "Transports sur ventes",
+  "614":  "Transports du personnel",
+  "6222": "Locations de bâtiments",
+  "6228": "Locations et charges locatives diverses",
+  "6248": "Autres entretiens et réparations",
+  "6324": "Honoraires des professions règlementées",
+  "6327": "Rémunérations des autres prestataires de service",
+  "6611": "Appointements salaires et commissions",
+  "6615": "Indemnités de maladie versées aux travailleurs",
+  "6661": "Rémunération du travail de l'exploitant",
+  // Classe 7 — Produits
+  "7011": "Ventes de marchandises dans la Région (cheptel)",
+  "7012": "Ventes de marchandises hors Région (cheptel)",
+  "7078": "Autres produits accessoires",
 };
 
-// Ordre d'affichage des comptes dans la balance (plan comptable SAVERDEV).
-const ORDRE_COMPTES = [
-  "23", "4111", "5711",
-  "6011", "6012", "615", "624", "661", "68",
-  "7011",
-];
+// Ordre d'affichage (plan comptable par classe croissante)
+const ORDRE_COMPTES = Object.keys(LIBELLES_COMPTE);
+
+// Mapping catégorie dépense → n° de compte SAVERDEV
+const CATEGORIE_VERS_COMPTE: Record<string, string> = {
+  "Alimentation": "6021",
+  "Salaires": "6611",
+  "Transport": "612",
+  "Matériel": "6056",
+  "Gestion de l'eau": "6051",
+  "Santé": "6248",
+  "Loyer": "6222",
+  "Communication": "6327",
+  "Événement": "6057",
+  "Immobilisation": "2341",
+  "Autres": "6248",
+};
 
 interface JournalEntrySimple {
   numCompte: string;
@@ -52,10 +95,7 @@ async function getAchats(): Promise<JournalEntrySimple[]> {
         { numCompte: "5711", libelle, debit: 0, credit: montant },
       ];
     });
-  } catch (e) {
-    console.error("balance.getAchats:", e);
-    return [];
-  }
+  } catch { return []; }
 }
 
 // Helper: journal de vente (compte 4111 débit / 7011 crédit)
@@ -73,83 +113,98 @@ async function getVentes(): Promise<JournalEntrySimple[]> {
         { numCompte: "7011", libelle, debit: 0, credit: montant },
       ];
     });
-  } catch (e) {
-    console.error("balance.getVentes:", e);
-    return [];
-  }
+  } catch { return []; }
 }
 
-// Helper: journal de dépenses (compte 6xxx débit / 5711 crédit)
+// Helper: journal des dépenses (mapping catégorie → compte SAVERDEV)
 async function getDepenses(): Promise<JournalEntrySimple[]> {
   try {
     const depenses = await db.depense.findMany({ orderBy: { date: "desc" } });
     return depenses.flatMap((d) => {
-      const numCompte =
-        d.categorie === "Vétérinaire" ? "615"
-        : d.categorie === "Salariat" ? "661"
-        : d.categorie === "Immobilisation" ? "23"
-        : d.categorie === "Transport" ? "624"
-        : d.categorie === "Aliment bétail" ? "6012"
-        : "68";
+      const numCompte = CATEGORIE_VERS_COMPTE[d.categorie] ?? "6248";
       return [
         { numCompte, libelle: d.libelle, debit: d.montant, credit: 0 },
         { numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
       ];
     });
-  } catch (e) {
-    console.error("balance.getDepenses:", e);
-    return [];
-  }
+  } catch { return []; }
+}
+
+// Helper: variations de stocks (compte 6031/6032/6033)
+async function getVariationStocks(): Promise<JournalEntrySimple[]> {
+  try {
+    const mouvements = await db.stockMouvement.findMany();
+    // Pour chaque type d'aliment, calculer entrées - sorties
+    const parType: Record<string, { entree: number; sortie: number; valeur: number }> = {};
+    for (const m of mouvements) {
+      if (!parType[m.typeAliment]) parType[m.typeAliment] = { entree: 0, sortie: 0, valeur: 0 };
+      parType[m.typeAliment].entree += m.entree;
+      parType[m.typeAliment].sortie += m.sortie;
+      parType[m.typeAliment].valeur += (m.entree - m.sortie) * m.prixParSac;
+    }
+    const entries: JournalEntrySimple[] = [];
+    for (const [type, data] of Object.entries(parType)) {
+      const variation = data.entree - data.sortie;
+      const valeur = Math.abs(data.valeur);
+      if (valeur > 0) {
+        const numCompte = variation >= 0 ? "6031" : "6032";
+        entries.push({
+          numCompte,
+          libelle: `Variation stock ${type}`,
+          debit: variation < 0 ? valeur : 0,
+          credit: variation >= 0 ? valeur : 0,
+        });
+      }
+    }
+    return entries;
+  } catch { return []; }
 }
 
 export async function GET() {
-  const [achats, ventes, depenses] = await Promise.all([
+  const [achats, ventes, depenses, variationsStock] = await Promise.all([
     getAchats(),
     getVentes(),
     getDepenses(),
+    getVariationStocks(),
   ]);
-  const allEntries = [...achats, ...ventes, ...depenses];
+
+  const allEntries = [...achats, ...ventes, ...depenses, ...variationsStock];
 
   // Regrouper par numéro de compte
-  const parCompte: Record<string, { totalDebit: number; totalCredit: number }> = {};
+  const parCompte: Record<string, { numCompte: string; libelle: string; totalDebit: number; totalCredit: number; solde: number; conclusion: string }> = {};
   for (const e of allEntries) {
     if (!parCompte[e.numCompte]) {
-      parCompte[e.numCompte] = { totalDebit: 0, totalCredit: 0 };
+      parCompte[e.numCompte] = {
+        numCompte: e.numCompte,
+        libelle: LIBELLES_COMPTE[e.numCompte] ?? e.libelle.split(" — ")[0] ?? "Inconnu",
+        totalDebit: 0, totalCredit: 0, solde: 0, conclusion: "",
+      };
     }
     parCompte[e.numCompte].totalDebit += e.debit;
     parCompte[e.numCompte].totalCredit += e.credit;
   }
 
-  // Construire les lignes dans l'ordre du plan comptable
-  const lignes: BalanceLigne[] = ORDRE_COMPTES.map((numCompte) => {
-    const agg = parCompte[numCompte] ?? { totalDebit: 0, totalCredit: 0 };
-    const solde = agg.totalDebit - agg.totalCredit;
-    const soldeDebit = solde > 0 ? Math.abs(solde) : 0;
-    const soldeCredit = solde < 0 ? Math.abs(solde) : 0;
-    return {
-      numCompte,
-      libelle: LIBELLES_COMPTE[numCompte] ?? "",
-      soldeN1Debit: 0,   // N-1 figé : pas d'historique antérieur stocké
-      soldeN1Credit: 0,
-      mvtNDebit: agg.totalDebit,
-      mvtNCredit: agg.totalCredit,
-      soldeNDebit: soldeDebit,
-      soldeNCredit: soldeCredit,
-    };
-  });
+  // Filtrer : ne garder QUE les comptes qui ont des mouvements (non-zéro)
+  const balance: BalanceLigne[] = ORDRE_COMPTES
+    .filter((num) => parCompte[num] && (parCompte[num].totalDebit > 0 || parCompte[num].totalCredit > 0))
+    .map((num) => {
+      const c = parCompte[num];
+      c.solde = c.totalDebit - c.totalCredit;
+      c.conclusion = c.solde > 0 ? "Débitaire" : c.solde < 0 ? "Créditaire" : "Soldé";
+      return c;
+    });
 
-  const totalDebitGeneral = lignes.reduce((s, l) => s + l.mvtNDebit, 0);
-  const totalCreditGeneral = lignes.reduce((s, l) => s + l.mvtNCredit, 0);
-  const soldeDebitGeneral = lignes.reduce((s, l) => s + l.soldeNDebit, 0);
-  const soldeCreditGeneral = lignes.reduce((s, l) => s + l.soldeNCredit, 0);
+  const totalDebitGeneral = balance.reduce((s, c) => s + c.totalDebit, 0);
+  const totalCreditGeneral = balance.reduce((s, c) => s + c.totalCredit, 0);
+  const soldeGeneral = totalDebitGeneral - totalCreditGeneral;
 
-  const balance: BalanceComptable = {
-    lignes,
+  const result: BalanceComptable = {
+    lignes: balance,
     totalDebitGeneral,
     totalCreditGeneral,
-    soldeDebitGeneral,
-    soldeCreditGeneral,
+    soldeGeneral,
+    conclusionGeneral: soldeGeneral > 0 ? "Solde général débitaire" : soldeGeneral < 0 ? "Solde général créditaire" : "Solde équilibré",
   };
 
-  return NextResponse.json(balance);
+  return NextResponse.json(result);
 }

@@ -43,6 +43,8 @@ export function DashboardView() {
   const { data: bovinsList } = useBovins();
   const role = useAppStore((s) => s.role);
   const dashboardMode = useAppStore((s) => s.dashboardMode);
+  const clearData = useClearData();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
 
   // Mode effectif : "auto" → on prend le rôle de l'utilisateur
@@ -118,7 +120,7 @@ export function DashboardView() {
             <p className="text-sm text-muted-foreground mb-4">
               Cette action va <strong>supprimer définitivement</strong> tous les animaux, ventes, achats, dépenses, alimentations, stocks, mouvements de capital, historique, alertes, etc.
               <br /><br />
-              Seuls les <strong>comptes utilisateurs</strong> et le <strong>capital initial (14 775 000 FCFA)</strong> seront conservés.
+              Seuls les <strong>comptes utilisateurs</strong> et le <strong>financement reçu (14 775 000 FCFA)</strong> seront conservés.
               <br /><br />
               <strong>Cette action est irréversible.</strong>
             </p>

@@ -7,7 +7,7 @@
 // Task 29 — refonte historique :
 //  - Suppression du BarChart "Achats vs Ventes" (redondant avec Saisie).
 //  - Section A : Balance comptable (N-1 figé / mouvements N / solde N).
-//  - Section B : Suivi du financement (capital initial + mouvements horodatés +
+//  - Section B : Suivi du financement (financement reçu + mouvements horodatés +
 //                formulaire d'ajout — déplacé depuis la vue Saisie).
 //  - Section C : Suivi budgétaire (Investissement / Opérationnel / Trésorerie).
 //  - Section D : Dépenses d'investissement en immobilisations + dialog d'ajout.
@@ -545,10 +545,10 @@ function SuiviFinancement({
 }: SuiviFinancementProps) {
   return (
     <>
-      {/* Capital initial — toujours visible, non modifié */}
+      {/* Financement reçu — toujours visible, non modifié */}
       <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 text-center">
         <p className="text-[0.6rem] uppercase tracking-wide text-primary font-semibold flex items-center justify-center gap-1.5">
-          <HugeiconsIcon icon={Landmark} size={12} /> Capital initial (figé)
+          <HugeiconsIcon icon={Landmark} size={12} /> Financement reçu (figé)
         </p>
         <p className="text-xl font-extrabold text-primary tabular-nums mt-0.5">{formatFCFA(capitalInitial)}</p>
         <p className="text-[0.55rem] text-muted-foreground">Cette valeur n'est jamais modifiée par les mouvements ci-dessous</p>

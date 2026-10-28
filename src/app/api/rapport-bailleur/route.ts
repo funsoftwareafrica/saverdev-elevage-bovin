@@ -29,10 +29,10 @@ function exerciceMonths(year: number): { key: string; label: string }[] {
   }));
 }
 
-// Capital initial par défaut (utilisé si aucun Parametre "capital_initial" en DB)
+// Financement reçu par défaut (utilisé si aucun Parametre "capital_initial" en DB)
 const CAPITAL_INITIAL_DEFAUT = 14_775_000;
 
-/** Récupère le capital initial depuis la table Parametre (statique, immuable
+/** Récupère le financement reçu depuis la table Parametre (statique, immuable
  *  depuis l'UI). Si absent, retourne la valeur par défaut. */
 async function getCapitalInitial(): Promise<number> {
   try {
@@ -203,7 +203,7 @@ function computeBudget(ctx: BudgetCtx): BudgetRapport {
     ligneBudget("Autres charges", 50_000, ctx.depensesParCat["Autre"] ?? 0),
   ];
   const tresorerie: BudgetLigne[] = [
-    ligneBudget("Capital initial", 14_775_000, ctx.capitalInitial),
+    ligneBudget("Financement reçu", 14_775_000, ctx.capitalInitial),
     ligneBudget("Apports", 0, ctx.capitalEntrees),
     ligneBudget("Retraits", 0, ctx.capitalSorties),
     ligneBudget("Solde net", 14_775_000, ctx.soldeCapital),
