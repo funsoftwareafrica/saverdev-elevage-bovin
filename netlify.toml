@@ -1,0 +1,19 @@
+# Netlify configuration for SAVERDEV (Next.js 16 + Prisma)
+
+[build]
+  command = "npx prisma generate --schema=prisma/schema.prisma && next build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Critical: Include Prisma engine binaries in the Lambda bundle
+[functions]
+  external_node_modules = ["@prisma/client", "bcryptjs"]
+  included_files = ["node_modules/.prisma/**/*", "node_modules/@prisma/client/**/*"]
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Next.js handles routing — no custom redirects needed

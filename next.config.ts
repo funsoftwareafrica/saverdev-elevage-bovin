@@ -10,3 +10,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Désactiver le telemetry Next.js
+process.env.NEXT_TELEMETRY_DISABLED = "1";
