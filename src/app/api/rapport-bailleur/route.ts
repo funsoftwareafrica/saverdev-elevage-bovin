@@ -54,31 +54,71 @@ function formatDateTimeFR(d: Date): string {
 }
 
 // ---------- Helpers balance comptable ----------
-// Libellés + ordre des comptes du plan comptable SAVERDEV.
+// Plan comptable SAVERDEV officiel (6 chiffres) — seuls les comptes avec données sont affichés.
 const LIBELLES_COMPTE: Record<string, string> = {
-  "23": "Immobilisations",
-  "4111": "Clients",
-  "5711": "Caisse / Banque",
-  "6011": "Achats de bétail",
-  "6012": "Achats d'aliments",
-  "615": "Vétérinaire",
-  "624": "Transport",
-  "661": "Salariat",
-  "68": "Autres charges",
-  "7011": "Ventes de bétail",
+  // Classe 2 — Immobilisations
+  "213100": "Logiciels",
+  "213200": "Sites internets",
+  "234100": "Installations complexes spécialisées sur sol propre",
+  "234300": "Installations à caractère spécifique sur sol propre",
+  "244100": "Matériel de bureau",
+  "244200": "Matériel informatique",
+  "244400": "Mobilier de bureau",
+  "281300": "Amortissements des logiciels et sites internet",
+  "283400": "Amortissements des aménagements et installations techniques",
+  "284400": "Amortissements du matériel et mobilier",
+  "284500": "Amortissements du matériel de transport",
+  // Classe 3 — Stocks
+  "311100": "Marchandises A1 (cheptel)",
+  "321000": "Matières A",
+  "373800": "Autres stocks (activités annexes)",
+  // Classe 4 — Tiers
+  "411100": "Clients",
+  // Classe 5 — Trésorerie
+  "571100": "Caisse / Banque",
+  // Classe 6 — Charges
+  "601100": "Achats de marchandises dans la Région (cheptel)",
+  "602100": "Achats de matières premières et fournitures liées (aliments)",
+  "603100": "Variations des stocks de marchandises",
+  "603200": "Variations des stocks de matières premières",
+  "603300": "Variations des stocks d'autres approvisionnements",
+  "605100": "Fournitures non stockables - Eau",
+  "605200": "Fournitures non stockables - Electricité",
+  "605300": "Fournitures non stockables - Autres énergies",
+  "605600": "Achats de petit matériel et outillage",
+  "605700": "Achats d'études et prestations de services",
+  "612000": "Transports sur ventes",
+  "614000": "Transports du personnel",
+  "622200": "Locations de bâtiments",
+  "622800": "Locations et charges locatives diverses",
+  "624800": "Autres entretiens et réparations",
+  "632400": "Honoraires des professions règlementées",
+  "632700": "Rémunérations des autres prestataires de service",
+  "661100": "Appointements salaires et commissions",
+  "661500": "Indemnités de maladie versées aux travailleurs",
+  "666100": "Rémunération du travail de l'exploitant",
+  // Classe 7 — Produits
+  "701100": "Ventes de marchandises dans la Région (cheptel)",
+  "701200": "Ventes de marchandises hors Région (cheptel)",
+  "707800": "Autres produits accessoires",
 };
-const ORDRE_COMPTES = ["23", "4111", "5711", "6011", "6012", "615", "624", "661", "68", "7011"];
+const ORDRE_COMPTES = Object.keys(LIBELLES_COMPTE);
 
 interface JournalEntrySimple { numCompte: string; libelle: string; debit: number; credit: number; }
 
 function numeroCompteDepense(categorie: string): string {
   switch (categorie) {
-    case "Vétérinaire": return "615";
-    case "Salariat": return "661";
-    case "Immobilisation": return "23";
-    case "Transport": return "624";
-    case "Aliment bétail": return "6012";
-    default: return "68";
+    case "Alimentation": return "602100";
+    case "Salaires": return "661100";
+    case "Transport": return "612000";
+    case "Matériel": return "605600";
+    case "Gestion de l'eau": return "605100";
+    case "Santé": return "624800";
+    case "Loyer": return "622200";
+    case "Communication": return "632700";
+    case "Événement": return "605700";
+    case "Immobilisation": return "234100";
+    default: return "624800";
   }
 }
 
@@ -95,20 +135,26 @@ function computeBalance(
     parCompte[e.numCompte].totalDebit += e.debit;
     parCompte[e.numCompte].totalCredit += e.credit;
   }
-  const lignes: BalanceLigne[] = ORDRE_COMPTES.map((numCompte) => {
-    const agg = parCompte[numCompte] ?? { totalDebit: 0, totalCredit: 0 };
-    const solde = agg.totalDebit - agg.totalCredit;
-    return {
-      numCompte,
-      libelle: LIBELLES_COMPTE[numCompte] ?? "",
-      soldeN1Debit: 0,
-      soldeN1Credit: 0,
-      mvtNDebit: agg.totalDebit,
-      mvtNCredit: agg.totalCredit,
-      soldeNDebit: solde > 0 ? Math.abs(solde) : 0,
-      soldeNCredit: solde < 0 ? Math.abs(solde) : 0,
-    };
-  });
+  // Filtrer : ne garder QUE les comptes avec mouvements non-zéro
+  const lignes: BalanceLigne[] = ORDRE_COMPTES
+    .filter((numCompte) => {
+      const agg = parCompte[numCompte];
+      return agg && (agg.totalDebit > 0 || agg.totalCredit > 0);
+    })
+    .map((numCompte) => {
+      const agg = parCompte[numCompte];
+      const solde = agg.totalDebit - agg.totalCredit;
+      return {
+        numCompte,
+        libelle: LIBELLES_COMPTE[numCompte] ?? "",
+        soldeN1Debit: 0,
+        soldeN1Credit: 0,
+        mvtNDebit: agg.totalDebit,
+        mvtNCredit: agg.totalCredit,
+        soldeNDebit: solde > 0 ? Math.abs(solde) : 0,
+        soldeNCredit: solde < 0 ? Math.abs(solde) : 0,
+      };
+    });
   return {
     lignes,
     totalDebitGeneral: lignes.reduce((s, l) => s + l.mvtNDebit, 0),
@@ -350,8 +396,8 @@ export async function GET(req: Request) {
     const montant = b.prixAchat;
     const libelle = `${b.identifiant} — ${b.race}`;
     return [
-      { numCompte: "6011", libelle, debit: montant, credit: 0 },
-      { numCompte: "5711", libelle, debit: 0, credit: montant },
+      { numCompte: "601100", libelle, debit: montant, credit: 0 },
+      { numCompte: "571100", libelle, debit: 0, credit: montant },
     ];
   });
   const ventesEntries: JournalEntrySimple[] = bovinsRaw
@@ -360,15 +406,15 @@ export async function GET(req: Request) {
       const montant = b.prixVente;
       const libelle = `${b.identifiant} — ${b.clientVente ?? "Client"}`;
       return [
-        { numCompte: "4111", libelle, debit: montant, credit: 0 },
-        { numCompte: "7011", libelle, debit: 0, credit: montant },
+        { numCompte: "411100", libelle, debit: montant, credit: 0 },
+        { numCompte: "701100", libelle, debit: 0, credit: montant },
       ];
     });
   const depensesEntries: JournalEntrySimple[] = depenses.flatMap((d) => {
     const numCompte = numeroCompteDepense(d.categorie);
     return [
       { numCompte, libelle: d.libelle, debit: d.montant, credit: 0 },
-      { numCompte: "5711", libelle: d.libelle, debit: 0, credit: d.montant },
+      { numCompte: "571100", libelle: d.libelle, debit: 0, credit: d.montant },
     ];
   });
   const balance = computeBalance(achatsEntries, ventesEntries, depensesEntries);
